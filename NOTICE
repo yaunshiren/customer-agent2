@@ -21,5 +21,9 @@ https://github.com/pytorch/pytorch
 The default BAAI/bge-base-zh-v1.5 model is distributed under the MIT License:
 https://huggingface.co/BAAI/bge-base-zh-v1.5
 
+Python integration with PostgreSQL vector columns uses pgvector-python,
+distributed under the MIT License:
+https://github.com/pgvector/pgvector-python
+
 Model weights are downloaded separately by the user and are not included in
 this repository.

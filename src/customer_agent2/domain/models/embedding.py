@@ -23,6 +23,7 @@ class EmbeddingResult:
     """Validated embedding batch with explicit model capabilities."""
 
     model_id: str
+    model_revision: str
     vectors: tuple[tuple[float, ...], ...]
     dimension: int
     normalized: bool
@@ -30,6 +31,8 @@ class EmbeddingResult:
     def __post_init__(self) -> None:
         if not self.model_id.strip():
             raise ValueError("EmbeddingResult.model_id 不能为空")
+        if not self.model_revision.strip():
+            raise ValueError("EmbeddingResult.model_revision 不能为空")
         if self.dimension < 1:
             raise ValueError("EmbeddingResult.dimension 必须大于 0")
         if not self.vectors:
@@ -45,6 +48,9 @@ class EmbeddingModel(Protocol):
 
     @property
     def model_id(self) -> str: ...
+
+    @property
+    def revision(self) -> str: ...
 
     @property
     def dimension(self) -> int: ...

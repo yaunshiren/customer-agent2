@@ -28,6 +28,7 @@ async def test_real_bge_base_zh_outputs_normalized_768_dimension_vectors(
     )
 
     assert result.model_id == "BAAI/bge-base-zh-v1.5"
+    assert result.model_revision == "f03589ceff5aac7111bd60cfc7d497ca17ecac65"
     assert len(result.vectors) == 2
     assert result.dimension == 768
     assert result.normalized is True

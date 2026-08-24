@@ -83,6 +83,11 @@ def test_settings_protect_fixed_embedding_baseline_capabilities() -> None:
         Settings(local_embedding_max_tokens=1024)
 
 
+def test_settings_reject_empty_embedding_revision() -> None:
+    with pytest.raises(ValidationError, match="不能为空"):
+        Settings(local_embedding_revision=" ")
+
+
 def test_settings_require_credentials_when_rerank_is_enabled() -> None:
     with pytest.raises(ValidationError, match="DASHSCOPE_API_KEY"):
         Settings.model_validate(

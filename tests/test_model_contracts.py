@@ -35,6 +35,7 @@ def test_embedding_result_rejects_wrong_dimension_and_non_finite_values() -> Non
     with pytest.raises(ValueError, match="维度"):
         EmbeddingResult(
             model_id="embedding",
+            model_revision="revision",
             vectors=((0.1, 0.2),),
             dimension=3,
             normalized=False,
@@ -43,6 +44,7 @@ def test_embedding_result_rejects_wrong_dimension_and_non_finite_values() -> Non
     with pytest.raises(ValueError, match="NaN"):
         EmbeddingResult(
             model_id="embedding",
+            model_revision="revision",
             vectors=((math.nan,),),
             dimension=1,
             normalized=False,

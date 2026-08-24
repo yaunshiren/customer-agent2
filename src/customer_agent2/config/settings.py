@@ -42,6 +42,7 @@ class Settings(BaseSettings):
 
     embedding_provider: Literal["local"] = "local"
     local_embedding_model: str = "BAAI/bge-base-zh-v1.5"
+    local_embedding_revision: str = "f03589ceff5aac7111bd60cfc7d497ca17ecac65"
     local_embedding_dimension: int = Field(default=768, ge=1)
     local_embedding_max_tokens: int = Field(default=512, ge=1)
     local_embedding_device: str = "cpu"
@@ -106,6 +107,7 @@ class Settings(BaseSettings):
         "chat_model_final",
         "chat_model_fast",
         "local_embedding_model",
+        "local_embedding_revision",
         "local_embedding_device",
         "rerank_model",
     )

@@ -10,13 +10,8 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase
 
 from customer_agent2.config import Settings
-
-
-class Base(DeclarativeBase):
-    """Declarative metadata root reserved for later domain tables."""
 
 
 @dataclass(frozen=True, slots=True)

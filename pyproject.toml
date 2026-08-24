@@ -17,6 +17,7 @@ dependencies = [
     "asyncpg>=0.30,<1",
     "fastapi>=0.115,<1",
     "openai>=1.109,<2",
+    "pgvector>=0.5,<1",
     "pydantic-settings>=2.7,<3",
     "redis>=5.2,<7",
     "sentence-transformers>=5.7,<6",
@@ -45,6 +46,7 @@ where = ["src"]
 addopts = "-q --strict-config --strict-markers"
 asyncio_mode = "auto"
 markers = [
+    "database_integration: requires the local PostgreSQL and migrated pgvector schema",
     "model_smoke: requires local model weights and runs real CPU inference",
 ]
 testpaths = ["tests"]

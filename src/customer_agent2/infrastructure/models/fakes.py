@@ -93,16 +93,18 @@ class FakeEmbeddingModel:
         self,
         model_id: str = "fake-embedding",
         *,
+        revision: str = "fake-revision",
         dimension: int = 8,
         max_tokens: int = 512,
         normalized: bool = True,
         error: ModelError | None = None,
     ) -> None:
-        if not model_id.strip():
-            raise ValueError("model_id 不能为空")
+        if not model_id.strip() or not revision.strip():
+            raise ValueError("model_id 和 revision 不能为空")
         if dimension < 1 or max_tokens < 1:
             raise ValueError("dimension 和 max_tokens 必须大于 0")
         self._model_id = model_id
+        self._revision = revision
         self._dimension = dimension
         self._max_tokens = max_tokens
         self._normalized = normalized
@@ -118,6 +120,11 @@ class FakeEmbeddingModel:
     def dimension(self) -> int:
         """Return the configured vector dimension."""
         return self._dimension
+
+    @property
+    def revision(self) -> str:
+        """Return the configured fake model revision."""
+        return self._revision
 
     @property
     def max_tokens(self) -> int:
@@ -143,6 +150,7 @@ class FakeEmbeddingModel:
         vectors = tuple(self._vector_for(text) for text in request.texts)
         return EmbeddingResult(
             model_id=self.model_id,
+            model_revision=self.revision,
             vectors=vectors,
             dimension=self.dimension,
             normalized=self.normalized,

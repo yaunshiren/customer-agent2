@@ -94,6 +94,7 @@ async def test_fake_embedding_is_deterministic_finite_and_normalized() -> None:
     second = await model.embed(request)
 
     assert first == second
+    assert first.model_revision == model.revision
     assert len(first.vectors) == 2
     assert all(len(vector) == 8 for vector in first.vectors)
     assert all(math.isfinite(value) for vector in first.vectors for value in vector)

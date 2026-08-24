@@ -240,12 +240,18 @@ P0 规划事件类型：
 
 ### PostgreSQL/pgvector
 
-规划保存：
+M2-A 已实现：
 
 - knowledge_bases
 - documents
 - document_versions
 - chunks（包含 embedding）
+
+这四张表采用版本隔离、单一 active 版本和固定 768 维 Cosine HNSW 索引，详细决策见
+[ADR-0002](adr/0002-document-index-schema.md)。当前尚未实现解析、入库用例和在线检索。
+
+后续规划保存：
+
 - conversations
 - messages
 - conversation_summaries

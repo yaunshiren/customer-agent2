@@ -31,7 +31,7 @@ class SentenceTransformerBackend(Protocol):
     ) -> object: ...
 
 
-BackendFactory = Callable[[str, str], SentenceTransformerBackend]
+BackendFactory = Callable[[str, str, str], SentenceTransformerBackend]
 
 
 class SentenceTransformerEmbeddingModel:
@@ -41,6 +41,7 @@ class SentenceTransformerEmbeddingModel:
         self,
         *,
         model_id: str,
+        revision: str,
         dimension: int,
         max_tokens: int,
         device: str,
@@ -49,13 +50,15 @@ class SentenceTransformerEmbeddingModel:
         backend_factory: BackendFactory | None = None,
     ) -> None:
         normalized_model_id = model_id.strip()
+        normalized_revision = revision.strip()
         normalized_device = device.strip()
-        if not normalized_model_id or not normalized_device:
-            raise _configuration_error("本地 Embedding 模型或设备未配置")
+        if not normalized_model_id or not normalized_revision or not normalized_device:
+            raise _configuration_error("本地 Embedding 模型、版本或设备未配置")
         if dimension < 1 or max_tokens < 1 or batch_size < 1:
             raise _configuration_error("本地 Embedding 数值配置无效")
 
         self._model_id = normalized_model_id
+        self._revision = normalized_revision
         self._dimension = dimension
         self._max_tokens = max_tokens
         self._device = normalized_device
@@ -75,6 +78,7 @@ class SentenceTransformerEmbeddingModel:
         """Build the adapter entirely from validated application settings."""
         return cls(
             model_id=settings.local_embedding_model,
+            revision=settings.local_embedding_revision,
             dimension=settings.local_embedding_dimension,
             max_tokens=settings.local_embedding_max_tokens,
             device=settings.local_embedding_device,
@@ -92,6 +96,11 @@ class SentenceTransformerEmbeddingModel:
     def dimension(self) -> int:
         """Return the vector dimension required by the index."""
         return self._dimension
+
+    @property
+    def revision(self) -> str:
+        """Return the immutable upstream model revision."""
+        return self._revision
 
     @property
     def max_tokens(self) -> int:
@@ -139,6 +148,7 @@ class SentenceTransformerEmbeddingModel:
                 raise ValueError("batch shape mismatch")
             result = EmbeddingResult(
                 model_id=self._model_id,
+                model_revision=self._revision,
                 vectors=vectors,
                 dimension=self._dimension,
                 normalized=self._normalized,
@@ -165,7 +175,7 @@ class SentenceTransformerEmbeddingModel:
         if self._backend is not None:
             return self._backend
         try:
-            backend = self._backend_factory(self._model_id, self._device)
+            backend = self._backend_factory(self._model_id, self._revision, self._device)
         except Exception:
             raise ModelError(
                 ModelErrorCode.UNAVAILABLE,
@@ -181,12 +191,17 @@ class SentenceTransformerEmbeddingModel:
         return backend
 
 
-def _load_sentence_transformer(model_id: str, device: str) -> SentenceTransformerBackend:
+def _load_sentence_transformer(
+    model_id: str,
+    revision: str,
+    device: str,
+) -> SentenceTransformerBackend:
     from sentence_transformers import SentenceTransformer
 
     backend = SentenceTransformer(
         model_id,
         device=device,
+        revision=revision,
         trust_remote_code=False,
     )
     return cast(SentenceTransformerBackend, backend)

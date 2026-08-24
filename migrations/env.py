@@ -4,11 +4,12 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
+from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy.pool import NullPool
 
 from customer_agent2.config import Settings
-from customer_agent2.infrastructure.database import Base
+from customer_agent2.infrastructure.persistence import Base
 
 config = context.config
 
@@ -37,7 +38,7 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def run_migrations(connection: object) -> None:
+def run_migrations(connection: Connection) -> None:
     """Run migrations on a synchronous connection supplied by SQLAlchemy."""
     context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
 

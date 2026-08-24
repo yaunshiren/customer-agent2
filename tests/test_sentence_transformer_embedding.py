@@ -63,12 +63,13 @@ def _model(
 ) -> SentenceTransformerEmbeddingModel:
     return SentenceTransformerEmbeddingModel(
         model_id="test-embedding-model",
+        revision="test-revision",
         dimension=dimension,
         max_tokens=max_tokens,
         device="cpu",
         batch_size=batch_size,
         normalized=normalized,
-        backend_factory=lambda _model_id, _device: backend,
+        backend_factory=lambda _model_id, _revision, _device: backend,
     )
 
 
@@ -80,10 +81,12 @@ async def test_embed_translates_batch_settings_and_validates_result() -> None:
     result = await model.embed(EmbeddingRequest(texts=("第一段", "第二段")))
 
     assert model.model_id == "test-embedding-model"
+    assert model.revision == "test-revision"
     assert model.dimension == 3
     assert model.max_tokens == 8
     assert model.normalized is True
     assert result.model_id == model.model_id
+    assert result.model_revision == model.revision
     assert result.dimension == 3
     assert result.normalized is True
     assert result.vectors == ((1.0, 0.0, 0.0), (0.0, 0.6, 0.8))
@@ -109,6 +112,7 @@ async def test_from_settings_uses_all_local_embedding_configuration() -> None:
     backend = FakeBackend([[0.0, 2.0, 0.0]], max_seq_length=32)
     settings = IsolatedSettings(
         local_embedding_model="custom-model",
+        local_embedding_revision="custom-revision",
         local_embedding_dimension=3,
         local_embedding_max_tokens=16,
         local_embedding_device="cpu",
@@ -117,12 +121,13 @@ async def test_from_settings_uses_all_local_embedding_configuration() -> None:
     )
     model = SentenceTransformerEmbeddingModel.from_settings(
         settings,
-        backend_factory=lambda _model_id, _device: backend,
+        backend_factory=lambda _model_id, _revision, _device: backend,
     )
 
     result = await model.embed(EmbeddingRequest(texts=("测试",)))
 
     assert model.model_id == "custom-model"
+    assert model.revision == "custom-revision"
     assert model.dimension == 3
     assert model.max_tokens == 16
     assert model.normalized is False
@@ -174,11 +179,12 @@ async def test_embed_maps_backend_failure_without_leaking_details() -> None:
 async def test_embed_maps_model_load_failure_without_leaking_details() -> None:
     sensitive_detail = "C:/private/model/cache/load-detail"
 
-    def failing_factory(model_id: str, device: str) -> FakeBackend:
-        raise OSError(f"{sensitive_detail}: {model_id} on {device}")
+    def failing_factory(model_id: str, revision: str, device: str) -> FakeBackend:
+        raise OSError(f"{sensitive_detail}: {model_id}@{revision} on {device}")
 
     model = SentenceTransformerEmbeddingModel(
         model_id="test-embedding-model",
+        revision="test-revision",
         dimension=3,
         max_tokens=8,
         device="cpu",
@@ -211,15 +217,17 @@ async def test_model_is_loaded_lazily_and_only_once() -> None:
     backend = FakeBackend([[1.0, 0.0, 0.0]])
     load_calls = 0
 
-    def factory(model_id: str, device: str) -> FakeBackend:
+    def factory(model_id: str, revision: str, device: str) -> FakeBackend:
         nonlocal load_calls
         load_calls += 1
         assert model_id == "test-embedding-model"
+        assert revision == "test-revision"
         assert device == "cpu"
         return backend
 
     model = SentenceTransformerEmbeddingModel(
         model_id="test-embedding-model",
+        revision="test-revision",
         dimension=3,
         max_tokens=8,
         device="cpu",
@@ -323,6 +331,7 @@ def test_constructor_rejects_invalid_runtime_configuration() -> None:
     with pytest.raises(ModelError) as caught:
         SentenceTransformerEmbeddingModel(
             model_id=" ",
+            revision=" ",
             dimension=0,
             max_tokens=0,
             device=" ",

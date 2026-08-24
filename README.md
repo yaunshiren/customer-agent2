@@ -4,9 +4,10 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M1-D 本地 Embedding 适配层已完成。项目已有 PostgreSQL/Redis 连接管理，
-> 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器，以及本地
-> `BAAI/bge-base-zh-v1.5` Embedding；README 中标注为“规划”的 RAG 能力尚未实现。
+> 当前状态：M2-A 文档索引数据库模式已完成。项目已有 PostgreSQL/Redis 连接管理、
+> 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
+> `BAAI/bge-base-zh-v1.5` Embedding，以及知识库、文档版本和 pgvector Chunk 表；
+> 文档解析、入库编排、上传 API 和在线 RAG 仍是后续任务。
 
 ## 项目目标
 
@@ -44,7 +45,7 @@
 - Redis
 - OpenAI-compatible Async Client、httpx
 - Sentence Transformers、PyTorch CPU
-- pytest、pytest-asyncio、Testcontainers
+- pytest、pytest-asyncio
 
 核心工作流不以 LangChain 或 LlamaIndex 为主骨架。详细原因参见 [ADR-0001](docs/adr/0001-technology-stack.md)。
 
@@ -72,8 +73,9 @@
 - Fake 模型可稳定复现正常结果、流式结果、排序结果和结构化错误，不需要网络或真实密钥。
 
 Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实云端模型或消耗额度。本地
-Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。项目还没有
-把模型暴露为对外问答 API，也没有实现文档入库和向量检索；这些属于后续任务。
+Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。M2-A 已建立
+版本化文档和向量存储模式，但项目还没有把模型暴露为对外问答 API，也没有实现解析、
+入库编排或在线向量检索；这些属于后续任务。
 
 ## 当前文档
 
@@ -81,6 +83,7 @@ Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属�
 - [系统架构](docs/ARCHITECTURE.md)
 - [开发计划](docs/DEVELOPMENT_PLAN.md)
 - [技术选型决策](docs/adr/0001-technology-stack.md)
+- [文档版本与向量索引模式](docs/adr/0002-document-index-schema.md)
 - [AI 协作规则](AGENTS.md)
 
 ## 本地启动
@@ -122,7 +125,8 @@ docker compose ps
 
 ### 4. 执行数据库迁移
 
-Alembic 当前只有基础设施基线：确保 pgvector 扩展存在，不包含任何 RAG 业务表。
+Alembic 会确保 pgvector 扩展存在，并创建 M2-A 的 `knowledge_bases`、`documents`、
+`document_versions` 和 `chunks` 表。迁移只建立存储模式，不会自动解析或导入文档。
 
 ```powershell
 alembic upgrade head
@@ -168,6 +172,13 @@ uv audit
 ```powershell
 $env:RUN_LOCAL_MODEL_SMOKE="1"
 pytest -m model_smoke
+```
+
+如需用本地已迁移的 PostgreSQL 验证真实向量写入、Cosine 查询和版本唯一约束：
+
+```powershell
+$env:RUN_DATABASE_INTEGRATION="1"
+pytest -m database_integration
 ```
 
 ## 参考与致谢
