@@ -16,6 +16,7 @@ dependencies = [
     "alembic>=1.14,<2",
     "asyncpg>=0.30,<1",
     "fastapi>=0.115,<1",
+    "openai>=1.109,<2",
     "pydantic-settings>=2.7,<3",
     "redis>=5.2,<7",
     "sqlalchemy[asyncio]>=2.0,<3",
