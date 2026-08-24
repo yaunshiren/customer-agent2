@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=80,<83"]
+requires = ["setuptools>=83,<85"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -19,7 +19,10 @@ dependencies = [
     "openai>=1.109,<2",
     "pydantic-settings>=2.7,<3",
     "redis>=5.2,<7",
+    "sentence-transformers>=5.7,<6",
     "sqlalchemy[asyncio]>=2.0,<3",
+    "torch>=2.13,<2.14",
+    "transformers>=5.15,<6",
     "uvicorn[standard]>=0.34,<1",
 ]
 
@@ -41,6 +44,9 @@ where = ["src"]
 [tool.pytest.ini_options]
 addopts = "-q --strict-config --strict-markers"
 asyncio_mode = "auto"
+markers = [
+    "model_smoke: requires local model weights and runs real CPU inference",
+]
 testpaths = ["tests"]
 
 [tool.ruff]
@@ -61,3 +67,11 @@ exclude = ["**/__pycache__"]
 pythonVersion = "3.11"
 typeCheckingMode = "strict"
 reportMissingTypeStubs = "none"
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

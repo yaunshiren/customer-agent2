@@ -7,6 +7,9 @@ from customer_agent2.infrastructure.models.fakes import (
 )
 from customer_agent2.infrastructure.models.noop_rerank import NoOpRerankModel
 from customer_agent2.infrastructure.models.openai_chat import OpenAICompatibleChatModel
+from customer_agent2.infrastructure.models.sentence_transformer_embedding import (
+    SentenceTransformerEmbeddingModel,
+)
 
 __all__ = [
     "FakeChatModel",
@@ -14,4 +17,5 @@ __all__ = [
     "FakeRerankModel",
     "NoOpRerankModel",
     "OpenAICompatibleChatModel",
+    "SentenceTransformerEmbeddingModel",
 ]

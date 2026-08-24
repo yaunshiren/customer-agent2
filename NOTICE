@@ -10,3 +10,16 @@ Ragent is distributed under the Apache License, Version 2.0. Customer Agent 2
 is an independent Python implementation. Any source code later derived from a
 third-party project must retain the applicable copyright, license, and NOTICE
 information in accordance with that project's license.
+
+Local embedding support uses Sentence Transformers, distributed under the
+Apache License, Version 2.0:
+https://github.com/UKPLab/sentence-transformers
+
+Local CPU inference uses PyTorch, distributed under the BSD 3-Clause License:
+https://github.com/pytorch/pytorch
+
+The default BAAI/bge-base-zh-v1.5 model is distributed under the MIT License:
+https://huggingface.co/BAAI/bge-base-zh-v1.5
+
+Model weights are downloaded separately by the user and are not included in
+this repository.

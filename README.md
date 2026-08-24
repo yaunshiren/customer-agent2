@@ -4,9 +4,9 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M1-C Chat 供应商适配层已完成。项目已有 PostgreSQL/Redis 连接管理，
-> Chat、Embedding、Rerank 的类型化接口，以及阿里云百炼 OpenAI-compatible Chat
-> 非流式/流式适配器；本地 Embedding 和 README 中标注为“规划”的 RAG 能力尚未实现。
+> 当前状态：M1-D 本地 Embedding 适配层已完成。项目已有 PostgreSQL/Redis 连接管理，
+> 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器，以及本地
+> `BAAI/bge-base-zh-v1.5` Embedding；README 中标注为“规划”的 RAG 能力尚未实现。
 
 ## 项目目标
 
@@ -43,6 +43,7 @@
 - PostgreSQL、pgvector
 - Redis
 - OpenAI-compatible Async Client、httpx
+- Sentence Transformers、PyTorch CPU
 - pytest、pytest-asyncio、Testcontainers
 
 核心工作流不以 LangChain 或 LlamaIndex 为主骨架。详细原因参见 [ADR-0001](docs/adr/0001-technology-stack.md)。
@@ -65,12 +66,14 @@
 - Chat 适配器使用异步连接池，支持独立首包超时，并在流结束、取消或调用方提前停止时释放响应。
 - 供应商认证、额度、限流、超时、不可用和协议错误会转换为稳定且脱敏的领域错误。
 - final 模型只用于最终回答，fast 模型供后续改写、意图和摘要等内部任务选择。
-- Embedding 结果会验证批量形状、维度以及 NaN/无限值；默认基线固定为 768 维、512 Token。
+- Embedding 模型按首次请求懒加载，CPU 推理在工作线程执行，并串行保护同一个模型实例。
+- Embedding 结果会验证批量形状、768 维、NaN/无限值和 L2 归一化；最大序列固定为 512 Token。
 - Rerank 未启用时使用显式 No-op，保留原始顺序并记录降级原因，不使用 Chat 模型冒充 Rerank。
 - Fake 模型可稳定复现正常结果、流式结果、排序结果和结构化错误，不需要网络或真实密钥。
 
-Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实模型或消耗云端额度。项目还没有
-下载本地 Embedding 权重，也没有把 Chat 暴露为对外问答 API；这些属于后续任务。
+Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实云端模型或消耗额度。本地
+Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。项目还没有
+把模型暴露为对外问答 API，也没有实现文档入库和向量检索；这些属于后续任务。
 
 ## 当前文档
 
@@ -84,10 +87,17 @@ Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实模型或消�
 
 ### 1. 安装项目
 
-项目使用 Python 3.11。当前开发机可以继续使用已有的 `customer` Conda 环境：
+项目使用 Python 3.11。推荐使用锁文件和项目配置的 PyTorch CPU-only 索引：
+
+```powershell
+uv sync --locked --all-extras
+```
+
+当前开发机也可以继续使用已经包含 CPU 版 PyTorch 的 `customer` Conda 环境：
 
 ```powershell
 conda activate customer
+python -m pip install "torch==2.13.0+cpu" --index-url https://download.pytorch.org/whl/cpu
 python -m pip install -e ".[dev]"
 ```
 
@@ -150,6 +160,14 @@ pyright
 pytest
 uv lock --check
 uv pip check
+uv audit
+```
+
+如果本机已经缓存默认模型，可执行不会联网下载的真实 CPU Smoke：
+
+```powershell
+$env:RUN_LOCAL_MODEL_SMOKE="1"
+pytest -m model_smoke
 ```
 
 ## 参考与致谢
