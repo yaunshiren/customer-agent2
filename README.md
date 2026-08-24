@@ -4,9 +4,9 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M1-A 基础设施连接层已完成。FastAPI lifespan 会管理 PostgreSQL
-> 异步连接池和 Redis 连接池，`/ready` 会验证 PostgreSQL、pgvector 与 Redis；
-> README 中标注为“规划”的 RAG 能力尚未实现。
+> 当前状态：M1-B 模型契约层已完成。项目已有 PostgreSQL/Redis 连接管理，以及
+> Chat、Embedding、Rerank 的类型化接口、final/fast 模型选择、可控 Fake 和
+> Rerank No-op；真实模型适配器及 README 中标注为“规划”的 RAG 能力尚未实现。
 
 ## 项目目标
 
@@ -58,6 +58,16 @@
 | VLM | `qwen3.7-plus` | 后续阶段启用 |
 
 真实密钥只允许放在本地 `.env`，不得提交到仓库。
+
+## 当前模型层边界
+
+- Chat 同时定义非流式、流式、推理内容和 Token 用量结构。
+- final 模型只用于最终回答，fast 模型供后续改写、意图和摘要等内部任务选择。
+- Embedding 结果会验证批量形状、维度以及 NaN/无限值；默认基线固定为 768 维、512 Token。
+- Rerank 未启用时使用显式 No-op，保留原始顺序并记录降级原因，不使用 Chat 模型冒充 Rerank。
+- Fake 模型可稳定复现正常结果、流式结果、排序结果和结构化错误，不需要网络或真实密钥。
+
+本阶段没有接入阿里云 Chat，也没有下载本地 Embedding 权重；这些仍属于 M1 后续任务。
 
 ## 当前文档
 

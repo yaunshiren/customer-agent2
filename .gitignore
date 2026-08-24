@@ -54,7 +54,7 @@ docker-data/
 volumes/
 
 # 模型与本地数据
-models/
+/models/
 model-cache/
 data/local/
 data/private/

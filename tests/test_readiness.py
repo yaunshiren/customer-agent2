@@ -5,10 +5,10 @@ from dataclasses import dataclass, field
 import httpx
 import pytest
 
-from customer_agent2.config import Settings
 from customer_agent2.infrastructure import ApplicationResources
 from customer_agent2.infrastructure.database import DatabaseReadiness
 from customer_agent2.main import create_app
+from tests.settings import IsolatedSettings
 
 
 @dataclass
@@ -61,7 +61,10 @@ class FakeRedis:
 @pytest.mark.asyncio
 async def test_ready_returns_component_versions_when_all_dependencies_are_ready() -> None:
     resources = ApplicationResources(database=FakeDatabase(), redis=FakeRedis())
-    app = create_app(Settings(app_env="test"), resource_factory=lambda _settings: resources)
+    app = create_app(
+        IsolatedSettings(app_env="test"),
+        resource_factory=lambda _settings: resources,
+    )
 
     async with app.router.lifespan_context(app):
         transport = httpx.ASGITransport(app=app)
@@ -86,7 +89,10 @@ async def test_ready_returns_sanitized_503_when_connections_fail() -> None:
         database=FakeDatabase(check_error=ConnectionError(secret_error)),
         redis=FakeRedis(check_error=ConnectionError("redis secret")),
     )
-    app = create_app(Settings(app_env="test"), resource_factory=lambda _settings: resources)
+    app = create_app(
+        IsolatedSettings(app_env="test"),
+        resource_factory=lambda _settings: resources,
+    )
 
     async with app.router.lifespan_context(app):
         transport = httpx.ASGITransport(app=app)
@@ -107,7 +113,10 @@ async def test_lifespan_opens_and_releases_both_resource_pools() -> None:
     database = FakeDatabase()
     redis = FakeRedis()
     resources = ApplicationResources(database=database, redis=redis)
-    app = create_app(Settings(app_env="test"), resource_factory=lambda _settings: resources)
+    app = create_app(
+        IsolatedSettings(app_env="test"),
+        resource_factory=lambda _settings: resources,
+    )
 
     async with app.router.lifespan_context(app):
         assert database.open_calls == 1
@@ -124,7 +133,10 @@ async def test_partial_startup_releases_database_when_redis_initialization_fails
     database = FakeDatabase()
     redis = FakeRedis(open_error=ConnectionError("Redis initialization failed"))
     resources = ApplicationResources(database=database, redis=redis)
-    app = create_app(Settings(app_env="test"), resource_factory=lambda _settings: resources)
+    app = create_app(
+        IsolatedSettings(app_env="test"),
+        resource_factory=lambda _settings: resources,
+    )
 
     with pytest.raises(ConnectionError, match="Redis initialization failed"):
         async with app.router.lifespan_context(app):

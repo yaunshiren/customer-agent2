@@ -3,7 +3,15 @@
 from functools import lru_cache
 from typing import Literal, Self
 
-from pydantic import Field, PostgresDsn, RedisDsn, field_validator, model_validator
+from pydantic import (
+    AnyHttpUrl,
+    Field,
+    PostgresDsn,
+    RedisDsn,
+    SecretStr,
+    field_validator,
+    model_validator,
+)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -24,6 +32,26 @@ class Settings(BaseSettings):
     app_port: int = Field(default=8000, ge=1, le=65535)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     api_prefix: str = "/api/v1"
+
+    dashscope_api_key: SecretStr = SecretStr("")
+    dashscope_base_url: AnyHttpUrl = AnyHttpUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
+    chat_model_final: str = "qwen3.7-max-preview"
+    chat_model_fast: str = "qwen3.7-flash"
+    llm_timeout_seconds: float = Field(default=100.0, gt=0)
+    llm_first_packet_timeout_seconds: float = Field(default=30.0, gt=0)
+
+    embedding_provider: Literal["local"] = "local"
+    local_embedding_model: str = "BAAI/bge-base-zh-v1.5"
+    local_embedding_dimension: int = Field(default=768, ge=1)
+    local_embedding_max_tokens: int = Field(default=512, ge=1)
+    local_embedding_device: str = "cpu"
+    local_embedding_batch_size: int = Field(default=16, ge=1)
+    embedding_normalize: bool = True
+
+    rerank_enabled: bool = False
+    rerank_provider: Literal["dashscope"] = "dashscope"
+    rerank_model: str = "qwen3-rerank"
+    dashscope_workspace_id: str | None = None
 
     database_url: PostgresDsn = PostgresDsn(
         "postgresql+asyncpg://customer_agent2:change_me@127.0.0.1:5432/customer_agent2"
@@ -74,6 +102,30 @@ class Settings(BaseSettings):
             raise ValueError("REDIS_KEY_PREFIX 不能为空")
         return normalized
 
+    @field_validator(
+        "chat_model_final",
+        "chat_model_fast",
+        "local_embedding_model",
+        "local_embedding_device",
+        "rerank_model",
+    )
+    @classmethod
+    def validate_model_text_settings(cls, value: str) -> str:
+        """Reject model settings that would fail later with ambiguous provider errors."""
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("模型名称和设备配置不能为空")
+        return normalized
+
+    @field_validator("dashscope_workspace_id", mode="before")
+    @classmethod
+    def normalize_workspace_id(cls, value: object) -> object:
+        """Treat an empty optional workspace ID as absent."""
+        if isinstance(value, str):
+            normalized = value.strip()
+            return normalized or None
+        return value
+
     @model_validator(mode="after")
     def validate_retrieval_funnel(self) -> Self:
         """Reject a retrieval funnel that cannot produce the requested TopK."""
@@ -82,6 +134,25 @@ class Settings(BaseSettings):
             raise ValueError("RETRIEVAL_RECALL_BUDGET 不能小于 RETRIEVAL_CONTEXT_TOP_K")
         if self.retrieval_rerank_candidate_limit < top_k:
             raise ValueError("RETRIEVAL_RERANK_CANDIDATE_LIMIT 不能小于 RETRIEVAL_CONTEXT_TOP_K")
+        return self
+
+    @model_validator(mode="after")
+    def validate_model_runtime(self) -> Self:
+        """Keep configured model capabilities consistent with the accepted baseline."""
+        if self.llm_first_packet_timeout_seconds > self.llm_timeout_seconds:
+            raise ValueError("LLM_FIRST_PACKET_TIMEOUT_SECONDS 不能大于 LLM_TIMEOUT_SECONDS")
+
+        if self.local_embedding_model == "BAAI/bge-base-zh-v1.5":
+            if self.local_embedding_dimension != 768:
+                raise ValueError("bge-base-zh-v1.5 的 LOCAL_EMBEDDING_DIMENSION 必须为 768")
+            if self.local_embedding_max_tokens != 512:
+                raise ValueError("bge-base-zh-v1.5 的 LOCAL_EMBEDDING_MAX_TOKENS 必须为 512")
+
+        if self.rerank_enabled:
+            if not self.dashscope_api_key.get_secret_value():
+                raise ValueError("启用 Rerank 时必须配置 DASHSCOPE_API_KEY")
+            if self.dashscope_workspace_id is None:
+                raise ValueError("启用 Rerank 时必须配置 DASHSCOPE_WORKSPACE_ID")
         return self
 
 

@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from customer_agent2.config import Settings
+from tests.settings import IsolatedSettings as Settings
 
 
 def test_settings_normalize_api_prefix() -> None:
@@ -24,7 +24,10 @@ def test_settings_reject_recall_budget_below_top_k() -> None:
 
 def test_settings_reject_rerank_limit_below_top_k() -> None:
     with pytest.raises(ValidationError, match="RETRIEVAL_RERANK_CANDIDATE_LIMIT"):
-        Settings(retrieval_rerank_candidate_limit=4, retrieval_context_top_k=5)
+        Settings(
+            retrieval_rerank_candidate_limit=4,
+            retrieval_context_top_k=5,
+        )
 
 
 def test_settings_parse_typed_infrastructure_urls() -> None:
@@ -47,3 +50,54 @@ def test_settings_reject_non_async_database_driver() -> None:
 def test_settings_reject_empty_redis_prefix() -> None:
     with pytest.raises(ValidationError, match="REDIS_KEY_PREFIX"):
         Settings(redis_key_prefix="  ")
+
+
+def test_settings_keep_api_key_secret_and_separate_chat_profiles() -> None:
+    settings = Settings.model_validate(
+        {
+            "dashscope_api_key": "test-secret-key",
+            "chat_model_final": "final-model",
+            "chat_model_fast": "fast-model",
+        }
+    )
+
+    assert str(settings.dashscope_api_key) == "**********"
+    assert "test-secret-key" not in repr(settings)
+    assert settings.chat_model_final == "final-model"
+    assert settings.chat_model_fast == "fast-model"
+
+
+def test_settings_reject_first_packet_timeout_above_total_timeout() -> None:
+    with pytest.raises(ValidationError, match="FIRST_PACKET"):
+        Settings(
+            llm_timeout_seconds=10,
+            llm_first_packet_timeout_seconds=11,
+        )
+
+
+def test_settings_protect_fixed_embedding_baseline_capabilities() -> None:
+    with pytest.raises(ValidationError, match="DIMENSION"):
+        Settings(local_embedding_dimension=1024)
+
+    with pytest.raises(ValidationError, match="MAX_TOKENS"):
+        Settings(local_embedding_max_tokens=1024)
+
+
+def test_settings_require_credentials_when_rerank_is_enabled() -> None:
+    with pytest.raises(ValidationError, match="DASHSCOPE_API_KEY"):
+        Settings.model_validate(
+            {
+                "rerank_enabled": True,
+                "dashscope_api_key": "",
+                "dashscope_workspace_id": "workspace",
+            }
+        )
+
+    with pytest.raises(ValidationError, match="DASHSCOPE_WORKSPACE_ID"):
+        Settings.model_validate(
+            {
+                "rerank_enabled": True,
+                "dashscope_api_key": "test-key",
+                "dashscope_workspace_id": "",
+            }
+        )
