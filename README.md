@@ -4,8 +4,9 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M0 工程脚手架阶段。FastAPI 健康检查、类型化配置、测试和
-> PostgreSQL/pgvector 开发容器已经建立；README 中标注为“规划”的 RAG 能力尚未实现。
+> 当前状态：M1-A 基础设施连接层已完成。FastAPI lifespan 会管理 PostgreSQL
+> 异步连接池和 Redis 连接池，`/ready` 会验证 PostgreSQL、pgvector 与 Redis；
+> README 中标注为“规划”的 RAG 能力尚未实现。
 
 ## 项目目标
 
@@ -93,9 +94,18 @@ docker compose up -d postgres
 docker compose ps
 ```
 
-当前已运行的外部 Redis 暂不由本项目 Compose 重复创建，M1 接入连接管理时再验证。
+当前开发机已有 Redis 监听 `127.0.0.1:6379`，因此本项目 Compose 不重复创建。
+如果本机 Redis 地址不同，请只在本地 `.env` 中修改 `REDIS_URL`。
 
-### 4. 启动 API
+### 4. 执行数据库迁移
+
+Alembic 当前只有基础设施基线：确保 pgvector 扩展存在，不包含任何 RAG 业务表。
+
+```powershell
+alembic upgrade head
+```
+
+### 5. 启动 API
 
 ```powershell
 python -m uvicorn customer_agent2.main:app --reload
@@ -107,15 +117,26 @@ python -m uvicorn customer_agent2.main:app --reload
 Invoke-RestMethod http://127.0.0.1:8000/health
 ```
 
+验证就绪检查：
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/ready
+```
+
+`/health` 只说明 API 进程存活，不访问外部服务；`/ready` 只有在 PostgreSQL、
+pgvector 和 Redis 都可用时返回 HTTP 200，否则返回不包含连接串和底层异常的 HTTP 503。
+
 OpenAPI 页面位于 `http://127.0.0.1:8000/api/v1/docs`。
 
-### 5. 运行质量检查
+### 6. 运行质量检查
 
 ```powershell
 ruff check .
 ruff format --check .
 pyright
 pytest
+uv lock --check
+uv pip check
 ```
 
 ## 参考与致谢
