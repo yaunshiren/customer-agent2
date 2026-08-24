@@ -1,0 +1,74 @@
+# Python 字节码与缓存
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# 虚拟环境与包产物
+.venv/
+venv/
+env/
+ENV/
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# 本地配置与密钥
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+
+# IDE 与操作系统
+.idea/
+.vscode/
+*.code-workspace
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 日志、临时文件与运行产物
+*.log
+logs/
+tmp/
+temp/
+.cache/
+artifacts/
+reports/private/
+
+# 数据库与容器卷
+*.db
+*.sqlite
+*.sqlite3
+docker-data/
+volumes/
+
+# 模型与本地数据
+models/
+model-cache/
+data/local/
+data/private/
+uploads/
+downloads/
+*.safetensors
+*.bin
+*.onnx
+
+# 文档生成缓存
+site/
+docs/_build/
+
+# 测试运行残留
+.testcontainers.properties
+test-results/
+junit.xml

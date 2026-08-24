@@ -1,0 +1,12 @@
+Customer Agent 2
+Copyright 2026 yaunshiren
+
+This product is licensed under the Apache License, Version 2.0.
+
+This project references architectural and engineering ideas from Ragent:
+https://github.com/nageoffer/ragent
+
+Ragent is distributed under the Apache License, Version 2.0. Customer Agent 2
+is an independent Python implementation. Any source code later derived from a
+third-party project must retain the applicable copyright, license, and NOTICE
+information in accordance with that project's license.

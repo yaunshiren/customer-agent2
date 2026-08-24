@@ -1,0 +1,78 @@
+# Customer Agent 2
+
+一个使用 Python 构建的、面向开源展示和求职简历的大模型应用工程项目。
+
+项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
+
+> 当前状态：项目设计与工程地基阶段。README 中标注为“规划”的能力尚未实现。
+
+## 项目目标
+
+- 使用显式 Python Pipeline 实现可调试的 RAG 主流程。
+- 支持本地 Embedding 与云端大模型的组合部署。
+- 通过固定评测集验证 Intent、Retrieval 和 Rerank，而不是只展示主观问答效果。
+- 保留清晰的接口边界，便于后续扩展 MCP、VLM、关键词检索和知识图谱。
+- 形成能够在面试中解释设计、失败场景、替代方案和实验结果的开源项目。
+
+## 规划中的核心链路
+
+```text
+文档上传
+  → 类型识别与解析
+  → 结构化分块
+  → Embedding
+  → PostgreSQL/pgvector 索引
+
+用户问题
+  → 会话记忆
+  → Query Rewrite / 问题拆分
+  → 意图识别 / 歧义澄清
+  → 检索与候选融合
+  → Rerank / TopK
+  → Prompt 与引用组装
+  → LLM 流式回答
+```
+
+## 技术选型
+
+- Python 3.11
+- FastAPI、Pydantic、Uvicorn
+- SQLAlchemy 2、Alembic、asyncpg
+- PostgreSQL、pgvector
+- Redis
+- OpenAI-compatible Async Client、httpx
+- pytest、pytest-asyncio、Testcontainers
+
+核心工作流不以 LangChain 或 LlamaIndex 为主骨架。详细原因参见 [ADR-0001](docs/adr/0001-technology-stack.md)。
+
+## 默认模型策略
+
+| 能力 | 默认方案 | 说明 |
+|---|---|---|
+| 最终回答 | `qwen3.7-max-preview` | 配置化，可随额度切换 |
+| 内部快速任务 | `qwen3.7-flash` | 用于改写、意图、摘要等 |
+| Embedding Baseline | `BAAI/bge-base-zh-v1.5` | 本地 CPU，768 维 |
+| Rerank | `qwen3-rerank` | 未配置时允许显式降级 |
+| VLM | `qwen3.7-plus` | 后续阶段启用 |
+
+真实密钥只允许放在本地 `.env`，不得提交到仓库。
+
+## 当前文档
+
+- [项目范围](docs/PROJECT_SCOPE.md)
+- [系统架构](docs/ARCHITECTURE.md)
+- [开发计划](docs/DEVELOPMENT_PLAN.md)
+- [技术选型决策](docs/adr/0001-technology-stack.md)
+- [AI 协作规则](AGENTS.md)
+
+## 本地启动
+
+项目脚手架尚未创建。本节将在 FastAPI、数据库迁移和 Docker Compose 落地后补充可直接执行的启动命令。
+
+## 参考与致谢
+
+本项目参考了 [Ragent](https://github.com/nageoffer/ragent) 在文档入库、问题理解、多路检索、模型路由、MCP 与流式回答方面的设计。Customer Agent 2 使用 Python 重新组织实现，并通过独立测试与评测验证行为。
+
+## 许可证
+
+本项目采用 [Apache License 2.0](LICENSE)。第三方项目归属说明参见 [NOTICE](NOTICE)。
