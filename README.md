@@ -4,7 +4,8 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：项目设计与工程地基阶段。README 中标注为“规划”的能力尚未实现。
+> 当前状态：M0 工程脚手架阶段。FastAPI 健康检查、类型化配置、测试和
+> PostgreSQL/pgvector 开发容器已经建立；README 中标注为“规划”的 RAG 能力尚未实现。
 
 ## 项目目标
 
@@ -67,7 +68,55 @@
 
 ## 本地启动
 
-项目脚手架尚未创建。本节将在 FastAPI、数据库迁移和 Docker Compose 落地后补充可直接执行的启动命令。
+### 1. 安装项目
+
+项目使用 Python 3.11。当前开发机可以继续使用已有的 `customer` Conda 环境：
+
+```powershell
+conda activate customer
+python -m pip install -e ".[dev]"
+```
+
+### 2. 创建本地配置
+
+```powershell
+Copy-Item .env.example .env
+```
+
+`.env` 只用于本地，已经被 Git 忽略。请在其中填写真实模型密钥，不要修改
+`.env.example` 保存个人凭据。
+
+### 3. 启动 PostgreSQL/pgvector
+
+```powershell
+docker compose up -d postgres
+docker compose ps
+```
+
+当前已运行的外部 Redis 暂不由本项目 Compose 重复创建，M1 接入连接管理时再验证。
+
+### 4. 启动 API
+
+```powershell
+python -m uvicorn customer_agent2.main:app --reload
+```
+
+验证健康检查：
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/health
+```
+
+OpenAPI 页面位于 `http://127.0.0.1:8000/api/v1/docs`。
+
+### 5. 运行质量检查
+
+```powershell
+ruff check .
+ruff format --check .
+pyright
+pytest
+```
 
 ## 参考与致谢
 
