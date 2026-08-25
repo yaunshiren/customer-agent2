@@ -4,11 +4,11 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M2-E 最小文档入库 API 已完成。项目已有 PostgreSQL/Redis 连接管理、
+> 当前状态：M2-F P0 多格式文档入库已完成。项目已有 PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
-> `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT 解析，以及
-> 400/64 Token 分块、原子版本切换和同步上传/状态/删除 API；PDF/DOCX/CSV 和在线 RAG
-> 仍是后续任务。
+> `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT/PDF/DOCX/CSV
+> 解析，以及 400/64 Token 分块、原子版本切换和同步上传/状态/删除 API；在线向量检索仍是
+> 后续任务。
 
 ## 项目目标
 
@@ -46,6 +46,7 @@
 - Redis
 - markdown-it-py
 - python-multipart
+- pypdf、python-docx
 - OpenAI-compatible Async Client、httpx
 - Sentence Transformers、PyTorch CPU
 - pytest、pytest-asyncio
@@ -77,15 +78,20 @@
 
 Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实云端模型或消耗额度。本地
 Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。M2-A 至
-M2-E 已把版本化存储、Markdown/TXT 解析、结构分块、批量 Embedding 和 pgvector 原子切换
-连成同步 HTTP 入库闭环。项目还没有对外问答 API、PDF/DOCX/CSV 入库或在线向量检索。
+M2-F 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embedding 和 pgvector 原子切换
+连成同步 HTTP 入库闭环。项目还没有对外问答 API 或在线向量检索。
 
 ## 当前文档解析边界
 
 - 输入是尚未落盘的内存字节，默认单文件上限为可配置的 50 MiB。
-- Markdown 支持 `.md`、`.markdown` 和对应 MIME；TXT 支持 `.txt` 和 `text/plain`。
-- 当前只接受 UTF-8/UTF-8 BOM，拒绝空文件、超限文件、类型冲突、二进制控制字符和无有效文本。
+- Markdown 支持 `.md`、`.markdown`，TXT 支持 `.txt`，CSV 支持 `.csv`；三者只接受
+  UTF-8/UTF-8 BOM。
+- PDF 和 DOCX 同时校验扩展名/MIME 与二进制签名，拒绝伪造文件、加密 PDF、宏 DOCX 和
+  高风险压缩包。
+- 所有格式都拒绝空文件、超限文件、类型冲突和无有效文本。
 - Markdown 保留标题层级、段落、列表项、代码块、章节路径和来源行号；TXT 保留段落和来源行号。
+- PDF 按页保留来源，DOCX 保留标题、段落、列表和表格记录，CSV 为每条记录重复表头。
+- 扫描 PDF/OCR、旧版 DOC、XLS/XLSX、图片和自动编码/分隔符猜测尚未支持。
 - 解析器通过领域接口注册和选择，不依赖 FastAPI、数据库或文件系统。
 
 这些能力已连接到同步上传 API。应用不持久化原文件；multipart 实现可能在请求期间使用
@@ -129,6 +135,7 @@ M2-E 已把版本化存储、Markdown/TXT 解析、结构分块、批量 Embeddi
 - [技术选型决策](docs/adr/0001-technology-stack.md)
 - [文档版本与向量索引模式](docs/adr/0002-document-index-schema.md)
 - [最小文档入库 API 契约](docs/adr/0003-minimal-ingestion-api.md)
+- [多格式文档安全解析边界](docs/adr/0004-multiformat-document-parsing.md)
 - [AI 协作规则](AGENTS.md)
 
 ## 本地启动
@@ -216,8 +223,8 @@ Invoke-RestMethod `
   "http://127.0.0.1:8000/api/v1/knowledge-bases/$($knowledgeBase.id)/documents/$($upload.document_id)"
 ```
 
-上传是同步操作，本地 CPU Embedding 完成前请求会保持。当前只接受 UTF-8 Markdown/TXT，
-默认上限 50 MiB。
+上传是同步操作，本地 CPU Embedding 完成前请求会保持。当前接受 Markdown、TXT、PDF、
+DOCX 和 UTF-8 CSV，默认单文件上限 50 MiB；详细解析上限见 `.env.example`。
 
 ### 7. 运行质量检查
 

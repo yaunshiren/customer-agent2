@@ -15,7 +15,7 @@ from customer_agent2.domain.models import (
 from customer_agent2.infrastructure.documents import (
     MarkdownDocumentParser,
     PlainTextDocumentParser,
-    SafeTextDocumentIdentifier,
+    SafeDocumentIdentifier,
 )
 
 MARKDOWN_SAMPLE = """# 退款政策
@@ -36,7 +36,10 @@ print("ok")
 def parsing_service(*, max_file_size_bytes: int = 1024 * 1024) -> DocumentParsingService:
     """Build the M2-B parser composition without framework or filesystem state."""
     return DocumentParsingService(
-        SafeTextDocumentIdentifier(max_file_size_bytes=max_file_size_bytes),
+        SafeDocumentIdentifier(
+            max_file_size_bytes=max_file_size_bytes,
+            max_extracted_chars=max_file_size_bytes,
+        ),
         (MarkdownDocumentParser(), PlainTextDocumentParser()),
     )
 
@@ -100,7 +103,10 @@ def test_plain_text_parser_accepts_utf8_bom_and_normalizes_newlines() -> None:
 
 
 def test_identifier_can_use_mime_without_an_extension() -> None:
-    identified = SafeTextDocumentIdentifier(max_file_size_bytes=100).identify(
+    identified = SafeDocumentIdentifier(
+        max_file_size_bytes=100,
+        max_extracted_chars=100,
+    ).identify(
         DocumentSource(filename="README", content=b"hello", declared_media_type="text/markdown")
     )
 
@@ -112,7 +118,7 @@ def test_identifier_can_use_mime_without_an_extension() -> None:
     [
         (DocumentSource("empty.txt", b""), DocumentErrorCode.EMPTY_FILE),
         (DocumentSource("large.txt", b"1234"), DocumentErrorCode.FILE_TOO_LARGE),
-        (DocumentSource("manual.pdf", b"x"), DocumentErrorCode.UNSUPPORTED_TYPE),
+        (DocumentSource("manual.pdf", b"x"), DocumentErrorCode.INVALID_FILE_SIGNATURE),
         (
             DocumentSource("notes.txt", b"x", "text/markdown"),
             DocumentErrorCode.TYPE_MISMATCH,
@@ -130,7 +136,7 @@ def test_identifier_rejects_invalid_or_unsafe_sources(
     source: DocumentSource,
     expected_code: DocumentErrorCode,
 ) -> None:
-    identifier = SafeTextDocumentIdentifier(max_file_size_bytes=3)
+    identifier = SafeDocumentIdentifier(max_file_size_bytes=3, max_extracted_chars=3)
 
     with pytest.raises(DocumentError) as captured:
         identifier.identify(source)
@@ -138,6 +144,15 @@ def test_identifier_rejects_invalid_or_unsafe_sources(
     assert captured.value.code is expected_code
     assert captured.value.public_message == str(captured.value)
     assert source.filename not in captured.value.public_message
+
+
+def test_identifier_applies_extracted_text_limit_to_utf8_formats() -> None:
+    identifier = SafeDocumentIdentifier(max_file_size_bytes=100, max_extracted_chars=3)
+
+    with pytest.raises(DocumentError) as captured:
+        identifier.identify(DocumentSource("notes.txt", b"four"))
+
+    assert captured.value.code is DocumentErrorCode.RESOURCE_LIMIT_EXCEEDED
 
 
 @pytest.mark.parametrize(
@@ -155,7 +170,7 @@ def test_parsers_reject_documents_without_meaningful_text(source: DocumentSource
 
 
 def test_parser_service_reports_missing_and_duplicate_parser_configuration() -> None:
-    identifier = SafeTextDocumentIdentifier(max_file_size_bytes=100)
+    identifier = SafeDocumentIdentifier(max_file_size_bytes=100, max_extracted_chars=100)
     markdown_parser = MarkdownDocumentParser()
     markdown_only = DocumentParsingService(identifier, (markdown_parser,))
 

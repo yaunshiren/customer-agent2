@@ -96,6 +96,21 @@ def test_settings_type_and_bound_upload_file_size() -> None:
         Settings(upload_max_file_mb=0)
 
 
+def test_settings_expose_positive_multiformat_parser_limits() -> None:
+    settings = Settings()
+
+    assert settings.document_max_extracted_chars == 5_000_000
+    assert settings.document_max_pdf_pages == 1000
+    assert settings.document_max_docx_entries == 2000
+    assert settings.document_max_docx_uncompressed_mb == 200
+    assert settings.document_max_docx_expansion_ratio == 100
+    assert settings.document_max_csv_rows == 10_000
+    assert settings.document_max_csv_columns == 200
+
+    with pytest.raises(ValidationError, match="document_max_pdf_pages"):
+        Settings(document_max_pdf_pages=0)
+
+
 def test_settings_validate_confirmed_chunk_budget() -> None:
     settings = Settings()
     assert settings.chunk_target_tokens == 400

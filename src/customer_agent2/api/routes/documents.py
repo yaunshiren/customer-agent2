@@ -73,7 +73,10 @@ async def create_knowledge_base(
 async def upload_document(
     knowledge_base_id: UUID,
     request: Request,
-    file: Annotated[UploadFile, File(description="UTF-8 Markdown 或 TXT 文档")],
+    file: Annotated[
+        UploadFile,
+        File(description="Markdown、TXT、PDF、DOCX 或 UTF-8 CSV 文档"),
+    ],
     services: ApplicationServicesDependency,
     source_key: Annotated[str | None, Form(max_length=1024)] = None,
 ) -> DocumentUploadResponse | Response:

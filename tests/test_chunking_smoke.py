@@ -8,7 +8,7 @@ from customer_agent2.application import DocumentParsingService, StructureAwareDo
 from customer_agent2.domain.models import ChunkingPolicy, DocumentSource
 from customer_agent2.infrastructure.documents import (
     PlainTextDocumentParser,
-    SafeTextDocumentIdentifier,
+    SafeDocumentIdentifier,
     TransformersTextTokenCodec,
 )
 from tests.settings import IsolatedSettings
@@ -26,7 +26,10 @@ def test_real_bge_tokenizer_enforces_confirmed_chunk_budget(
     monkeypatch.setenv("TRANSFORMERS_OFFLINE", "1")
     settings = IsolatedSettings()
     parser = DocumentParsingService(
-        SafeTextDocumentIdentifier(max_file_size_bytes=settings.upload_max_file_mb * 1024 * 1024),
+        SafeDocumentIdentifier(
+            max_file_size_bytes=settings.upload_max_file_mb * 1024 * 1024,
+            max_extracted_chars=settings.document_max_extracted_chars,
+        ),
         (PlainTextDocumentParser(),),
     )
     parsed = parser.parse(DocumentSource("long.txt", ("客户退款条件与处理流程。" * 200).encode()))

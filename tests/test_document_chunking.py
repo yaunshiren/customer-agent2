@@ -16,7 +16,7 @@ from customer_agent2.domain.models import (
 from customer_agent2.infrastructure.documents import (
     MarkdownDocumentParser,
     PlainTextDocumentParser,
-    SafeTextDocumentIdentifier,
+    SafeDocumentIdentifier,
     TransformersTextTokenCodec,
 )
 from tests.settings import IsolatedSettings
@@ -73,7 +73,10 @@ class FakeTransformersBackend:
 def parse_document(filename: str, content: str) -> ParsedDocument:
     """Parse one supported text document for chunking tests."""
     service = DocumentParsingService(
-        SafeTextDocumentIdentifier(max_file_size_bytes=1024 * 1024),
+        SafeDocumentIdentifier(
+            max_file_size_bytes=1024 * 1024,
+            max_extracted_chars=1024 * 1024,
+        ),
         (MarkdownDocumentParser(), PlainTextDocumentParser()),
     )
     return service.parse(DocumentSource(filename, content.encode()))

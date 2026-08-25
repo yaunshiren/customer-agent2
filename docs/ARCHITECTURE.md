@@ -178,18 +178,18 @@ Identify → Parse → Chunk → Embed → Index
 
 ### 7.1 Identify
 
-- M2-B 已对 Markdown/TXT 实现扩展名和 MIME 一致性校验，并验证 UTF-8 文本内容；
-  这两种纯文本格式没有稳定文件签名。
-- 已拒绝空文件、不支持类型、超过可配置 50 MiB 上限、类型冲突和二进制控制字符。
-- PDF、DOCX 等二进制格式后续必须结合文件签名判断，不能只信任扩展名或客户端 MIME。
+- M2-F 已对 Markdown/TXT/CSV 实现扩展名、MIME 和 UTF-8 内容校验；这些纯文本格式没有
+  稳定文件签名。
+- PDF 必须具有 `%PDF-` 文件头；DOCX 必须是包含必要 Office Open XML 成员的安全 ZIP。
+- 已拒绝空文件、不支持类型、超过可配置 50 MiB 上限、类型冲突、伪造签名、二进制控制字符、
+  加密 PDF、宏 DOCX 和超过资源限制的压缩包。
 
 ### 7.2 Parse
 
-- M2-B 已实现 Markdown/TXT：Markdown 保留标题、段落、列表、代码块、章节路径和行号；
-  TXT 保留段落和行号。
-- PDF/DOCX：规划优先提取结构化文本和页码/标题来源。
-- CSV：规划保留表头并按记录或小批次构造自包含文本。
-- 扫描件、复杂图片和 XLSX 在 P1 处理。
+- M2-F 已实现五种 P0 格式：Markdown/TXT 保持原有结构；PDF 使用 pypdf 按页提取；DOCX
+  使用 python-docx 按正文顺序保留标题、段落、列表与表格；CSV 为每条记录重复表头。
+- 五种格式统一输出 `ParsedDocument`，继续进入相同 Chunk、Embedding 和 Index 主链路。
+- 扫描件 OCR、复杂图片、旧版 Office 和 XLSX 在 P1 处理。
 
 ### 7.3 Chunk
 
@@ -267,8 +267,8 @@ M2-A 已实现：
 - chunks（包含 embedding）
 
 这四张表采用版本隔离、单一 active 版本和固定 768 维 Cosine HNSW 索引，详细决策见
-[ADR-0002](adr/0002-document-index-schema.md)。M2-E 已实现 Markdown/TXT 的事务化入库与最小 HTTP API；
-PDF/DOCX/CSV 和在线检索尚未实现。
+[ADR-0002](adr/0002-document-index-schema.md)。M2-F 已实现五种 P0 格式的事务化入库与最小 HTTP API；
+在线检索尚未实现。
 
 后续规划保存：
 

@@ -32,5 +32,11 @@ Multipart form parsing uses python-multipart, distributed under the Apache
 License, Version 2.0:
 https://github.com/Kludex/python-multipart
 
+PDF text extraction uses pypdf, distributed under the BSD 3-Clause License:
+https://github.com/py-pdf/pypdf
+
+DOCX text extraction uses python-docx, distributed under the MIT License:
+https://github.com/python-openxml/python-docx
+
 Model weights are downloaded separately by the user and are not included in
 this repository.

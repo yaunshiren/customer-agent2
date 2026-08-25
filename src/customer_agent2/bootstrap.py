@@ -11,9 +11,12 @@ from customer_agent2.config import Settings
 from customer_agent2.domain.models import ChunkingPolicy, EmbeddingIndexConfiguration
 from customer_agent2.infrastructure.database import DatabaseManager
 from customer_agent2.infrastructure.documents import (
+    CsvDocumentParser,
+    DocxDocumentParser,
     MarkdownDocumentParser,
+    PdfDocumentParser,
     PlainTextDocumentParser,
-    SafeTextDocumentIdentifier,
+    SafeDocumentIdentifier,
     TransformersTextTokenCodec,
 )
 from customer_agent2.infrastructure.models import SentenceTransformerEmbeddingModel
@@ -30,8 +33,29 @@ def build_application_services(
     """Build one reusable M2 service graph after the database pool is open."""
     embedding = SentenceTransformerEmbeddingModel.from_settings(settings)
     parser = DocumentParsingService(
-        SafeTextDocumentIdentifier(max_file_size_bytes=settings.upload_max_file_mb * 1024 * 1024),
-        (MarkdownDocumentParser(), PlainTextDocumentParser()),
+        SafeDocumentIdentifier(
+            max_file_size_bytes=settings.upload_max_file_mb * 1024 * 1024,
+            max_extracted_chars=settings.document_max_extracted_chars,
+        ),
+        (
+            CsvDocumentParser(
+                max_rows=settings.document_max_csv_rows,
+                max_columns=settings.document_max_csv_columns,
+                max_extracted_chars=settings.document_max_extracted_chars,
+            ),
+            DocxDocumentParser(
+                max_archive_entries=settings.document_max_docx_entries,
+                max_uncompressed_bytes=(settings.document_max_docx_uncompressed_mb * 1024 * 1024),
+                max_expansion_ratio=settings.document_max_docx_expansion_ratio,
+                max_extracted_chars=settings.document_max_extracted_chars,
+            ),
+            MarkdownDocumentParser(),
+            PdfDocumentParser(
+                max_pages=settings.document_max_pdf_pages,
+                max_extracted_chars=settings.document_max_extracted_chars,
+            ),
+            PlainTextDocumentParser(),
+        ),
     )
     chunker = StructureAwareDocumentChunker(
         TransformersTextTokenCodec.from_settings(settings),

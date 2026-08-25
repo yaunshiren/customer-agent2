@@ -19,9 +19,12 @@ from customer_agent2.domain.models import ChunkingPolicy, EmbeddingIndexConfigur
 from customer_agent2.infrastructure import ApplicationResources
 from customer_agent2.infrastructure.database import DatabaseManager
 from customer_agent2.infrastructure.documents import (
+    CsvDocumentParser,
+    DocxDocumentParser,
     MarkdownDocumentParser,
+    PdfDocumentParser,
     PlainTextDocumentParser,
-    SafeTextDocumentIdentifier,
+    SafeDocumentIdentifier,
 )
 from customer_agent2.infrastructure.models import FakeEmbeddingModel
 from customer_agent2.infrastructure.persistence import (
@@ -33,6 +36,7 @@ from customer_agent2.infrastructure.persistence import (
     SQLAlchemyIngestionRepository,
 )
 from customer_agent2.main import create_app
+from tests.document_samples import CSV_SAMPLE, build_docx_bytes, build_pdf_bytes
 
 pytestmark = [
     pytest.mark.database_integration,
@@ -74,8 +78,29 @@ def fake_model_services(
         dimension=EMBEDDING_DIMENSION,
     )
     parser = DocumentParsingService(
-        SafeTextDocumentIdentifier(max_file_size_bytes=settings.upload_max_file_mb * 1024 * 1024),
-        (MarkdownDocumentParser(), PlainTextDocumentParser()),
+        SafeDocumentIdentifier(
+            max_file_size_bytes=settings.upload_max_file_mb * 1024 * 1024,
+            max_extracted_chars=settings.document_max_extracted_chars,
+        ),
+        (
+            CsvDocumentParser(
+                max_rows=settings.document_max_csv_rows,
+                max_columns=settings.document_max_csv_columns,
+                max_extracted_chars=settings.document_max_extracted_chars,
+            ),
+            DocxDocumentParser(
+                max_archive_entries=settings.document_max_docx_entries,
+                max_uncompressed_bytes=(settings.document_max_docx_uncompressed_mb * 1024 * 1024),
+                max_expansion_ratio=settings.document_max_docx_expansion_ratio,
+                max_extracted_chars=settings.document_max_extracted_chars,
+            ),
+            MarkdownDocumentParser(),
+            PdfDocumentParser(
+                max_pages=settings.document_max_pdf_pages,
+                max_extracted_chars=settings.document_max_extracted_chars,
+            ),
+            PlainTextDocumentParser(),
+        ),
     )
     ingestion_repository = SQLAlchemyIngestionRepository(database.session_factory)
     management_repository = SQLAlchemyDocumentManagementRepository(database.session_factory)
@@ -131,7 +156,13 @@ async def test_real_http_api_creates_rebuilds_reports_and_deletes_document() -> 
 
                 unsupported = await client.post(
                     f"{settings.api_prefix}/knowledge-bases/{knowledge_base_id}/documents",
-                    files={"file": ("guide.pdf", b"not-a-pdf", "application/pdf")},
+                    files={
+                        "file": (
+                            "guide.xlsx",
+                            b"not-an-xlsx",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        )
+                    },
                 )
                 assert unsupported.status_code == 422
                 assert unsupported.json()["detail"]["code"] == "unsupported_type"
@@ -188,6 +219,81 @@ async def test_real_http_api_creates_rebuilds_reports_and_deletes_document() -> 
                         )
                     )
                 assert remaining_chunks == 0
+        finally:
+            if knowledge_base_id is not None:
+                async with database.session_factory.begin() as session:
+                    await session.execute(
+                        delete(KnowledgeBaseRecord).where(
+                            KnowledgeBaseRecord.id == knowledge_base_id
+                        )
+                    )
+
+
+@pytest.mark.asyncio
+async def test_real_http_api_ingests_every_p0_document_format() -> None:
+    settings = Settings()
+    app = create_app(settings, service_factory=fake_model_services)
+    slug = f"format-integration-{uuid4()}"
+    knowledge_base_id: UUID | None = None
+    samples = (
+        ("guide.md", b"# Markdown\n\nRefund policy", "text/markdown", "customer-agent2-markdown"),
+        ("guide.txt", b"Plain text refund policy", "text/plain", "customer-agent2-plain-text"),
+        ("guide.pdf", build_pdf_bytes(), "application/pdf", "customer-agent2-pypdf"),
+        (
+            "guide.docx",
+            build_docx_bytes(),
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "customer-agent2-python-docx",
+        ),
+        ("guide.csv", CSV_SAMPLE, "text/csv", "customer-agent2-csv"),
+    )
+
+    async with app.router.lifespan_context(app):
+        resources = app.state.resources
+        assert isinstance(resources, ApplicationResources)
+        database = resources.database
+        assert isinstance(database, DatabaseManager)
+        transport = httpx.ASGITransport(app=app)
+        version_ids: list[UUID] = []
+        try:
+            async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+                created = await client.post(
+                    f"{settings.api_prefix}/knowledge-bases",
+                    json={"slug": slug, "name": "Format integration"},
+                )
+                assert created.status_code == 201
+                knowledge_base_id = UUID(created.json()["id"])
+
+                for filename, content, media_type, expected_parser in samples:
+                    uploaded = await client.post(
+                        f"{settings.api_prefix}/knowledge-bases/{knowledge_base_id}/documents",
+                        files={"file": (filename, content, media_type)},
+                    )
+                    assert uploaded.status_code == 201
+                    assert uploaded.json()["chunk_count"] >= 1
+                    version_ids.append(UUID(uploaded.json()["version_id"]))
+                    loaded = await client.get(
+                        f"{settings.api_prefix}/knowledge-bases/"
+                        f"{knowledge_base_id}/documents/{uploaded.json()['document_id']}"
+                    )
+                    assert loaded.status_code == 200
+                    assert loaded.json()["latest_version"]["parser_name"] == expected_parser
+
+                async with database.session_factory() as session:
+                    parser_names = set(
+                        await session.scalars(
+                            select(DocumentVersionRecord.parser_name).where(
+                                DocumentVersionRecord.id.in_(version_ids)
+                            )
+                        )
+                    )
+                    chunk_count = await session.scalar(
+                        select(func.count(ChunkRecord.id)).where(
+                            ChunkRecord.document_version_id.in_(version_ids)
+                        )
+                    )
+                assert parser_names == {sample[3] for sample in samples}
+                assert chunk_count is not None and chunk_count >= len(samples)
         finally:
             if knowledge_base_id is not None:
                 async with database.session_factory.begin() as session:

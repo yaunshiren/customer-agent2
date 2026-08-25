@@ -27,7 +27,7 @@ from customer_agent2.infrastructure.database import DatabaseManager
 from customer_agent2.infrastructure.documents import (
     MarkdownDocumentParser,
     PlainTextDocumentParser,
-    SafeTextDocumentIdentifier,
+    SafeDocumentIdentifier,
 )
 from customer_agent2.infrastructure.models import FakeEmbeddingModel
 from customer_agent2.infrastructure.persistence import (
@@ -72,7 +72,10 @@ class CharacterTokenCodec:
 
 def parser() -> DocumentParsingService:
     return DocumentParsingService(
-        SafeTextDocumentIdentifier(max_file_size_bytes=1024 * 1024),
+        SafeDocumentIdentifier(
+            max_file_size_bytes=1024 * 1024,
+            max_extracted_chars=1024 * 1024,
+        ),
         (MarkdownDocumentParser(), PlainTextDocumentParser()),
     )
 

@@ -36,10 +36,13 @@ class PlainTextDocumentParser:
                 "文档类型与 TXT 解析器不匹配",
             )
 
+        text = document.text
+        if text is None:
+            raise DocumentError(DocumentErrorCode.TYPE_MISMATCH, "TXT 文档缺少文本内容")
         blocks: list[ParsedBlock] = []
         paragraph_lines: list[str] = []
         paragraph_start = 0
-        lines = document.text.split("\n")
+        lines = text.split("\n")
 
         for line_number, line in enumerate(lines, start=1):
             if line.strip():

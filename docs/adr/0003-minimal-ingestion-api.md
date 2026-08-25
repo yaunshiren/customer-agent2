@@ -42,7 +42,8 @@ M2-E 在现有 `/api/v1` 前缀下增加：
 - API 在应用层限制之外再执行有界读取，最多读取 `UPLOAD_MAX_FILE_MB + 1 byte`，超限即拒绝。
 - 无论成功、验证失败、取消或模型失败，都显式关闭框架提供的上传文件对象。
 - 应用不持久化原始文件；multipart 实现可以在请求期间使用框架管理的临时 spool，关闭后释放。
-- 当前只接受 M2-B 已实现的 Markdown/TXT Allowlist 和 UTF-8/UTF-8 BOM。
+- 当前接受 Markdown、TXT、PDF、DOCX 和 UTF-8 CSV；二进制签名、结构与资源限制由
+  [ADR-0004](0004-multiformat-document-parsing.md) 定义。
 
 multipart 解析使用 `python-multipart`，作为 FastAPI 文件上传所需的直接运行时依赖锁定。
 
@@ -83,7 +84,7 @@ Tokenizer、Embedding 模型和数据库连接池；关闭时仍由现有资源�
 
 ## 后果
 
-- Markdown/TXT 可以从标准 HTTP 上传完整进入 pgvector，并通过公开状态接口验证。
+- 五种 P0 文档格式可以从标准 HTTP 上传完整进入 pgvector，并通过公开状态接口验证。
 - 同一 `source_key` 再次上传会建立新版本，数据库仍只允许一个 active 版本。
 - 删除是不可恢复的级联硬删除；加入权限系统前，该 API 仅适合受控开发和演示环境。
 - 当前同步 API 不提供后台进度、断点续传、对象存储、版本历史列表或失败重试。

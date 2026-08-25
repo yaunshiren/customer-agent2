@@ -1,8 +1,10 @@
-"""Strict allowlist identification for the currently supported text formats."""
+"""Strict allowlist identification for all supported document formats."""
 
 from hashlib import sha256
+from io import BytesIO
 from pathlib import PurePosixPath
 from typing import Final
+from zipfile import is_zipfile
 
 from customer_agent2.domain.models import (
     DocumentError,
@@ -13,29 +15,45 @@ from customer_agent2.domain.models import (
 )
 
 _EXTENSION_FORMATS: Final = {
+    ".csv": DocumentFormat.CSV,
+    ".docx": DocumentFormat.DOCX,
     ".md": DocumentFormat.MARKDOWN,
     ".markdown": DocumentFormat.MARKDOWN,
+    ".pdf": DocumentFormat.PDF,
     ".txt": DocumentFormat.PLAIN_TEXT,
 }
 _MEDIA_TYPE_FORMATS: Final = {
+    "application/csv": DocumentFormat.CSV,
+    "application/pdf": DocumentFormat.PDF,
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": (
+        DocumentFormat.DOCX
+    ),
+    "text/csv": DocumentFormat.CSV,
     "text/markdown": DocumentFormat.MARKDOWN,
     "text/x-markdown": DocumentFormat.MARKDOWN,
     "text/plain": DocumentFormat.PLAIN_TEXT,
 }
 _CANONICAL_MEDIA_TYPES: Final = {
+    DocumentFormat.CSV: "text/csv",
+    DocumentFormat.DOCX: (
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ),
     DocumentFormat.MARKDOWN: "text/markdown",
+    DocumentFormat.PDF: "application/pdf",
     DocumentFormat.PLAIN_TEXT: "text/plain",
 }
 _GENERIC_MEDIA_TYPES: Final = frozenset({"application/octet-stream", "binary/octet-stream"})
+_BINARY_FORMATS: Final = frozenset({DocumentFormat.DOCX, DocumentFormat.PDF})
 
 
-class SafeTextDocumentIdentifier:
-    """Validate size, extension, MIME, UTF-8, and text safety before parsing."""
+class SafeDocumentIdentifier:
+    """Validate size, format agreement, signatures, and safe text decoding."""
 
-    def __init__(self, *, max_file_size_bytes: int) -> None:
-        if max_file_size_bytes < 1:
-            raise ValueError("max_file_size_bytes 必须大于 0")
+    def __init__(self, *, max_file_size_bytes: int, max_extracted_chars: int) -> None:
+        if max_file_size_bytes < 1 or max_extracted_chars < 1:
+            raise ValueError("文档识别限制必须大于 0")
         self._max_file_size_bytes = max_file_size_bytes
+        self._max_extracted_chars = max_extracted_chars
 
     def identify(self, source: DocumentSource) -> IdentifiedDocument:
         """Return decoded text only after all untrusted-input checks pass."""
@@ -46,6 +64,20 @@ class SafeTextDocumentIdentifier:
             raise DocumentError(DocumentErrorCode.FILE_TOO_LARGE, "文档超过允许的大小")
 
         document_format = self._identify_format(source)
+        content_sha256 = sha256(source.content).hexdigest()
+        if document_format in _BINARY_FORMATS:
+            _validate_binary_signature(document_format, source.content)
+            return IdentifiedDocument(
+                filename=source.filename,
+                document_format=document_format,
+                media_type=_CANONICAL_MEDIA_TYPES[document_format],
+                charset=None,
+                content=source.content,
+                text=None,
+                byte_size=byte_size,
+                content_sha256=content_sha256,
+            )
+
         if b"\x00" in source.content:
             raise DocumentError(DocumentErrorCode.BINARY_CONTENT, "文档包含二进制内容")
 
@@ -58,6 +90,11 @@ class SafeTextDocumentIdentifier:
             ) from None
 
         normalized_text = decoded_text.replace("\r\n", "\n").replace("\r", "\n")
+        if len(normalized_text) > self._max_extracted_chars:
+            raise DocumentError(
+                DocumentErrorCode.RESOURCE_LIMIT_EXCEEDED,
+                "文档文本超过允许上限",
+            )
         if _contains_disallowed_control_character(normalized_text):
             raise DocumentError(DocumentErrorCode.BINARY_CONTENT, "文档包含二进制内容")
 
@@ -66,9 +103,10 @@ class SafeTextDocumentIdentifier:
             document_format=document_format,
             media_type=_CANONICAL_MEDIA_TYPES[document_format],
             charset="utf-8",
+            content=source.content,
             text=normalized_text,
             byte_size=byte_size,
-            content_sha256=sha256(source.content).hexdigest(),
+            content_sha256=content_sha256,
         )
 
     def _identify_format(self, source: DocumentSource) -> DocumentFormat:
@@ -121,3 +159,16 @@ def _contains_disallowed_control_character(text: str) -> bool:
         character not in allowed and (ord(character) < 32 or 127 <= ord(character) <= 159)
         for character in text
     )
+
+
+def _validate_binary_signature(document_format: DocumentFormat, content: bytes) -> None:
+    signature_is_valid = (
+        content.startswith(b"%PDF-")
+        if document_format is DocumentFormat.PDF
+        else is_zipfile(BytesIO(content))
+    )
+    if not signature_is_valid:
+        raise DocumentError(
+            DocumentErrorCode.INVALID_FILE_SIGNATURE,
+            "文件签名与声明的文档类型不一致",
+        )

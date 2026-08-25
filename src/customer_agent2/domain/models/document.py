@@ -8,7 +8,10 @@ from typing import Protocol
 class DocumentFormat(StrEnum):
     """Document formats implemented by the current parser registry."""
 
+    CSV = "csv"
+    DOCX = "docx"
     MARKDOWN = "markdown"
+    PDF = "pdf"
     PLAIN_TEXT = "plain_text"
 
 
@@ -30,8 +33,12 @@ class DocumentErrorCode(StrEnum):
     TYPE_MISMATCH = "type_mismatch"
     INVALID_ENCODING = "invalid_encoding"
     BINARY_CONTENT = "binary_content"
+    ENCRYPTED_DOCUMENT = "encrypted_document"
     EMPTY_CONTENT = "empty_content"
+    INVALID_FILE_SIGNATURE = "invalid_file_signature"
+    MALFORMED_DOCUMENT = "malformed_document"
     PARSER_NOT_CONFIGURED = "parser_not_configured"
+    RESOURCE_LIMIT_EXCEEDED = "resource_limit_exceeded"
 
 
 class DocumentError(RuntimeError):
@@ -90,23 +97,28 @@ def _validate_source_values(
 
 @dataclass(frozen=True, slots=True)
 class IdentifiedDocument:
-    """Decoded text after allowlist, size, MIME, binary, and encoding checks."""
+    """Trusted format identity plus raw bytes and optional decoded text."""
 
     filename: str
     document_format: DocumentFormat
     media_type: str
-    charset: str
-    text: str
+    charset: str | None
+    content: bytes
+    text: str | None
     byte_size: int
     content_sha256: str
 
     def __post_init__(self) -> None:
         if not self.filename.strip():
             raise ValueError("IdentifiedDocument.filename 不能为空")
-        if not self.media_type.strip() or not self.charset.strip():
-            raise ValueError("IdentifiedDocument 媒体类型和字符集不能为空")
-        if self.byte_size < 1:
-            raise ValueError("IdentifiedDocument.byte_size 必须大于 0")
+        if not self.media_type.strip():
+            raise ValueError("IdentifiedDocument.media_type 不能为空")
+        if self.byte_size < 1 or self.byte_size != len(self.content):
+            raise ValueError("IdentifiedDocument.byte_size 与原始内容不一致")
+        if self.text is None and self.charset is not None:
+            raise ValueError("二进制 IdentifiedDocument 不能声明字符集")
+        if self.text is not None and (self.charset is None or not self.charset.strip()):
+            raise ValueError("文本 IdentifiedDocument 必须声明字符集")
         if len(self.content_sha256) != 64 or any(
             character not in "0123456789abcdef" for character in self.content_sha256
         ):

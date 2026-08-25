@@ -42,7 +42,10 @@ class MarkdownDocumentParser:
                 "文档类型与 Markdown 解析器不匹配",
             )
 
-        tokens = self._markdown.parse(document.text)
+        text = document.text
+        if text is None:
+            raise DocumentError(DocumentErrorCode.TYPE_MISMATCH, "Markdown 文档缺少文本内容")
+        tokens = self._markdown.parse(text)
         blocks: list[ParsedBlock] = []
         headings: list[tuple[int, str]] = []
         list_item_depth = 0

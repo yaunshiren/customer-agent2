@@ -71,6 +71,13 @@ class Settings(BaseSettings):
     readiness_timeout_seconds: float = Field(default=3.0, gt=0)
 
     upload_max_file_mb: int = Field(default=50, ge=1)
+    document_max_extracted_chars: int = Field(default=5_000_000, ge=1)
+    document_max_pdf_pages: int = Field(default=1000, ge=1)
+    document_max_docx_entries: int = Field(default=2000, ge=1)
+    document_max_docx_uncompressed_mb: int = Field(default=200, ge=1)
+    document_max_docx_expansion_ratio: int = Field(default=100, ge=1)
+    document_max_csv_rows: int = Field(default=10_000, ge=1)
+    document_max_csv_columns: int = Field(default=200, ge=1)
     chunk_target_tokens: int = Field(default=400, ge=1)
     chunk_overlap_tokens: int = Field(default=64, ge=0)
 

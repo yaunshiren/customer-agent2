@@ -18,7 +18,7 @@ from customer_agent2.infrastructure.database import DatabaseManager
 from customer_agent2.infrastructure.documents import (
     MarkdownDocumentParser,
     PlainTextDocumentParser,
-    SafeTextDocumentIdentifier,
+    SafeDocumentIdentifier,
     TransformersTextTokenCodec,
 )
 from customer_agent2.infrastructure.models import SentenceTransformerEmbeddingModel
@@ -61,8 +61,9 @@ async def test_real_bge_ingestion_activates_normalized_pgvector_chunks(
             )
 
         parser = DocumentParsingService(
-            SafeTextDocumentIdentifier(
-                max_file_size_bytes=settings.upload_max_file_mb * 1024 * 1024
+            SafeDocumentIdentifier(
+                max_file_size_bytes=settings.upload_max_file_mb * 1024 * 1024,
+                max_extracted_chars=settings.document_max_extracted_chars,
             ),
             (MarkdownDocumentParser(), PlainTextDocumentParser()),
         )
