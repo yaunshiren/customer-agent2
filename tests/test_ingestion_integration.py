@@ -36,6 +36,7 @@ from customer_agent2.infrastructure.persistence import (
     DocumentRecord,
     DocumentVersionRecord,
     KnowledgeBaseRecord,
+    SQLAlchemyDocumentManagementRepository,
     SQLAlchemyIngestionRepository,
 )
 
@@ -222,10 +223,17 @@ async def test_real_database_embedding_failure_keeps_previous_active_version() -
                     )
                 )
             )
+        document_status = await SQLAlchemyDocumentManagementRepository(
+            manager.session_factory
+        ).get_document_status(knowledge_base_id, first.document_id)
 
         assert [version.status for version in versions] == ["active", "failed"]
         assert versions[1].error_code == "embedding_unavailable"
         assert chunk_version_ids == {first.version_id}
+        assert document_status is not None
+        assert document_status.latest_version.status.value == "failed"
+        assert document_status.latest_version.chunk_count == 0
+        assert document_status.active_version_id == first.version_id
     finally:
         await remove_knowledge_base(manager, knowledge_base_id)
         await manager.close()

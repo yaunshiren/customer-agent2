@@ -211,6 +211,15 @@ Identify → Parse → Chunk → Embed → Index
   `active`。中途失败时整个激活事务回滚，旧 active 保持不变，新版本最终标记为 `failed`。
 - 并发创建版本时短暂锁定知识库行，避免同一文档出现重复版本号或逻辑文档竞态。
 
+### 7.5 最小入库 API
+
+- M2-E 在 `/api/v1` 下实现知识库创建、multipart 文档上传、文档状态查询和作用域内删除。
+- 上传是同步契约：只有新版本 active 后才返回 201，不生成虚假的后台任务 ID。
+- API 最多有界读取 `UPLOAD_MAX_FILE_MB + 1 byte`，并在成功、失败或取消后关闭上传文件对象。
+- lifespan 在连接池打开后构建一次共享服务图，Tokenizer 和 Embedding 仍按首次上传懒加载。
+- 错误响应只包含稳定 code、公开 message 和 retryable，详细契约见
+  [ADR-0003](adr/0003-minimal-ingestion-api.md)。
+
 ## 8. 模型网关
 
 模型网关对应用层暴露：
@@ -258,7 +267,7 @@ M2-A 已实现：
 - chunks（包含 embedding）
 
 这四张表采用版本隔离、单一 active 版本和固定 768 维 Cosine HNSW 索引，详细决策见
-[ADR-0002](adr/0002-document-index-schema.md)。M2-D 已实现 Markdown/TXT 的事务化入库用例；上传 API、
+[ADR-0002](adr/0002-document-index-schema.md)。M2-E 已实现 Markdown/TXT 的事务化入库与最小 HTTP API；
 PDF/DOCX/CSV 和在线检索尚未实现。
 
 后续规划保存：
@@ -281,7 +290,8 @@ Redis 不是消息和知识数据的唯一事实来源。
 
 ### 对象存储
 
-原始文档和解析资产使用 S3-compatible 接口。开发环境可使用 MinIO；P0 早期允许文件系统适配器，但必须通过统一 `ObjectStorage` 接口。
+M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipart 临时 spool。后续原始文档和
+解析资产规划使用 S3-compatible `ObjectStorage` 接口；当前尚未引入 MinIO。
 
 ## 11. 配置和启动校验
 

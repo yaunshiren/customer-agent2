@@ -4,10 +4,11 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M2-D 事务化文档入库已完成。项目已有 PostgreSQL/Redis 连接管理、
+> 当前状态：M2-E 最小文档入库 API 已完成。项目已有 PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
 > `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT 解析，以及
-> 400/64 Token 分块与原子版本切换；PDF/DOCX/CSV、上传 API 和在线 RAG 仍是后续任务。
+> 400/64 Token 分块、原子版本切换和同步上传/状态/删除 API；PDF/DOCX/CSV 和在线 RAG
+> 仍是后续任务。
 
 ## 项目目标
 
@@ -44,6 +45,7 @@
 - PostgreSQL、pgvector
 - Redis
 - markdown-it-py
+- python-multipart
 - OpenAI-compatible Async Client、httpx
 - Sentence Transformers、PyTorch CPU
 - pytest、pytest-asyncio
@@ -75,8 +77,8 @@
 
 Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实云端模型或消耗额度。本地
 Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。M2-A 至
-M2-D 已把版本化存储、Markdown/TXT 解析、结构分块、批量 Embedding 和 pgvector 原子切换
-连成应用用例。项目还没有把模型暴露为对外问答 API，也没有实现文件上传或在线向量检索。
+M2-E 已把版本化存储、Markdown/TXT 解析、结构分块、批量 Embedding 和 pgvector 原子切换
+连成同步 HTTP 入库闭环。项目还没有对外问答 API、PDF/DOCX/CSV 入库或在线向量检索。
 
 ## 当前文档解析边界
 
@@ -86,7 +88,8 @@ M2-D 已把版本化存储、Markdown/TXT 解析、结构分块、批量 Embeddi
 - Markdown 保留标题层级、段落、列表项、代码块、章节路径和来源行号；TXT 保留段落和来源行号。
 - 解析器通过领域接口注册和选择，不依赖 FastAPI、数据库或文件系统。
 
-这些能力已连接到应用层入库用例，但尚未暴露上传 API，也不会把原文件写入本地文件系统。
+这些能力已连接到同步上传 API。应用不持久化原文件；multipart 实现可能在请求期间使用
+框架管理的临时 spool，请求结束时显式关闭。
 
 ## 当前分块边界
 
@@ -107,6 +110,17 @@ M2-D 已把版本化存储、Markdown/TXT 解析、结构分块、批量 Embeddi
 - Embedding 失败、协议异常和取消会使新版本进入 `failed`；旧 active 版本不受影响。
 - 当前保留 `failed` 和 `superseded` 版本用于追溯，清理策略、任务状态 API 和对象存储仍属后续任务。
 
+## 当前入库 API
+
+- `POST /api/v1/knowledge-bases`：创建固定使用当前 Embedding Baseline 的知识库。
+- `POST /api/v1/knowledge-bases/{knowledge_base_id}/documents`：multipart 上传 `file`，可选
+  `source_key`；只有新版本已经 active 才返回 HTTP 201。
+- `GET /api/v1/knowledge-bases/{knowledge_base_id}/documents/{document_id}`：返回最新入库尝试和
+  当前 active 版本。
+- `DELETE /api/v1/knowledge-bases/{knowledge_base_id}/documents/{document_id}`：级联硬删除文档、版本和 Chunk。
+
+当前 API 是受控开发/演示边界：没有身份认证、多租户、后台任务、进度轮询和对象存储。删除不可恢复。
+
 ## 当前文档
 
 - [项目范围](docs/PROJECT_SCOPE.md)
@@ -114,6 +128,7 @@ M2-D 已把版本化存储、Markdown/TXT 解析、结构分块、批量 Embeddi
 - [开发计划](docs/DEVELOPMENT_PLAN.md)
 - [技术选型决策](docs/adr/0001-technology-stack.md)
 - [文档版本与向量索引模式](docs/adr/0002-document-index-schema.md)
+- [最小文档入库 API 契约](docs/adr/0003-minimal-ingestion-api.md)
 - [AI 协作规则](AGENTS.md)
 
 ## 本地启动
@@ -185,7 +200,26 @@ pgvector 和 Redis 都可用时返回 HTTP 200，否则返回不包含连接串�
 
 OpenAPI 页面位于 `http://127.0.0.1:8000/api/v1/docs`。
 
-### 6. 运行质量检查
+### 6. 调用最小入库 API
+
+```powershell
+$knowledgeBase = Invoke-RestMethod -Method Post `
+  -Uri http://127.0.0.1:8000/api/v1/knowledge-bases `
+  -ContentType "application/json" `
+  -Body '{"slug":"demo-docs","name":"Demo Docs"}'
+
+$upload = Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/api/v1/knowledge-bases/$($knowledgeBase.id)/documents" `
+  -Form @{file = Get-Item .\guide.md; source_key = "manual/guide.md"}
+
+Invoke-RestMethod `
+  "http://127.0.0.1:8000/api/v1/knowledge-bases/$($knowledgeBase.id)/documents/$($upload.document_id)"
+```
+
+上传是同步操作，本地 CPU Embedding 完成前请求会保持。当前只接受 UTF-8 Markdown/TXT，
+默认上限 50 MiB。
+
+### 7. 运行质量检查
 
 ```powershell
 ruff check .

@@ -20,6 +20,7 @@ dependencies = [
     "openai>=1.109,<2",
     "pgvector>=0.5,<1",
     "pydantic-settings>=2.7,<3",
+    "python-multipart>=0.0.20,<1",
     "redis>=5.2,<7",
     "sentence-transformers>=5.7,<6",
     "sqlalchemy[asyncio]>=2.0,<3",

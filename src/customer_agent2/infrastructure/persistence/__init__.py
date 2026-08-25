@@ -1,6 +1,9 @@
 """Database persistence records and metadata."""
 
 from customer_agent2.infrastructure.persistence.base import Base
+from customer_agent2.infrastructure.persistence.document_repository import (
+    SQLAlchemyDocumentManagementRepository,
+)
 from customer_agent2.infrastructure.persistence.ingestion_repository import (
     SQLAlchemyIngestionRepository,
 )
@@ -19,5 +22,6 @@ __all__ = [
     "DocumentRecord",
     "DocumentVersionRecord",
     "KnowledgeBaseRecord",
+    "SQLAlchemyDocumentManagementRepository",
     "SQLAlchemyIngestionRepository",
 ]

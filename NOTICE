@@ -28,5 +28,9 @@ https://github.com/pgvector/pgvector-python
 CommonMark parsing uses markdown-it-py, distributed under the MIT License:
 https://github.com/executablebooks/markdown-it-py
 
+Multipart form parsing uses python-multipart, distributed under the Apache
+License, Version 2.0:
+https://github.com/Kludex/python-multipart
+
 Model weights are downloaded separately by the user and are not included in
 this repository.
