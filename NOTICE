@@ -25,5 +25,8 @@ Python integration with PostgreSQL vector columns uses pgvector-python,
 distributed under the MIT License:
 https://github.com/pgvector/pgvector-python
 
+CommonMark parsing uses markdown-it-py, distributed under the MIT License:
+https://github.com/executablebooks/markdown-it-py
+
 Model weights are downloaded separately by the user and are not included in
 this repository.

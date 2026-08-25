@@ -70,6 +70,8 @@ class Settings(BaseSettings):
 
     readiness_timeout_seconds: float = Field(default=3.0, gt=0)
 
+    upload_max_file_mb: int = Field(default=50, ge=1)
+
     retrieval_recall_budget: int = Field(default=20, ge=1)
     retrieval_rerank_candidate_limit: int = Field(default=40, ge=1)
     retrieval_context_top_k: int = Field(default=10, ge=1)

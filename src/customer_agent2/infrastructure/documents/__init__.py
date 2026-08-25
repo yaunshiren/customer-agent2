@@ -1,0 +1,11 @@
+"""Concrete document identification and parsing adapters."""
+
+from customer_agent2.infrastructure.documents.identifier import SafeTextDocumentIdentifier
+from customer_agent2.infrastructure.documents.markdown_parser import MarkdownDocumentParser
+from customer_agent2.infrastructure.documents.text_parser import PlainTextDocumentParser
+
+__all__ = [
+    "MarkdownDocumentParser",
+    "PlainTextDocumentParser",
+    "SafeTextDocumentIdentifier",
+]

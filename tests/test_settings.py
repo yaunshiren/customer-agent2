@@ -88,6 +88,14 @@ def test_settings_reject_empty_embedding_revision() -> None:
         Settings(local_embedding_revision=" ")
 
 
+def test_settings_type_and_bound_upload_file_size() -> None:
+    assert Settings().upload_max_file_mb == 50
+    assert Settings.model_validate({"upload_max_file_mb": "25"}).upload_max_file_mb == 25
+
+    with pytest.raises(ValidationError, match="upload_max_file_mb"):
+        Settings(upload_max_file_mb=0)
+
+
 def test_settings_require_credentials_when_rerank_is_enabled() -> None:
     with pytest.raises(ValidationError, match="DASHSCOPE_API_KEY"):
         Settings.model_validate(
