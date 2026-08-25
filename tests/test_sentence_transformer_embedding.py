@@ -118,6 +118,8 @@ async def test_from_settings_uses_all_local_embedding_configuration() -> None:
         local_embedding_device="cpu",
         local_embedding_batch_size=7,
         embedding_normalize=False,
+        chunk_target_tokens=10,
+        chunk_overlap_tokens=2,
     )
     model = SentenceTransformerEmbeddingModel.from_settings(
         settings,

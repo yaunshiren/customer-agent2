@@ -71,6 +71,8 @@ class Settings(BaseSettings):
     readiness_timeout_seconds: float = Field(default=3.0, gt=0)
 
     upload_max_file_mb: int = Field(default=50, ge=1)
+    chunk_target_tokens: int = Field(default=400, ge=1)
+    chunk_overlap_tokens: int = Field(default=64, ge=0)
 
     retrieval_recall_budget: int = Field(default=20, ge=1)
     retrieval_rerank_candidate_limit: int = Field(default=40, ge=1)
@@ -151,6 +153,11 @@ class Settings(BaseSettings):
                 raise ValueError("bge-base-zh-v1.5 的 LOCAL_EMBEDDING_DIMENSION 必须为 768")
             if self.local_embedding_max_tokens != 512:
                 raise ValueError("bge-base-zh-v1.5 的 LOCAL_EMBEDDING_MAX_TOKENS 必须为 512")
+
+        if self.chunk_overlap_tokens >= self.chunk_target_tokens:
+            raise ValueError("CHUNK_OVERLAP_TOKENS 必须小于 CHUNK_TARGET_TOKENS")
+        if self.chunk_target_tokens > self.local_embedding_max_tokens:
+            raise ValueError("CHUNK_TARGET_TOKENS 不能超过 LOCAL_EMBEDDING_MAX_TOKENS")
 
         if self.rerank_enabled:
             if not self.dashscope_api_key.get_secret_value():

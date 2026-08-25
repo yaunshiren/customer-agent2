@@ -193,9 +193,13 @@ Identify → Parse → Chunk → Embed → Index
 
 ### 7.3 Chunk
 
-- 分块首先尊重标题、段落、列表、表格和代码块。
-- 超预算块再执行 Token 级切分。
-- Chunk 必须携带 document_id、source_name、section、page、chunk_index 等来源元数据。
+- M2-C 已确认目标 400 Token、Overlap 64 Token，并校验目标不超过 Embedding 的 512 Token 上限。
+- 已实现结构优先分组：标题开启新组，同章节的段落、列表项和代码块在预算内合并，
+  不跨标题章节合并。
+- 结构块或结构组超预算时，使用与 Embedding 相同 model ID/revision 的真实 Tokenizer
+  执行滑窗切分；64 Token Overlap 只用于这种二次切分，自然结构边界不强制重叠。
+- 当前 Chunk 草稿携带 chunk_index、Token 数、内容哈希、章节路径、Block 范围、来源行号
+  和实际 Overlap。document_id、page 等格式或持久化身份在后续入库编排时补齐。
 
 ### 7.4 Embed 与 Index
 

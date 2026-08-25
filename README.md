@@ -4,10 +4,10 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M2-B Markdown/TXT 文档识别与结构化解析已完成。项目已有 PostgreSQL/Redis 连接管理、
+> 当前状态：M2-C 结构感知分块已完成。项目已有 PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
-> `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储，以及 Markdown/TXT 解析边界；
-> PDF/DOCX/CSV、分块、入库编排、上传 API 和在线 RAG 仍是后续任务。
+> `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT 解析，以及
+> 400/64 Token 分块；PDF/DOCX/CSV、入库编排、上传 API 和在线 RAG 仍是后续任务。
 
 ## 项目目标
 
@@ -76,7 +76,7 @@
 Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实云端模型或消耗额度。本地
 Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。M2-A 已建立
 版本化文档和向量存储模式；M2-B 已实现 Markdown/TXT 的安全识别和结构化解析。项目还
-没有把模型暴露为对外问答 API，也没有实现文件上传、分块、入库编排或在线向量检索。
+没有把模型暴露为对外问答 API，也没有实现文件上传、Embedding 入库编排或在线向量检索。
 
 ## 当前文档解析边界
 
@@ -87,6 +87,16 @@ Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属�
 - 解析器通过领域接口注册和选择，不依赖 FastAPI、数据库或文件系统。
 
 这些能力目前由单元测试直接调用，尚未连接上传 API 或数据库入库用例。
+
+## 当前分块边界
+
+- 使用与默认 Embedding 相同且固定 revision 的 BGE Tokenizer，不用字符数估算 Token。
+- 已确认 Baseline 为目标 400 Token、超预算滑窗 Overlap 64 Token，且 400 不超过模型 512 Token 上限。
+- 优先按标题章节、段落、列表项和代码块组合；不同标题章节不会合并。
+- 只有结构块或结构组超过 400 Token 时才执行 Token 滑窗；自然结构边界不强制制造重复文本。
+- Chunk 草稿包含连续索引、Token 数、内容哈希、章节路径、Block 范围、来源行号和实际 Overlap。
+
+当前输出仍是内存中的 Chunk 草稿，尚未调用 Embedding 或写入 pgvector。
 
 ## 当前文档
 

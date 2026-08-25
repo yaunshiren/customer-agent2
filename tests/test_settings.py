@@ -96,6 +96,18 @@ def test_settings_type_and_bound_upload_file_size() -> None:
         Settings(upload_max_file_mb=0)
 
 
+def test_settings_validate_confirmed_chunk_budget() -> None:
+    settings = Settings()
+    assert settings.chunk_target_tokens == 400
+    assert settings.chunk_overlap_tokens == 64
+
+    with pytest.raises(ValidationError, match="CHUNK_OVERLAP_TOKENS"):
+        Settings(chunk_target_tokens=64, chunk_overlap_tokens=64)
+
+    with pytest.raises(ValidationError, match="CHUNK_TARGET_TOKENS"):
+        Settings(chunk_target_tokens=513)
+
+
 def test_settings_require_credentials_when_rerank_is_enabled() -> None:
     with pytest.raises(ValidationError, match="DASHSCOPE_API_KEY"):
         Settings.model_validate(

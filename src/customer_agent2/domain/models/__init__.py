@@ -9,6 +9,14 @@ from customer_agent2.domain.models.chat import (
     ChatStreamChunk,
     TokenUsage,
 )
+from customer_agent2.domain.models.chunk import (
+    ChunkDraft,
+    ChunkingError,
+    ChunkingErrorCode,
+    ChunkingPolicy,
+    ChunkingResult,
+    TextTokenCodec,
+)
 from customer_agent2.domain.models.document import (
     DocumentError,
     DocumentErrorCode,
@@ -43,6 +51,11 @@ __all__ = [
     "ChatResult",
     "ChatRole",
     "ChatStreamChunk",
+    "ChunkDraft",
+    "ChunkingError",
+    "ChunkingErrorCode",
+    "ChunkingPolicy",
+    "ChunkingResult",
     "DocumentError",
     "DocumentErrorCode",
     "DocumentFormat",
@@ -64,5 +77,6 @@ __all__ = [
     "RerankModel",
     "RerankRequest",
     "RerankResult",
+    "TextTokenCodec",
     "TokenUsage",
 ]
