@@ -50,6 +50,8 @@ def test_markdown_parser_preserves_structure_sections_and_source_lines() -> None
 
     parsed = parsing_service().parse(source)
 
+    assert parsed.parser_name == "customer-agent2-markdown"
+    assert parsed.parser_version == "1"
     assert parsed.source.filename == "refund.MD"
     assert parsed.source.document_format is DocumentFormat.MARKDOWN
     assert parsed.source.media_type == "text/markdown"
@@ -86,6 +88,8 @@ def test_plain_text_parser_accepts_utf8_bom_and_normalizes_newlines() -> None:
         )
     )
 
+    assert parsed.parser_name == "customer-agent2-plain-text"
+    assert parsed.parser_version == "1"
     assert parsed.source.document_format is DocumentFormat.PLAIN_TEXT
     assert [block.text for block in parsed.blocks] == [
         "第一段第一行\n第一段第二行",

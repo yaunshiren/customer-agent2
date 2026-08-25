@@ -198,15 +198,18 @@ Identify → Parse → Chunk → Embed → Index
   不跨标题章节合并。
 - 结构块或结构组超预算时，使用与 Embedding 相同 model ID/revision 的真实 Tokenizer
   执行滑窗切分；64 Token Overlap 只用于这种二次切分，自然结构边界不强制重叠。
-- 当前 Chunk 草稿携带 chunk_index、Token 数、内容哈希、章节路径、Block 范围、来源行号
-  和实际 Overlap。document_id、page 等格式或持久化身份在后续入库编排时补齐。
+- Chunk 草稿携带 chunk_index、Token 数、内容哈希、章节路径、Block 范围、来源行号
+  和实际 Overlap。M2-D 入库适配器将这些字段写入类型化列和 JSONB 来源元数据。
 
 ### 7.4 Embed 与 Index
 
-- Embedding 输入经过统一清洗和长度检查。
-- 默认对向量执行归一化。
-- 写入前验证向量维度与知识库配置一致。
-- 文档重建采用“先准备新版本，再原子替换旧版本”的语义，避免半成品索引。
+- M2-D 已实现显式 `Parse → Chunk → Embed → Index` 应用用例。Parse/Chunk 在工作线程执行，
+  Embedding 使用一个批量请求交给适配器的 CPU Batch。
+- 分词器、Embedding 返回结果和知识库保存的 model ID、revision、维度、归一化必须一致。
+- Parse/Chunk 成功后以短事务创建 `building` 版本；模型计算期间不持有数据库事务。
+- 全部向量就绪后，单个激活事务写入 Chunk、将旧 active 改为 `superseded`、将新版本改为
+  `active`。中途失败时整个激活事务回滚，旧 active 保持不变，新版本最终标记为 `failed`。
+- 并发创建版本时短暂锁定知识库行，避免同一文档出现重复版本号或逻辑文档竞态。
 
 ## 8. 模型网关
 
@@ -255,7 +258,8 @@ M2-A 已实现：
 - chunks（包含 embedding）
 
 这四张表采用版本隔离、单一 active 版本和固定 768 维 Cosine HNSW 索引，详细决策见
-[ADR-0002](adr/0002-document-index-schema.md)。当前尚未实现解析、入库用例和在线检索。
+[ADR-0002](adr/0002-document-index-schema.md)。M2-D 已实现 Markdown/TXT 的事务化入库用例；上传 API、
+PDF/DOCX/CSV 和在线检索尚未实现。
 
 后续规划保存：
 

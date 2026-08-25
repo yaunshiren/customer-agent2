@@ -24,6 +24,16 @@ class MarkdownDocumentParser:
     def document_format(self) -> DocumentFormat:
         return DocumentFormat.MARKDOWN
 
+    @property
+    def parser_name(self) -> str:
+        """Return the stable parser identity persisted with document versions."""
+        return "customer-agent2-markdown"
+
+    @property
+    def parser_version(self) -> str:
+        """Return the application parser contract version."""
+        return "1"
+
     def parse(self, document: IdentifiedDocument) -> ParsedDocument:
         """Convert a validated Markdown document into ordered structural blocks."""
         if document.document_format is not self.document_format:
@@ -105,7 +115,12 @@ class MarkdownDocumentParser:
 
         if not blocks:
             raise DocumentError(DocumentErrorCode.EMPTY_CONTENT, "文档没有可解析的文本内容")
-        return ParsedDocument(source=document, blocks=tuple(blocks))
+        return ParsedDocument(
+            source=document,
+            blocks=tuple(blocks),
+            parser_name=self.parser_name,
+            parser_version=self.parser_version,
+        )
 
 
 def _following_inline(tokens: list[Token], index: int) -> Token:

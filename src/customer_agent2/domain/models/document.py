@@ -158,12 +158,22 @@ class ParsedDocument:
 
     source: IdentifiedDocument
     blocks: tuple[ParsedBlock, ...]
+    parser_name: str
+    parser_version: str
 
     def __post_init__(self) -> None:
         if not self.blocks:
             raise ValueError("ParsedDocument.blocks 不能为空")
         if tuple(block.ordinal for block in self.blocks) != tuple(range(len(self.blocks))):
             raise ValueError("ParsedDocument.blocks 必须按连续 ordinal 排序")
+        normalized_parser_name = self.parser_name.strip()
+        normalized_parser_version = self.parser_version.strip()
+        if not normalized_parser_name or not normalized_parser_version:
+            raise ValueError("ParsedDocument 解析器名称和版本不能为空")
+        if len(normalized_parser_name) > 100 or len(normalized_parser_version) > 100:
+            raise ValueError("ParsedDocument 解析器名称和版本不能超过 100 个字符")
+        object.__setattr__(self, "parser_name", normalized_parser_name)
+        object.__setattr__(self, "parser_version", normalized_parser_version)
 
     @property
     def text(self) -> str:
@@ -182,5 +192,11 @@ class DocumentParser(Protocol):
 
     @property
     def document_format(self) -> DocumentFormat: ...
+
+    @property
+    def parser_name(self) -> str: ...
+
+    @property
+    def parser_version(self) -> str: ...
 
     def parse(self, document: IdentifiedDocument) -> ParsedDocument: ...

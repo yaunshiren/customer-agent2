@@ -48,6 +48,7 @@ addopts = "-q --strict-config --strict-markers"
 asyncio_mode = "auto"
 markers = [
     "database_integration: requires the local PostgreSQL and migrated pgvector schema",
+    "ingestion_smoke: requires cached local model weights and migrated PostgreSQL",
     "model_smoke: requires local model weights and runs real CPU inference",
 ]
 testpaths = ["tests"]

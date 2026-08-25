@@ -35,6 +35,15 @@ from customer_agent2.domain.models.embedding import (
     EmbeddingResult,
 )
 from customer_agent2.domain.models.errors import ModelError, ModelErrorCode
+from customer_agent2.domain.models.ingestion import (
+    DocumentIngestionRequest,
+    EmbeddingIndexConfiguration,
+    IngestionAttempt,
+    IngestionError,
+    IngestionErrorCode,
+    IngestionRepository,
+    IngestionResult,
+)
 from customer_agent2.domain.models.rerank import (
     RerankDegradationReason,
     RerankDocument,
@@ -60,12 +69,19 @@ __all__ = [
     "DocumentErrorCode",
     "DocumentFormat",
     "DocumentIdentifier",
+    "DocumentIngestionRequest",
     "DocumentParser",
     "DocumentSource",
+    "EmbeddingIndexConfiguration",
     "EmbeddingModel",
     "EmbeddingRequest",
     "EmbeddingResult",
     "IdentifiedDocument",
+    "IngestionAttempt",
+    "IngestionError",
+    "IngestionErrorCode",
+    "IngestionRepository",
+    "IngestionResult",
     "ModelError",
     "ModelErrorCode",
     "ParsedBlock",
