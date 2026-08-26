@@ -1,6 +1,6 @@
 """Provider-neutral chat model request and response contracts."""
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Protocol
@@ -99,4 +99,4 @@ class ChatModel(Protocol):
 
     async def complete(self, request: ChatRequest) -> ChatResult: ...
 
-    def stream(self, request: ChatRequest) -> AsyncIterator[ChatStreamChunk]: ...
+    def stream(self, request: ChatRequest) -> AsyncGenerator[ChatStreamChunk, None]: ...

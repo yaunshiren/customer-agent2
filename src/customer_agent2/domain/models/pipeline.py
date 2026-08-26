@@ -1,0 +1,253 @@
+"""Typed contracts for the explicit streaming RAG pipeline."""
+
+import math
+from collections.abc import AsyncGenerator
+from dataclasses import dataclass
+from enum import StrEnum
+from typing import Protocol, TypeAlias
+from uuid import UUID
+
+from customer_agent2.domain.models.chat import ChatMessage, TokenUsage
+from customer_agent2.domain.models.document import DocumentFormat
+from customer_agent2.domain.models.retrieval import (
+    VectorSearchCandidate,
+    VectorSearchResult,
+    VectorSearchScope,
+)
+
+
+class RagPipelineErrorCode(StrEnum):
+    """Stable failures produced by application-level RAG orchestration."""
+
+    GLOBAL_TIMEOUT = "global_timeout"
+    MODEL_STREAM_PROTOCOL = "model_stream_protocol"
+
+
+class RagPipelineError(RuntimeError):
+    """A sanitized pipeline failure with a retry hint."""
+
+    def __init__(
+        self,
+        code: RagPipelineErrorCode,
+        public_message: str,
+        *,
+        retryable: bool,
+    ) -> None:
+        normalized_message = public_message.strip()
+        if not normalized_message:
+            raise ValueError("public_message 不能为空")
+        super().__init__(normalized_message)
+        self.code = code
+        self.public_message = normalized_message
+        self.retryable = retryable
+
+
+class PipelineStage(StrEnum):
+    """Observable stages implemented by the M3-A minimal pipeline."""
+
+    RETRIEVING = "retrieving"
+    PROMPTING = "prompting"
+    GENERATING = "generating"
+    COMPLETED = "completed"
+    NO_CONTEXT = "no_context"
+
+
+class PipelineOutcome(StrEnum):
+    """Terminal outcomes represented without treating empty retrieval as an exception."""
+
+    COMPLETED = "completed"
+    NO_CONTEXT = "no_context"
+
+
+@dataclass(frozen=True, slots=True)
+class RagPipelineRequest:
+    """One question and its explicitly authorized vector-search scope."""
+
+    request_id: UUID
+    question: str
+    search_scope: VectorSearchScope
+    conversation_id: UUID | None = None
+    user_id: str | None = None
+
+    def __post_init__(self) -> None:
+        normalized_question = self.question.strip()
+        if not normalized_question:
+            raise ValueError("RagPipelineRequest.question 不能为空")
+        if len(normalized_question) > 10_000:
+            raise ValueError("RagPipelineRequest.question 不能超过 10000 个字符")
+        normalized_user_id = self.user_id
+        if normalized_user_id is not None:
+            normalized_user_id = normalized_user_id.strip()
+            if not normalized_user_id or len(normalized_user_id) > 200:
+                raise ValueError("RagPipelineRequest.user_id 必须是不超过 200 个字符的非空值")
+        object.__setattr__(self, "question", normalized_question)
+        object.__setattr__(self, "user_id", normalized_user_id)
+
+
+@dataclass(frozen=True, slots=True)
+class RagSource:
+    """Public-safe citation metadata for one retrieved chunk."""
+
+    citation_number: int
+    chunk_id: UUID
+    knowledge_base_id: UUID
+    document_id: UUID
+    document_version_id: UUID
+    source_key: str
+    display_name: str
+    document_format: DocumentFormat
+    section: str | None
+    page_number: int | None
+    content_sha256: str
+    similarity: float
+
+    def __post_init__(self) -> None:
+        if self.citation_number < 1:
+            raise ValueError("RagSource.citation_number 必须大于 0")
+        if not self.source_key.strip() or not self.display_name.strip():
+            raise ValueError("RagSource 来源标识不能为空")
+        if self.page_number is not None and self.page_number < 1:
+            raise ValueError("RagSource.page_number 必须大于 0")
+        if len(self.content_sha256) != 64 or any(
+            character not in "0123456789abcdef" for character in self.content_sha256
+        ):
+            raise ValueError("RagSource.content_sha256 格式无效")
+        if not math.isfinite(self.similarity):
+            raise ValueError("RagSource.similarity 必须是有限值")
+
+
+@dataclass(frozen=True, slots=True)
+class PipelineTraceEntry:
+    """Small per-stage trace safe to persist later without document contents."""
+
+    stage: PipelineStage
+    duration_ms: float
+    candidate_count: int | None = None
+
+    def __post_init__(self) -> None:
+        if not math.isfinite(self.duration_ms) or self.duration_ms < 0:
+            raise ValueError("PipelineTraceEntry.duration_ms 不能小于 0")
+        if self.candidate_count is not None and self.candidate_count < 0:
+            raise ValueError("PipelineTraceEntry.candidate_count 不能小于 0")
+
+
+@dataclass(frozen=True, slots=True)
+class PromptAssembly:
+    """Provider-neutral messages and their stable citation mapping."""
+
+    messages: tuple[ChatMessage, ...]
+    sources: tuple[RagSource, ...]
+
+    def __post_init__(self) -> None:
+        if not self.messages or not self.sources:
+            raise ValueError("PromptAssembly 必须包含消息和来源")
+        if tuple(source.citation_number for source in self.sources) != tuple(
+            range(1, len(self.sources) + 1)
+        ):
+            raise ValueError("PromptAssembly.sources 必须使用连续引用编号")
+
+
+@dataclass(frozen=True, slots=True)
+class ChatPipelineContext:
+    """Request-local state passed explicitly between implemented M3-A stages."""
+
+    request: RagPipelineRequest
+    rewritten_question: str
+    sub_questions: tuple[str, ...]
+    memory_messages: tuple[ChatMessage, ...]
+    summary: str | None
+    retrieval_result: VectorSearchResult | None
+    ranked_chunks: tuple[VectorSearchCandidate, ...]
+    prompt_messages: tuple[ChatMessage, ...]
+    sources: tuple[RagSource, ...]
+    trace: tuple[PipelineTraceEntry, ...]
+
+    def __post_init__(self) -> None:
+        if not self.rewritten_question.strip() or not self.sub_questions:
+            raise ValueError("ChatPipelineContext 问题状态不能为空")
+        if any(not question.strip() for question in self.sub_questions):
+            raise ValueError("ChatPipelineContext.sub_questions 不能包含空问题")
+        if tuple(source.citation_number for source in self.sources) != tuple(
+            range(1, len(self.sources) + 1)
+        ):
+            raise ValueError("ChatPipelineContext.sources 引用编号必须连续")
+
+    @classmethod
+    def start(cls, request: RagPipelineRequest) -> "ChatPipelineContext":
+        """Create the M3 baseline context before memory and rewrite exist."""
+        return cls(
+            request=request,
+            rewritten_question=request.question,
+            sub_questions=(request.question,),
+            memory_messages=(),
+            summary=None,
+            retrieval_result=None,
+            ranked_chunks=(),
+            prompt_messages=(),
+            sources=(),
+            trace=(),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class PipelineStatusEvent:
+    """Internal progress event later mapped to the versioned SSE contract."""
+
+    request_id: UUID
+    stage: PipelineStage
+
+
+@dataclass(frozen=True, slots=True)
+class PipelineContentEvent:
+    """One answer-text delta; provider reasoning is intentionally excluded."""
+
+    request_id: UUID
+    delta: str
+
+    def __post_init__(self) -> None:
+        if not self.delta:
+            raise ValueError("PipelineContentEvent.delta 不能为空")
+
+
+@dataclass(frozen=True, slots=True)
+class PipelineSourcesEvent:
+    """Final stable citation mapping for emitted answer content."""
+
+    request_id: UUID
+    sources: tuple[RagSource, ...]
+
+    def __post_init__(self) -> None:
+        if not self.sources:
+            raise ValueError("PipelineSourcesEvent.sources 不能为空")
+
+
+@dataclass(frozen=True, slots=True)
+class PipelineDoneEvent:
+    """Terminal event for a generated answer or an empty-retrieval short circuit."""
+
+    request_id: UUID
+    outcome: PipelineOutcome
+    trace: tuple[PipelineTraceEntry, ...]
+    model_id: str | None = None
+    finish_reason: str | None = None
+    usage: TokenUsage | None = None
+
+    def __post_init__(self) -> None:
+        if self.outcome is PipelineOutcome.COMPLETED:
+            if self.model_id is None or not self.model_id.strip():
+                raise ValueError("完成事件必须包含 model_id")
+            if self.finish_reason is None or not self.finish_reason.strip():
+                raise ValueError("完成事件必须包含 finish_reason")
+        elif self.model_id is not None or self.finish_reason is not None or self.usage is not None:
+            raise ValueError("空检索完成事件不能包含模型结果")
+
+
+PipelineEvent: TypeAlias = (
+    PipelineStatusEvent | PipelineContentEvent | PipelineSourcesEvent | PipelineDoneEvent
+)
+
+
+class StreamingRagPipeline(Protocol):
+    """Application use-case contract for later HTTP/SSE adaptation."""
+
+    def stream(self, request: RagPipelineRequest) -> AsyncGenerator[PipelineEvent, None]: ...

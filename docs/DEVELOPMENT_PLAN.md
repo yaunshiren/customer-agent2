@@ -27,6 +27,10 @@ Markdown/TXT/PDF/DOCX/CSV 安全解析、400/64 Token 结构分块，并完成�
 pgvector 写入、同一文档原子版本替换、失败回滚、最小同步上传/状态/删除 API，以及按
 知识库、文档和元数据过滤的 active-only 在线向量检索。M2 已通过验收，下一阶段进入 M3。
 
+M3-A 已完成请求级 `ChatPipelineContext`、安全 Prompt、TopK 引用映射和内部流式编排，覆盖
+空检索短路、全局截止时间、模型流协议错误及提前关闭资源。M3-B 将先用 ADR 固定公开 SSE
+Schema，再接入 FastAPI 流式问答端点；会话消息和最小 RAG Run 持久化随后单独迁移。
+
 ## 3. M0：项目地基
 
 ### 任务

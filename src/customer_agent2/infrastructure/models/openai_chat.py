@@ -1,7 +1,7 @@
 """OpenAI-compatible asynchronous chat model adapter."""
 
 import asyncio
-from collections.abc import AsyncIterator, Mapping
+from collections.abc import AsyncGenerator, Mapping
 from typing import cast
 
 import httpx
@@ -122,7 +122,7 @@ class OpenAICompatibleChatModel:
 
         return _parse_completion(response, self._model_id)
 
-    async def stream(self, request: ChatRequest) -> AsyncIterator[ChatStreamChunk]:
+    async def stream(self, request: ChatRequest) -> AsyncGenerator[ChatStreamChunk, None]:
         """Yield chat deltas while enforcing a separate first-packet timeout."""
         sdk_stream: AsyncStream[ChatCompletionChunk] | None = None
         try:

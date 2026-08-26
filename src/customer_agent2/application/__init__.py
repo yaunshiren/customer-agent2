@@ -1,15 +1,19 @@
 """Application services and explicit use-case orchestration."""
 
+from customer_agent2.application.basic_rag import BasicStreamingRagPipeline
 from customer_agent2.application.document_chunking import StructureAwareDocumentChunker
 from customer_agent2.application.document_ingestion import DocumentIngestionService
 from customer_agent2.application.document_management import DocumentManagementService
 from customer_agent2.application.document_parsing import DocumentParsingService
 from customer_agent2.application.model_gateway import ChatProfile, ModelGateway
+from customer_agent2.application.rag_prompt import BasicRagPromptBuilder
 from customer_agent2.application.services import ApplicationServices
 from customer_agent2.application.vector_retrieval import VectorRetrievalService
 
 __all__ = [
     "ApplicationServices",
+    "BasicRagPromptBuilder",
+    "BasicStreamingRagPipeline",
     "ChatProfile",
     "DocumentIngestionService",
     "DocumentManagementService",

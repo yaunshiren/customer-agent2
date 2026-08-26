@@ -2,8 +2,7 @@
 
 import asyncio
 import json
-from collections.abc import AsyncGenerator, AsyncIterator, Callable
-from typing import cast
+from collections.abc import AsyncIterator, Callable
 
 import httpx
 import pytest
@@ -13,7 +12,6 @@ from customer_agent2.domain.models import (
     ChatMessage,
     ChatRequest,
     ChatRole,
-    ChatStreamChunk,
     ModelError,
     ModelErrorCode,
 )
@@ -328,7 +326,7 @@ async def test_closing_stream_early_releases_provider_response() -> None:
         )
 
     model, _ = _model(handler)
-    stream = cast(AsyncGenerator[ChatStreamChunk, None], model.stream(_request()))
+    stream = model.stream(_request())
     try:
         first = await anext(stream)
         await stream.aclose()

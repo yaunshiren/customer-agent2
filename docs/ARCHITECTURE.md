@@ -104,7 +104,7 @@ flowchart TD
 
 ### 5.2 Pipeline 上下文
 
-Pipeline 使用一个有类型的 `ChatPipelineContext` 在阶段间传递状态，至少包含：
+完整 P0 Pipeline 使用一个有类型的 `ChatPipelineContext` 在阶段间传递状态，最终至少包含：
 
 - request_id、conversation_id、user_id。
 - original_question、rewritten_question、sub_questions。
@@ -115,6 +115,11 @@ Pipeline 使用一个有类型的 `ChatPipelineContext` 在阶段间传递状态
 - cancellation_scope、trace。
 
 阶段不得通过全局变量共享请求状态。
+
+M3-A 先落地当前已实现阶段需要的字段：请求身份与显式检索范围、原问题/当前改写问题、
+子问题、记忆占位、向量通道结果、TopK Chunk、Prompt 消息、编号来源和阶段 Trace。当前
+`rewritten_question == original_question`，记忆为空；Intent、Guidance 和持久化 Trace 字段在
+对应 M4/M3 后续子阶段加入，不用无约束字典提前占位。
 
 ### 5.3 短路语义
 
@@ -127,6 +132,10 @@ Pipeline 使用一个有类型的 `ChatPipelineContext` 在阶段间传递状态
 - 所有模型候选不可用。
 
 短路必须产生明确 SSE 事件和 Trace 结局，不能表现为无响应。
+
+M3-A 已实现空检索 `no_context` 短路：只产生内部状态和完成事件，不调用 Chat 模型。检索、
+Prompt 和生成阶段记录不含文档正文的轻量 Trace。单一截止时间覆盖检索和逐个模型流读取；
+超时、任务取消或上游提前关闭时，Pipeline 在 `finally` 中关闭模型异步生成器。
 
 ## 6. 检索架构
 
@@ -262,6 +271,9 @@ P0 规划事件类型：
 
 事件 Schema 在实现后作为公开契约维护；修改必须新增 ADR 或版本号。
 
+M3-A 的事件仍是应用层内部类型，不构成公开 SSE 契约。M3-B 在新增 ADR 后再固定 JSON 字段、
+事件顺序、HTTP 状态和流开始后的错误语义。
+
 ## 10. 数据存储
 
 ### PostgreSQL/pgvector
@@ -318,6 +330,8 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 
 - 上传文件限制大小、类型和解析超时。
 - 文档内容视为不可信输入，Prompt 中明确区分资料和系统指令。
+- M3-A 使用固定 `<knowledge_context>` 边界并转义问题、文档正文和来源属性；模型 reasoning
+  增量不会进入对上游暴露的答案正文事件。
 - MCP 工具使用 Allowlist；P1 默认只实现只读工具。
 - 错误响应不暴露密钥、数据库 DSN、堆栈和完整文档内容。
 - 日志中的问题和文档片段应支持截断或关闭。

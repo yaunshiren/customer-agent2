@@ -2,7 +2,7 @@
 
 import hashlib
 import math
-from collections.abc import AsyncIterator, Sequence
+from collections.abc import AsyncGenerator, Sequence
 
 from customer_agent2.domain.models import (
     ChatRequest,
@@ -72,7 +72,7 @@ class FakeChatModel:
             usage=self._usage,
         )
 
-    async def stream(self, request: ChatRequest) -> AsyncIterator[ChatStreamChunk]:
+    async def stream(self, request: ChatRequest) -> AsyncGenerator[ChatStreamChunk, None]:
         """Yield configured chunks followed by one explicit completion event."""
         self._stream_requests.append(request)
         error = self._error
