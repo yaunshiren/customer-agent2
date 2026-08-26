@@ -124,6 +124,10 @@ M3-A 先落地当前已实现阶段需要的字段：请求身份与显式检索
 M3-B 的 API 适配器只负责把已实现的内部事件映射到 ADR-0005 SSE Schema。它生成请求 ID，
 但不把 FastAPI Request、StreamingResponse 或无类型字典放入 Pipeline 上下文。
 
+M3-C 使用 `PersistentStreamingRagPipeline` 装饰基础 Pipeline。装饰器只依赖领域仓储端口，
+在内层开始前提交 user 消息与 running Run，在成功 done 前提交终局；基础 Pipeline 仍不知道
+SQLAlchemy。当前持久化历史尚未加载进 Prompt，因此这不是已经实现的 Memory。
+
 ### 5.3 短路语义
 
 以下情况允许提前结束 Pipeline：
@@ -143,6 +147,10 @@ Prompt 和生成阶段记录不含文档正文的轻量 Trace。单一截止时�
 M3-B 已将空检索映射为明确的 no_context status + done。流开始后的 Pipeline、检索或模型失败
 映射为 error + done；客户端断开不伪造无法送达的终端事件，取消继续向下传播并逐层关闭
 Pipeline、模型流和供应商 HTTP 响应。
+
+M3-C 会把已开始但未完成的取消标记为 cancelled；检索/模型/协议失败标记为 failed；空检索
+标记为 no_context 且不创建 assistant 消息。completed 只有在 assistant 消息与 Run 终局事务
+提交后才向客户端发送 done。
 
 ## 6. 检索架构
 
@@ -269,17 +277,19 @@ P0 事件类型：
 | 事件 | 作用 |
 |---|---|
 | `status` | 当前阶段；现有 retrieving、prompting、generating、completed、no_context |
-| `reply_to` | 当前回答对应的用户消息 ID（会话持久化后加入） |
+| `reply_to` | 当前会话、对应 user 消息和 RAG Run ID |
 | `content` | 正文增量 |
 | `sources` | 最终引用来源 |
 | `guidance` | 需要用户澄清的信息（M4 加入） |
 | `error` | 结构化错误码和可公开信息 |
 | `done` | 完成结局、阶段 Trace 和可选模型用量 |
 
-M3-B 已在 `POST /api/v1/chat/stream` 实现 status、content、sources、error 和 done。每个事件
-包含请求 UUID 和严格递增序号；HTTP 200 只表示流已建立，最终结果以 done.outcome 为准。
+M3-B 已在 `POST /api/v1/chat/stream` 实现 status、content、sources、error 和 done，M3-C
+增加 reply_to 和可选 `conversation_id`。每个事件包含请求 UUID 和严格递增序号；HTTP 200
+只表示流已建立，最终结果以 done.outcome 为准。
 完整 JSON 字段、事件顺序、HTTP 错误边界和断开语义由 [ADR-0005](adr/0005-streaming-rag-api.md)
-维护，修改必须更新 ADR 或增加 API 版本。
+与 [ADR-0006](adr/0006-conversation-rag-run-persistence.md) 维护，修改必须更新 ADR 或增加 API
+版本。
 
 ## 10. 数据存储
 
@@ -295,15 +305,15 @@ M2-A 已实现：
 这四张表采用版本隔离、单一 active 版本和固定 768 维 Cosine HNSW 索引，详细决策见
 [ADR-0002](adr/0002-document-index-schema.md)。M2-F 已实现五种 P0 格式的事务化入库与最小 HTTP API；
 M2-G 已实现复用同一 Embedding 实例的内部向量召回服务、active-only 查询、索引配置校验和
-数据库侧作用域过滤。M3-B 已在显式知识库作用域上提供公开流式问答 API；会话和 RAG Run
-表仍是下一子阶段的规划项。
+数据库侧作用域过滤。M3-B 已在显式知识库作用域上提供公开流式问答 API。
 
-后续规划保存：
+M3-C 已实现：
 
 - conversations
 - messages
-- conversation_summaries
-- rag_runs / rag_trace_nodes
+- rag_runs（内含当前阶段的轻量 JSONB Trace 与引用 Chunk ID）
+
+后续规划保存 `conversation_summaries`；是否拆分 `rag_trace_nodes` 等评测查询证明需要后再决定。
 
 ### Redis
 
@@ -342,6 +352,7 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 - M3-A 使用固定 `<knowledge_context>` 边界并转义问题、文档正文和来源属性；模型 reasoning
   增量不会进入对上游暴露的答案正文事件。
 - M3-B 的来源事件不包含正文；未知流异常只返回通用错误，不公开异常文本或堆栈。
+- M3-C 不保存 reasoning、Prompt、完整召回正文或底层异常；failed/cancelled 只保存稳定错误码。
 - MCP 工具使用 Allowlist；P1 默认只实现只读工具。
 - 错误响应不暴露密钥、数据库 DSN、堆栈和完整文档内容。
 - 日志中的问题和文档片段应支持截断或关闭。
@@ -355,5 +366,8 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 - 各通道候选数量和最终 TopK。
 - 降级、超时、取消和错误类型。
 - 引用文档 ID，不默认保存完整上下文。
+
+M3-C 已记录当前实际存在的 Retrieval、Prompting、Generation Trace、最终来源 Chunk、模型结果、
+Token 用量和终局。Rewrite、Intent、Rerank 与降级字段必须等对应阶段实现后再写入，不能伪造。
 
 评测器通过稳定 API 获取意图、来源、延迟和回答，避免从日志文本反向解析。

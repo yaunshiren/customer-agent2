@@ -30,7 +30,9 @@ pgvector 写入、同一文档原子版本替换、失败回滚、最小同步�
 M3-A 已完成请求级 `ChatPipelineContext`、安全 Prompt、TopK 引用映射和内部流式编排，覆盖
 空检索短路、全局截止时间、模型流协议错误及提前关闭资源。M3-B 已通过 ADR-0005 固定公开
 SSE Schema，并接入 FastAPI 流式问答端点、请求 ID、流内错误、客户端断开和默认 Chat 资源
-生命周期。下一步 M3-C 单独设计会话消息和最小 RAG Run 持久化迁移。
+生命周期。M3-C 已通过 ADR-0006 增加会话、消息与 RAG Run 迁移，并在持久化装饰器中覆盖
+完成、空检索、失败、取消和同会话并发约束。M3 已形成可复现的基础纵向闭环；下一步进入
+M4，并先确认记忆窗口、意图树和阈值参数。
 
 ## 3. M0：项目地基
 
@@ -105,7 +107,7 @@ SSE Schema，并接入 FastAPI 流式问答端点、请求 ID、流内错误、�
 
 - 实现 `ChatPipelineContext` 和阶段接口。
 - 完成问题 → Embedding → pgvector → TopK → Prompt → LLM 的最小链路。
-- 实现 SSE status/content/sources/error/done 事件。
+- 实现 SSE reply_to/status/content/sources/error/done 事件。
 - 实现请求 ID、全局超时、客户端断开和取消。
 - 保存最小会话消息与 RAG Run。
 

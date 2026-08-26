@@ -10,9 +10,15 @@ from customer_agent2.infrastructure.persistence.ingestion_repository import (
 from customer_agent2.infrastructure.persistence.models import (
     EMBEDDING_DIMENSION,
     ChunkRecord,
+    ConversationRecord,
     DocumentRecord,
     DocumentVersionRecord,
     KnowledgeBaseRecord,
+    MessageRecord,
+    RagRunRecord,
+)
+from customer_agent2.infrastructure.persistence.rag_run_repository import (
+    SQLAlchemyRagRunRepository,
 )
 from customer_agent2.infrastructure.persistence.retrieval_repository import (
     SQLAlchemyVectorSearchRepository,
@@ -22,10 +28,14 @@ __all__ = [
     "EMBEDDING_DIMENSION",
     "Base",
     "ChunkRecord",
+    "ConversationRecord",
     "DocumentRecord",
     "DocumentVersionRecord",
     "KnowledgeBaseRecord",
+    "MessageRecord",
+    "RagRunRecord",
     "SQLAlchemyDocumentManagementRepository",
     "SQLAlchemyIngestionRepository",
+    "SQLAlchemyRagRunRepository",
     "SQLAlchemyVectorSearchRepository",
 ]

@@ -1,6 +1,8 @@
-"""Opt-in real PostgreSQL/Redis HTTP integration for the M2-E API."""
+"""Opt-in real PostgreSQL/Redis HTTP integration for public APIs."""
 
+import json
 import os
+from typing import cast
 from uuid import UUID, uuid4
 
 import httpx
@@ -13,6 +15,7 @@ from customer_agent2.application import (
     DocumentIngestionService,
     DocumentManagementService,
     DocumentParsingService,
+    PersistentStreamingRagPipeline,
     StructureAwareDocumentChunker,
     VectorRetrievalService,
 )
@@ -33,10 +36,14 @@ from customer_agent2.infrastructure.models import FakeChatModel, FakeEmbeddingMo
 from customer_agent2.infrastructure.persistence import (
     EMBEDDING_DIMENSION,
     ChunkRecord,
+    ConversationRecord,
     DocumentVersionRecord,
     KnowledgeBaseRecord,
+    MessageRecord,
+    RagRunRecord,
     SQLAlchemyDocumentManagementRepository,
     SQLAlchemyIngestionRepository,
+    SQLAlchemyRagRunRepository,
     SQLAlchemyVectorSearchRepository,
 )
 from customer_agent2.main import create_app
@@ -115,15 +122,18 @@ def fake_model_services(
         recall_budget=settings.retrieval_recall_budget,
         hnsw_ef_search=settings.retrieval_hnsw_ef_search,
     )
-    rag = BasicStreamingRagPipeline(
-        retrieval,
-        BasicRagPromptBuilder(context_top_k=settings.retrieval_context_top_k),
-        FakeChatModel(
-            "fake-final",
-            "请按退款说明提交订单号 [1]。",
-            stream_chunks=("请按退款说明", "提交订单号 [1]。"),
+    rag = PersistentStreamingRagPipeline(
+        BasicStreamingRagPipeline(
+            retrieval,
+            BasicRagPromptBuilder(context_top_k=settings.retrieval_context_top_k),
+            FakeChatModel(
+                "fake-final",
+                "请按退款说明提交订单号 [1]。",
+                stream_chunks=("请按退款说明", "提交订单号 [1]。"),
+            ),
+            global_timeout_seconds=settings.rag_global_timeout_seconds,
         ),
-        global_timeout_seconds=settings.rag_global_timeout_seconds,
+        SQLAlchemyRagRunRepository(database.session_factory),
     )
     return ApplicationServices(
         ingestion=DocumentIngestionService(
@@ -341,6 +351,7 @@ async def test_real_http_api_streams_answer_and_sources_from_active_document() -
     app = create_app(settings, service_factory=fake_model_services)
     slug = f"chat-integration-{uuid4()}"
     knowledge_base_id: UUID | None = None
+    conversation_id: UUID | None = None
 
     async with app.router.lifespan_context(app):
         resources = app.state.resources
@@ -377,12 +388,56 @@ async def test_real_http_api_streams_answer_and_sources_from_active_document() -
                 )
 
                 assert streamed.status_code == 200
+                assert "event: reply_to" in streamed.text
                 assert "event: content" in streamed.text
                 assert "event: sources" in streamed.text
                 assert '"outcome":"completed"' in streamed.text
                 assert str(knowledge_base_id) in streamed.text
                 assert "退款请提交订单号。" not in streamed.text
+                reply = _sse_payload(streamed.text, "reply_to")
+                conversation_id = UUID(cast(str, reply["conversation_id"]))
+
+                continued = await client.post(
+                    f"{settings.api_prefix}/chat/stream",
+                    json={
+                        "question": "再说一次",
+                        "scope": {"knowledge_base_ids": [str(knowledge_base_id)]},
+                        "conversation_id": str(conversation_id),
+                    },
+                )
+                continued_reply = _sse_payload(continued.text, "reply_to")
+                assert continued.status_code == 200
+                assert continued_reply["conversation_id"] == str(conversation_id)
+
+                async with database.session_factory() as session:
+                    messages = list(
+                        await session.scalars(
+                            select(MessageRecord)
+                            .where(MessageRecord.conversation_id == conversation_id)
+                            .order_by(MessageRecord.ordinal)
+                        )
+                    )
+                    runs = list(
+                        await session.scalars(
+                            select(RagRunRecord)
+                            .where(RagRunRecord.conversation_id == conversation_id)
+                            .order_by(RagRunRecord.started_at)
+                        )
+                    )
+                assert [message.role for message in messages] == [
+                    "user",
+                    "assistant",
+                    "user",
+                    "assistant",
+                ]
+                assert [run.status for run in runs] == ["completed", "completed"]
+                assert all(run.source_chunk_ids for run in runs)
         finally:
+            if conversation_id is not None:
+                async with database.session_factory.begin() as session:
+                    await session.execute(
+                        delete(ConversationRecord).where(ConversationRecord.id == conversation_id)
+                    )
             if knowledge_base_id is not None:
                 async with database.session_factory.begin() as session:
                     await session.execute(
@@ -390,3 +445,12 @@ async def test_real_http_api_streams_answer_and_sources_from_active_document() -
                             KnowledgeBaseRecord.id == knowledge_base_id
                         )
                     )
+
+
+def _sse_payload(body: str, event_name: str) -> dict[str, object]:
+    for frame in body.strip().split("\n\n"):
+        lines = frame.splitlines()
+        if f"event: {event_name}" in lines:
+            data_line = next(line for line in lines if line.startswith("data: "))
+            return cast(dict[str, object], json.loads(data_line.removeprefix("data: ")))
+    raise AssertionError(f"SSE event not found: {event_name}")

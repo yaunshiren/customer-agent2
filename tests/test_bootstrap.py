@@ -3,7 +3,7 @@
 import pytest
 from pydantic import SecretStr
 
-from customer_agent2.application import BasicStreamingRagPipeline
+from customer_agent2.application import PersistentStreamingRagPipeline
 from customer_agent2.bootstrap import build_application_services
 from customer_agent2.domain.models import ModelError, ModelErrorCode
 from customer_agent2.infrastructure.database import DatabaseManager
@@ -19,7 +19,7 @@ async def test_default_service_graph_builds_and_owns_final_chat_model() -> None:
     try:
         services = build_application_services(settings, database)
 
-        assert isinstance(services.rag, BasicStreamingRagPipeline)
+        assert isinstance(services.rag, PersistentStreamingRagPipeline)
         assert len(services.closeables) == 1
         assert isinstance(services.closeables[0], OpenAICompatibleChatModel)
 

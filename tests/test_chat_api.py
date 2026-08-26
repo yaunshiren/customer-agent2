@@ -1,4 +1,4 @@
-"""HTTP and lifecycle tests for the M3-B streaming RAG API."""
+"""HTTP and lifecycle tests for the streaming RAG API."""
 
 import json
 from collections.abc import AsyncGenerator, Callable
@@ -23,10 +23,13 @@ from customer_agent2.domain.models import (
     PipelineDoneEvent,
     PipelineEvent,
     PipelineOutcome,
+    PipelineReplyToEvent,
     PipelineSourcesEvent,
     PipelineStage,
     PipelineStatusEvent,
     PipelineTraceEntry,
+    RagPersistenceError,
+    RagPersistenceErrorCode,
     RagPipelineError,
     RagPipelineErrorCode,
     RagPipelineRequest,
@@ -208,6 +211,7 @@ def _completed_events(request_id: UUID) -> tuple[PipelineEvent, ...]:
         PipelineTraceEntry(PipelineStage.GENERATING, 2.5, candidate_count=1),
     )
     return (
+        PipelineReplyToEvent(request_id, request_id, uuid4(), uuid4()),
         PipelineStatusEvent(request_id, PipelineStage.RETRIEVING),
         PipelineContentEvent(request_id, "请参考"),
         PipelineContentEvent(request_id, "退款说明 [1]。"),
@@ -255,6 +259,7 @@ async def test_chat_stream_exposes_ordered_sanitized_sse_contract() -> None:
     request_id = UUID(response.headers["x-request-id"])
     events = _parse_sse(response.text)
     assert [event[1] for event in events] == [
+        "reply_to",
         "status",
         "content",
         "content",
@@ -263,11 +268,12 @@ async def test_chat_stream_exposes_ordered_sanitized_sse_contract() -> None:
         "done",
     ]
     assert [event[0] for event in events] == [
-        f"{request_id}:{sequence}" for sequence in range(1, 7)
+        f"{request_id}:{sequence}" for sequence in range(1, 8)
     ]
     assert all(event[2]["request_id"] == str(request_id) for event in events)
     assert events[-1][2]["outcome"] == "completed"
-    sources = cast(list[dict[str, object]], events[3][2]["sources"])
+    assert events[0][2]["conversation_id"] == str(request_id)
+    sources = cast(list[dict[str, object]], events[4][2]["sources"])
     assert sources[0]["citation_number"] == 1
     assert "content" not in sources[0]
     assert pipeline.closed is True
@@ -287,6 +293,7 @@ async def test_chat_stream_exposes_ordered_sanitized_sse_contract() -> None:
 async def test_empty_retrieval_returns_no_context_done_without_sources() -> None:
     def events(request_id: UUID) -> tuple[PipelineEvent, ...]:
         return (
+            PipelineReplyToEvent(request_id, request_id, uuid4(), uuid4()),
             PipelineStatusEvent(request_id, PipelineStage.RETRIEVING),
             PipelineStatusEvent(request_id, PipelineStage.NO_CONTEXT),
             PipelineDoneEvent(request_id, PipelineOutcome.NO_CONTEXT, ()),
@@ -300,7 +307,7 @@ async def test_empty_retrieval_returns_no_context_done_without_sources() -> None
             response = await client.post("/api/v1/chat/stream", json=_request_body(uuid4()))
 
     parsed = _parse_sse(response.text)
-    assert [event[1] for event in parsed] == ["status", "status", "done"]
+    assert [event[1] for event in parsed] == ["reply_to", "status", "status", "done"]
     assert parsed[-1][2]["outcome"] == "no_context"
 
 
@@ -329,6 +336,15 @@ async def test_empty_retrieval_returns_no_context_done_without_sources() -> None
             ),
             "persistence_failure",
             "向量检索暂时不可用",
+        ),
+        (
+            RagPersistenceError(
+                RagPersistenceErrorCode.CONVERSATION_BUSY,
+                "会话正在处理另一个请求",
+                retryable=True,
+            ),
+            "conversation_busy",
+            "会话正在处理另一个请求",
         ),
     ],
 )
@@ -413,6 +429,23 @@ async def test_invalid_request_and_missing_services_fail_before_stream() -> None
     assert pipeline.requests == []
     assert unavailable.status_code == 503
     assert unavailable.json()["detail"]["code"] == "service_unavailable"
+
+
+@pytest.mark.asyncio
+async def test_request_forwards_an_existing_conversation_id() -> None:
+    conversation_id = uuid4()
+    pipeline = ScriptedRagPipeline(lambda _request_id: ())
+    app = _app(pipeline)
+    body = _request_body(uuid4())
+    body["conversation_id"] = str(conversation_id)
+
+    async with app.router.lifespan_context(app):
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post("/api/v1/chat/stream", json=body)
+
+    assert response.status_code == 200
+    assert pipeline.requests[0].conversation_id == conversation_id
 
 
 @pytest.mark.asyncio
@@ -538,3 +571,5 @@ def test_openapi_exposes_the_streaming_chat_endpoint() -> None:
 
     assert "application/json" in operation["requestBody"]["content"]
     assert "text/event-stream" in operation["responses"]["200"]["content"]
+    request_schema = _app(pipeline).openapi()["components"]["schemas"]["ChatStreamRequest"]
+    assert "conversation_id" in request_schema["properties"]

@@ -16,6 +16,7 @@ from customer_agent2.api.schemas import (
     SseDoneEventData,
     SseErrorEventData,
     SseEventData,
+    SseReplyToEventData,
     SseSource,
     SseSourcesEventData,
     SseStatusEventData,
@@ -26,8 +27,10 @@ from customer_agent2.domain.models import (
     ModelError,
     PipelineContentEvent,
     PipelineEvent,
+    PipelineReplyToEvent,
     PipelineSourcesEvent,
     PipelineStatusEvent,
+    RagPersistenceError,
     RagPipelineError,
     RagPipelineRequest,
     RetrievalError,
@@ -50,7 +53,9 @@ ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
     responses={
         status.HTTP_200_OK: {
             "content": {"text/event-stream": {"schema": {"type": "string"}}},
-            "description": "按 ADR-0005 输出 status/content/sources/error/done 事件",
+            "description": (
+                "按 ADR-0005/0006 输出 reply_to/status/content/sources/error/done 事件"
+            ),
         },
         **ERROR_RESPONSES,
     },
@@ -66,6 +71,7 @@ async def stream_chat(
         request_id=request_id,
         question=body.question,
         search_scope=body.scope.to_domain(),
+        conversation_id=body.conversation_id,
     )
     return StreamingResponse(
         _stream_sse(services.rag, pipeline_request),
@@ -92,7 +98,7 @@ async def _stream_sse(
             sequence += 1
             event_name, payload = _public_event(event, sequence)
             yield _encode_sse(event_name, payload)
-    except (ModelError, RetrievalError, RagPipelineError) as error:
+    except (ModelError, RetrievalError, RagPipelineError, RagPersistenceError) as error:
         sequence += 1
         yield _encode_sse(
             "error",
@@ -155,6 +161,17 @@ async def _stream_sse(
 
 
 def _public_event(event: PipelineEvent, sequence: int) -> tuple[str, SseEventData]:
+    if isinstance(event, PipelineReplyToEvent):
+        return (
+            "reply_to",
+            SseReplyToEventData(
+                request_id=event.request_id,
+                sequence=sequence,
+                conversation_id=event.conversation_id,
+                user_message_id=event.user_message_id,
+                rag_run_id=event.rag_run_id,
+            ),
+        )
     if isinstance(event, PipelineStatusEvent):
         return (
             "status",

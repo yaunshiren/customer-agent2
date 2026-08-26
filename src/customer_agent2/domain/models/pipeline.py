@@ -21,6 +21,7 @@ class RagPipelineErrorCode(StrEnum):
 
     GLOBAL_TIMEOUT = "global_timeout"
     MODEL_STREAM_PROTOCOL = "model_stream_protocol"
+    PIPELINE_PROTOCOL = "pipeline_protocol"
 
 
 class RagPipelineError(RuntimeError):
@@ -210,6 +211,16 @@ class PipelineContentEvent:
 
 
 @dataclass(frozen=True, slots=True)
+class PipelineReplyToEvent:
+    """Persistent identities for the user message answered by this stream."""
+
+    request_id: UUID
+    conversation_id: UUID
+    user_message_id: UUID
+    rag_run_id: UUID
+
+
+@dataclass(frozen=True, slots=True)
 class PipelineSourcesEvent:
     """Final stable citation mapping for emitted answer content."""
 
@@ -243,7 +254,11 @@ class PipelineDoneEvent:
 
 
 PipelineEvent: TypeAlias = (
-    PipelineStatusEvent | PipelineContentEvent | PipelineSourcesEvent | PipelineDoneEvent
+    PipelineReplyToEvent
+    | PipelineStatusEvent
+    | PipelineContentEvent
+    | PipelineSourcesEvent
+    | PipelineDoneEvent
 )
 
 

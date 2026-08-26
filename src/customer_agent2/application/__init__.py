@@ -6,6 +6,7 @@ from customer_agent2.application.document_ingestion import DocumentIngestionServ
 from customer_agent2.application.document_management import DocumentManagementService
 from customer_agent2.application.document_parsing import DocumentParsingService
 from customer_agent2.application.model_gateway import ChatProfile, ModelGateway
+from customer_agent2.application.persistent_rag import PersistentStreamingRagPipeline
 from customer_agent2.application.rag_prompt import BasicRagPromptBuilder
 from customer_agent2.application.services import ApplicationServices
 from customer_agent2.application.vector_retrieval import VectorRetrievalService
@@ -19,6 +20,7 @@ __all__ = [
     "DocumentManagementService",
     "DocumentParsingService",
     "ModelGateway",
+    "PersistentStreamingRagPipeline",
     "StructureAwareDocumentChunker",
     "VectorRetrievalService",
 ]

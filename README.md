@@ -4,13 +4,13 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M3-B 公开流式 RAG API 已完成。项目已有 PostgreSQL/Redis 连接管理、
+> 当前状态：M3-C 基础流式 RAG 纵向链路已完成。项目已有 PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
 > `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT/PDF/DOCX/CSV
 > 解析，以及 400/64 Token 分块、原子版本切换、同步上传/状态/删除 API 和带作用域过滤的
 > active-only Cosine 向量召回。`POST /api/v1/chat/stream` 已将
-> `问题 → 召回 → TopK → 安全 Prompt → Chat 流` 通过版本化 SSE 契约公开；下一步是单独设计
-> 会话消息与最小 RAG Run 持久化。
+> `保存用户消息 → 召回 → TopK → 安全 Prompt → Chat 流 → 保存回答/Trace` 通过版本化 SSE
+> 契约公开；下一步进入 M4 的历史消息加载、Rewrite、Intent 与 Memory。
 
 ## 项目目标
 
@@ -81,7 +81,8 @@
 Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实云端模型或消耗额度。本地
 Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。M2-A 至
 M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embedding、pgvector 原子切换和
-在线向量召回连成闭环。M3-A 已在内部应用层接入最终 Chat 流，M3-B 已提供公开 SSE 问答 API。
+在线向量召回连成闭环。M3-A 已接入最终 Chat 流，M3-B 已提供公开 SSE 问答 API，M3-C 已保存
+最小会话消息和 RAG Run 终局。
 
 ## 当前文档解析边界
 
@@ -155,10 +156,13 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 - 空检索以 `no_context` 正常结局短路，不调用 Chat 模型，因此不会在没有资料时生成答案。
 - Pipeline 使用可配置的 `RAG_GLOBAL_TIMEOUT_SECONDS` 单一截止时间约束检索和模型流；模型流
   协议要求可关闭的异步生成器，超时、取消或调用方提前停止时会逐层执行 `aclose()`。
-- `POST /api/v1/chat/stream` 要求非空知识库 ID 列表，返回 status/content/sources/error/done
-  事件、严格递增序号和 `X-Request-ID`。流开始后的错误以 error + done 表达；空检索返回
-  `no_context` 且不调用模型。
-- 当前没有认证、会话/RAG Run 持久化、断线重放或心跳；公开协议详情见 ADR-0005。
+- `POST /api/v1/chat/stream` 要求非空知识库 ID 列表，返回
+  reply_to/status/content/sources/error/done 事件、严格递增序号和 `X-Request-ID`。首次请求省略
+  `conversation_id`，后续请求用 reply_to 返回的 ID 继续会话。
+- 每个已开始请求会保存 user 消息与 RAG Run；completed 会原子保存 assistant 消息、来源 Chunk、
+  模型用量和轻量 Trace，no_context/failed/cancelled 不保存伪成功回答。
+- 当前没有认证、历史消息 Prompt、会话管理 API、断线重放或心跳；协议和持久化边界分别见
+  ADR-0005、ADR-0006。
 
 ## 当前文档
 
@@ -170,6 +174,7 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 - [最小文档入库 API 契约](docs/adr/0003-minimal-ingestion-api.md)
 - [多格式文档安全解析边界](docs/adr/0004-multiformat-document-parsing.md)
 - [流式 RAG API 与 SSE 事件契约](docs/adr/0005-streaming-rag-api.md)
+- [最小会话消息与 RAG Run 持久化](docs/adr/0006-conversation-rag-run-persistence.md)
 - [AI 协作规则](AGENTS.md)
 
 ## 本地启动
@@ -211,8 +216,9 @@ docker compose ps
 
 ### 4. 执行数据库迁移
 
-Alembic 会确保 pgvector 扩展存在，并创建 M2-A 的 `knowledge_bases`、`documents`、
-`document_versions` 和 `chunks` 表。迁移只建立存储模式，不会自动解析或导入文档。
+Alembic 会确保 pgvector 扩展存在，创建 M2 的 `knowledge_bases`、`documents`、
+`document_versions`、`chunks`，以及 M3-C 的 `conversations`、`messages`、`rag_runs`。
+迁移只建立存储模式，不会自动解析或导入文档。
 
 ```powershell
 alembic upgrade head
@@ -278,7 +284,8 @@ curl.exe -N `
 ```
 
 HTTP 200 表示 SSE 流已经建立；最终结果以 `done` 事件的 `outcome` 为准。来源事件只返回引用
-坐标和内容哈希，不返回完整文档正文。
+坐标和内容哈希，不返回完整文档正文。首次返回的 `reply_to.conversation_id` 可放入下一次请求
+顶层的可选 `conversation_id`；当前同一会话不允许并发运行两个请求。
 
 ### 8. 运行质量检查
 
@@ -300,7 +307,8 @@ pytest -m model_smoke
 ```
 
 如需用本地已迁移的 PostgreSQL 和 Redis 验证真实向量写入、过滤检索、Cosine 排名、
-active-only 版本语义、基础 RAG Pipeline 和 Fake Chat 驱动的公开 SSE 端到端路径：
+active-only 版本语义、基础 RAG Pipeline、会话/RAG Run 持久化和 Fake Chat 驱动的公开 SSE
+端到端路径：
 
 ```powershell
 $env:RUN_DATABASE_INTEGRATION="1"

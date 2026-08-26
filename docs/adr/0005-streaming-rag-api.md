@@ -2,6 +2,7 @@
 
 - 状态：Accepted
 - 日期：2026-08-26
+- 修订：[ADR-0006](0006-conversation-rag-run-persistence.md) 增加可选会话 ID 与 `reply_to` 事件
 
 ## 背景
 
@@ -34,7 +35,8 @@ M3-A 已在应用层完成问题、向量召回、TopK、安全 Prompt 和最终
 
 `question` 去除首尾空白后必须为 1～10000 个字符。`knowledge_base_ids` 必须显式提供
 1～100 个 UUID；其余过滤字段可省略，并沿用 `VectorSearchScope` 的去重、长度和正整数约束。
-当前不接受 `conversation_id` 或 `user_id`，这些字段等会话持久化和权限边界建立后再加入。
+M3-B 初始版本不接受 `conversation_id` 或 `user_id`。ADR-0006 已增加可选
+`conversation_id`：省略时创建新会话，提供时继续已有会话；`user_id` 仍等待可信身份边界。
 
 服务端为每个合法请求生成 UUID，并通过 `X-Request-ID` 响应头以及每个事件的
 `request_id` 字段返回。客户端不得用请求体指定该 ID。
@@ -60,24 +62,27 @@ data: {"request_id":"...","sequence":1,...}
 
 ### 3. 公开事件 Schema
 
-本版本定义五种事件：
+当前版本定义六种事件：
 
-1. `status`：增加 `stage`，当前可能为 `retrieving`、`prompting`、`generating`、
+1. `reply_to`：成功开始持久化 Run 后首先返回 `conversation_id`、`user_message_id` 和
+   `rag_run_id`，字段语义由 ADR-0006 定义。
+2. `status`：增加 `stage`，当前可能为 `retrieving`、`prompting`、`generating`、
    `completed` 或 `no_context`。
-2. `content`：增加非空 `delta`，只包含答案正文，不包含模型 reasoning。
-3. `sources`：增加非空 `sources` 数组；每项包含连续 `citation_number`、Chunk/知识库/
+3. `content`：增加非空 `delta`，只包含答案正文，不包含模型 reasoning。
+4. `sources`：增加非空 `sources` 数组；每项包含连续 `citation_number`、Chunk/知识库/
    文档/版本 UUID、`source_key`、`display_name`、文档格式、可选章节和页码、内容哈希与
    Cosine 相似度，不包含文档正文。
-4. `error`：增加稳定 `code`、可公开 `message` 和 `retryable`。
-5. `done`：增加 `outcome`，取值为 `completed`、`no_context` 或 `error`；成功时可包含
+5. `error`：增加稳定 `code`、可公开 `message` 和 `retryable`。
+6. `done`：增加 `outcome`，取值为 `completed`、`no_context` 或 `error`；成功时可包含
    `model_id`、`finish_reason` 和 Token 用量。正常或空检索结局包含 Pipeline 返回的轻量
    `trace`；当前异常对象不携带部分上下文，因此 error 结局的 `trace` 为空。
 
-正常回答的事件顺序为 status、零到多个 content、sources、completed status、done。
-空检索为 retrieving status、no_context status、done，且不调用 Chat 模型。流开始后的失败
+正常回答的事件顺序为 reply_to、status、零到多个 content、sources、completed status、done。
+空检索为 reply_to、retrieving status、no_context status、done，且不调用 Chat 模型。开始
+持久化失败时可以在 reply_to 之前直接返回 error + done；其余流开始后的失败
 必须输出一个 error，紧接一个 `outcome=error` 的 done，然后关闭流；不得切换模型并重放已
-输出的正文。客户端应忽略当前版本中不认识的事件名，以允许以后增加 `reply_to` 或
-`guidance`，但改变现有字段语义、顺序保证或端点仍需更新 ADR 或 API 版本。
+输出的正文。客户端应忽略当前版本中不认识的事件名，以允许以后增加 `guidance` 等事件，
+但改变现有字段语义、顺序保证或端点仍需更新 ADR 或 API 版本。
 
 ### 4. 错误、超时与取消
 
@@ -97,8 +102,8 @@ data: {"request_id":"...","sequence":1,...}
 
 默认 lifespan 在数据库和 Redis 打开后构建一个共享的最终 Chat 模型与 RAG Pipeline。
 Chat HTTP 连接池由应用服务图拥有，并在数据库和 Redis 之前关闭。若 Chat 配置无效，启动
-快速失败且已经打开的基础设施仍必须释放。M3-B 只组合最终回答模型，不提前实例化 fast、
-Rerank、会话或后台任务能力。
+快速失败且已经打开的基础设施仍必须释放。M3-C 在基础 Pipeline 外组合持久化装饰器，但仍不
+提前实例化 fast、Rerank 或后台任务能力。
 
 ## 备选方案
 
@@ -126,7 +131,8 @@ WebSocket 适合双向交互，但当前问答是单请求、单方向增量输�
 
 - 调用方可以通过一个稳定的 v1 SSE 协议消费进度、正文、来源、错误和完成状态。
 - HTTP 200 只表示流已建立；最终成功与否必须以终端 done 事件判断。
-- 当前没有认证、会话持久化、断线重放、心跳、限流或跨实例取消信号，只适合受控开发和演示。
+- 当前已有最小会话持久化，但没有认证、断线重放、心跳、限流或跨实例取消信号，只适合受控
+  开发和演示。
 - 默认 API 启动现在需要有效的 Chat API Key 配置；测试和真实数据库集成使用可控 Fake 模型，
   不访问云端模型或消耗额度。
 - 后续加入会话消息 ID、澄清事件或持久化 Trace 时，必须保持本契约兼容或显式升级版本。

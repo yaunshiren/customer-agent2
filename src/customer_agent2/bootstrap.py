@@ -6,6 +6,7 @@ from customer_agent2.application import (
     DocumentIngestionService,
     DocumentManagementService,
     DocumentParsingService,
+    PersistentStreamingRagPipeline,
     StructureAwareDocumentChunker,
     VectorRetrievalService,
 )
@@ -29,6 +30,7 @@ from customer_agent2.infrastructure.models import (
 from customer_agent2.infrastructure.persistence import (
     SQLAlchemyDocumentManagementRepository,
     SQLAlchemyIngestionRepository,
+    SQLAlchemyRagRunRepository,
     SQLAlchemyVectorSearchRepository,
 )
 
@@ -93,11 +95,14 @@ def build_application_services(
         timeout_seconds=settings.llm_timeout_seconds,
         first_packet_timeout_seconds=settings.llm_first_packet_timeout_seconds,
     )
-    rag = BasicStreamingRagPipeline(
-        retrieval,
-        BasicRagPromptBuilder(context_top_k=settings.retrieval_context_top_k),
-        final_chat,
-        global_timeout_seconds=settings.rag_global_timeout_seconds,
+    rag = PersistentStreamingRagPipeline(
+        BasicStreamingRagPipeline(
+            retrieval,
+            BasicRagPromptBuilder(context_top_k=settings.retrieval_context_top_k),
+            final_chat,
+            global_timeout_seconds=settings.rag_global_timeout_seconds,
+        ),
+        SQLAlchemyRagRunRepository(database.session_factory),
     )
     return ApplicationServices(
         ingestion=DocumentIngestionService(

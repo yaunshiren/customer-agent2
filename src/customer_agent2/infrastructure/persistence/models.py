@@ -1,4 +1,4 @@
-"""SQLAlchemy records for document versioning and vector indexing."""
+"""SQLAlchemy records for documents, conversations, and RAG execution."""
 
 from datetime import datetime
 from typing import Final
@@ -19,13 +19,174 @@ from sqlalchemy import (
     func,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from customer_agent2.infrastructure.persistence.base import Base
 
 EMBEDDING_DIMENSION: Final = 768
+
+
+class ConversationRecord(Base):
+    """Minimal conversation identity without a premature user/tenant boundary."""
+
+    __tablename__ = "conversations"
+
+    id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
+class RagRunRecord(Base):
+    """Minimal trace and terminal outcome for one public RAG request."""
+
+    __tablename__ = "rag_runs"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('running', 'completed', 'no_context', 'failed', 'cancelled')",
+            name="status_allowed",
+        ),
+        CheckConstraint(
+            "cardinality(knowledge_base_ids) > 0",
+            name="knowledge_base_ids_not_empty",
+        ),
+        CheckConstraint(
+            "(status = 'running' AND finished_at IS NULL) "
+            "OR (status <> 'running' AND finished_at IS NOT NULL)",
+            name="finished_at_matches_status",
+        ),
+        CheckConstraint(
+            "status <> 'completed' OR "
+            "(model_id IS NOT NULL AND finish_reason IS NOT NULL "
+            "AND char_length(btrim(model_id)) > 0 "
+            "AND char_length(btrim(finish_reason)) > 0)",
+            name="completed_model_result_present",
+        ),
+        CheckConstraint(
+            "input_tokens IS NULL OR input_tokens >= 0",
+            name="input_tokens_nonnegative",
+        ),
+        CheckConstraint(
+            "output_tokens IS NULL OR output_tokens >= 0",
+            name="output_tokens_nonnegative",
+        ),
+        CheckConstraint(
+            "(status IN ('failed', 'cancelled') AND error_code IS NOT NULL "
+            "AND char_length(btrim(error_code)) > 0) "
+            "OR (status NOT IN ('failed', 'cancelled') AND error_code IS NULL)",
+            name="error_code_matches_status",
+        ),
+        Index("ix_rag_runs_conversation_started_at", "conversation_id", "started_at"),
+        Index(
+            "ux_rag_runs_one_running_per_conversation",
+            "conversation_id",
+            unique=True,
+            postgresql_where=text("status = 'running'"),
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+    request_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        nullable=False,
+        unique=True,
+    )
+    conversation_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        ForeignKey("conversations.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    knowledge_base_ids: Mapped[list[UUID]] = mapped_column(
+        ARRAY(PostgreSQLUUID(as_uuid=True)),
+        nullable=False,
+    )
+    status: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        server_default=text("'running'"),
+    )
+    model_id: Mapped[str | None] = mapped_column(String(255))
+    finish_reason: Mapped[str | None] = mapped_column(String(100))
+    input_tokens: Mapped[int | None] = mapped_column(Integer)
+    output_tokens: Mapped[int | None] = mapped_column(Integer)
+    trace: Mapped[list[dict[str, object]]] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=list,
+        server_default=text("'[]'::jsonb"),
+    )
+    source_chunk_ids: Mapped[list[UUID]] = mapped_column(
+        ARRAY(PostgreSQLUUID(as_uuid=True)),
+        nullable=False,
+        default=list,
+        server_default=text("'{}'::uuid[]"),
+    )
+    error_code: Mapped[str | None] = mapped_column(String(100))
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class MessageRecord(Base):
+    """Ordered user or assistant content retained as conversation fact."""
+
+    __tablename__ = "messages"
+    __table_args__ = (
+        UniqueConstraint(
+            "conversation_id",
+            "ordinal",
+            name="uq_messages_conversation_ordinal",
+        ),
+        UniqueConstraint("rag_run_id", "role", name="uq_messages_rag_run_role"),
+        CheckConstraint("ordinal > 0", name="ordinal_positive"),
+        CheckConstraint("role IN ('user', 'assistant')", name="role_allowed"),
+        CheckConstraint("char_length(btrim(content)) > 0", name="content_not_blank"),
+        Index("ix_messages_conversation_ordinal", "conversation_id", "ordinal"),
+    )
+
+    id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+    conversation_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        ForeignKey("conversations.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    rag_run_id: Mapped[UUID | None] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        ForeignKey("rag_runs.id", ondelete="SET NULL"),
+    )
+    ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
+    role: Mapped[str] = mapped_column(String(16), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
 
 
 class KnowledgeBaseRecord(Base):

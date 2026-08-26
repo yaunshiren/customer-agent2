@@ -45,6 +45,7 @@ class ChatStreamRequest(BaseModel):
 
     question: str = Field(min_length=1, max_length=10_000)
     scope: ChatSearchScopeRequest
+    conversation_id: UUID | None = None
 
     @field_validator("question")
     @classmethod
@@ -69,6 +70,14 @@ class SseStatusEventData(SseEventData):
     """Public pipeline progress event."""
 
     stage: PipelineStage
+
+
+class SseReplyToEventData(SseEventData):
+    """Persistent identities allocated before retrieval starts."""
+
+    conversation_id: UUID
+    user_message_id: UUID
+    rag_run_id: UUID
 
 
 class SseContentEventData(SseEventData):

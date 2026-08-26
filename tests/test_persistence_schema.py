@@ -1,4 +1,4 @@
-"""Static contract tests for the accepted M2-A persistence schema."""
+"""Static contract tests for the accepted persistence schema."""
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import ForeignKeyConstraint, Index
@@ -16,12 +16,15 @@ def find_index(table_name: str, index_name: str) -> Index:
     return index
 
 
-def test_metadata_contains_only_the_m2a_business_tables() -> None:
+def test_metadata_contains_all_accepted_business_tables() -> None:
     assert set(Base.metadata.tables) == {
         "chunks",
+        "conversations",
         "document_versions",
         "documents",
         "knowledge_bases",
+        "messages",
+        "rag_runs",
     }
 
 
@@ -66,3 +69,31 @@ def test_only_one_active_version_is_allowed_per_document() -> None:
 
     assert index.unique is True
     assert "WHERE status = 'active'" in sql
+
+
+def test_only_one_running_rag_run_is_allowed_per_conversation() -> None:
+    index = find_index("rag_runs", "ux_rag_runs_one_running_per_conversation")
+    sql = str(CreateIndex(index).compile(dialect=postgresql.dialect()))
+
+    assert index.unique is True
+    assert "WHERE status = 'running'" in sql
+
+
+def test_conversation_deletion_cascades_runs_and_messages() -> None:
+    run_table = Base.metadata.tables["rag_runs"]
+    message_table = Base.metadata.tables["messages"]
+    run_fk = next(
+        constraint
+        for constraint in run_table.constraints
+        if isinstance(constraint, ForeignKeyConstraint)
+    )
+    message_fks = {
+        constraint.referred_table.name: constraint
+        for constraint in message_table.constraints
+        if isinstance(constraint, ForeignKeyConstraint)
+    }
+
+    assert run_fk.referred_table.name == "conversations"
+    assert run_fk.ondelete == "CASCADE"
+    assert message_fks["conversations"].ondelete == "CASCADE"
+    assert message_fks["rag_runs"].ondelete == "SET NULL"
