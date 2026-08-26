@@ -27,6 +27,8 @@ from customer_agent2.domain.models import (
     KnowledgeBaseDraft,
     ModelError,
     ModelErrorCode,
+    VectorSearchRequest,
+    VectorSearchResult,
 )
 from customer_agent2.infrastructure import ApplicationResources
 from customer_agent2.infrastructure.database import DatabaseReadiness
@@ -96,6 +98,11 @@ class FakeManagementUseCase:
         self.deleted.append((knowledge_base_id, document_id))
 
 
+class UnexpectedRetrievalUseCase:
+    async def search(self, request: VectorSearchRequest) -> VectorSearchResult:
+        raise AssertionError(f"API 测试不应调用检索服务: {request.scope}")
+
+
 def service_bundle() -> tuple[ApplicationServices, FakeIngestionUseCase, FakeManagementUseCase]:
     now = datetime.now(UTC)
     knowledge_base_id = uuid4()
@@ -139,7 +146,11 @@ def service_bundle() -> tuple[ApplicationServices, FakeIngestionUseCase, FakeMan
     )
     ingestion = FakeIngestionUseCase(result)
     management = FakeManagementUseCase(knowledge_base, document)
-    return ApplicationServices(ingestion, management), ingestion, management
+    return (
+        ApplicationServices(ingestion, management, UnexpectedRetrievalUseCase()),
+        ingestion,
+        management,
+    )
 
 
 def api_app(services: ApplicationServices | None = None) -> FastAPI:

@@ -136,6 +136,7 @@ def _append_pdf_paragraph(
             start_line=start_line,
             end_line=end_line,
             section_path=(f"第 {page_number} 页",),
+            page_number=page_number,
         )
     )
 

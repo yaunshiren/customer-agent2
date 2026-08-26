@@ -5,6 +5,7 @@ from customer_agent2.application import (
     DocumentManagementService,
     DocumentParsingService,
     StructureAwareDocumentChunker,
+    VectorRetrievalService,
 )
 from customer_agent2.application.services import ApplicationServices
 from customer_agent2.config import Settings
@@ -23,6 +24,7 @@ from customer_agent2.infrastructure.models import SentenceTransformerEmbeddingMo
 from customer_agent2.infrastructure.persistence import (
     SQLAlchemyDocumentManagementRepository,
     SQLAlchemyIngestionRepository,
+    SQLAlchemyVectorSearchRepository,
 )
 
 
@@ -72,6 +74,7 @@ def build_application_services(
     )
     ingestion_repository = SQLAlchemyIngestionRepository(database.session_factory)
     management_repository = SQLAlchemyDocumentManagementRepository(database.session_factory)
+    retrieval_repository = SQLAlchemyVectorSearchRepository(database.session_factory)
     return ApplicationServices(
         ingestion=DocumentIngestionService(
             parser,
@@ -82,5 +85,11 @@ def build_application_services(
         documents=DocumentManagementService(
             management_repository,
             index_configuration,
+        ),
+        retrieval=VectorRetrievalService(
+            embedding,
+            retrieval_repository,
+            recall_budget=settings.retrieval_recall_budget,
+            hnsw_ef_search=settings.retrieval_hnsw_ef_search,
         ),
     )

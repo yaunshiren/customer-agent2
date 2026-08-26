@@ -170,6 +170,9 @@ def _chunk_draft(
     section_path = blocks[0].section_path
     if any(block.section_path != section_path for block in blocks):
         raise ValueError("一个结构分组不能跨越不同章节")
+    page_number = blocks[0].page_number
+    if any(block.page_number != page_number for block in blocks):
+        raise ValueError("一个结构分组不能跨越不同页码")
     return ChunkDraft(
         chunk_index=chunk_index,
         content=content,
@@ -181,4 +184,5 @@ def _chunk_draft(
         end_line=max(block.end_line for block in blocks),
         section_path=section_path,
         overlap_with_previous_tokens=overlap_tokens,
+        page_number=page_number,
     )

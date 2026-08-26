@@ -58,6 +58,16 @@ from customer_agent2.domain.models.rerank import (
     RerankRequest,
     RerankResult,
 )
+from customer_agent2.domain.models.retrieval import (
+    RetrievalError,
+    RetrievalErrorCode,
+    RetrievedChunkSource,
+    VectorSearchCandidate,
+    VectorSearchRepository,
+    VectorSearchRequest,
+    VectorSearchResult,
+    VectorSearchScope,
+)
 
 __all__ = [
     "ChatMessage",
@@ -105,6 +115,14 @@ __all__ = [
     "RerankModel",
     "RerankRequest",
     "RerankResult",
+    "RetrievalError",
+    "RetrievalErrorCode",
+    "RetrievedChunkSource",
     "TextTokenCodec",
     "TokenUsage",
+    "VectorSearchCandidate",
+    "VectorSearchRepository",
+    "VectorSearchRequest",
+    "VectorSearchResult",
+    "VectorSearchScope",
 ]

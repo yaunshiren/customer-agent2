@@ -82,6 +82,7 @@ class Settings(BaseSettings):
     chunk_overlap_tokens: int = Field(default=64, ge=0)
 
     retrieval_recall_budget: int = Field(default=20, ge=1)
+    retrieval_hnsw_ef_search: int = Field(default=100, ge=1, le=1000)
     retrieval_rerank_candidate_limit: int = Field(default=40, ge=1)
     retrieval_context_top_k: int = Field(default=10, ge=1)
 

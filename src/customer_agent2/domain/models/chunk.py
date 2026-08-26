@@ -70,6 +70,7 @@ class ChunkDraft:
     end_line: int
     section_path: tuple[str, ...]
     overlap_with_previous_tokens: int = 0
+    page_number: int | None = None
 
     def __post_init__(self) -> None:
         normalized_content = self.content.strip()
@@ -85,6 +86,8 @@ class ChunkDraft:
             raise ValueError("ChunkDraft 行号范围无效")
         if self.overlap_with_previous_tokens < 0:
             raise ValueError("ChunkDraft overlap 不能小于 0")
+        if self.page_number is not None and self.page_number < 1:
+            raise ValueError("ChunkDraft.page_number 必须大于 0")
         if len(self.content_sha256) != 64 or any(
             character not in "0123456789abcdef" for character in self.content_sha256
         ):

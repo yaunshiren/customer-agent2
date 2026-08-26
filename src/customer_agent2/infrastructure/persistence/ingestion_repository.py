@@ -135,6 +135,7 @@ class SQLAlchemyIngestionRepository:
                             token_count=chunk.token_count,
                             content_sha256=chunk.content_sha256,
                             section=_section_value(chunk.section_path),
+                            page_number=chunk.page_number,
                             source_metadata={
                                 "block_start_ordinal": chunk.block_start_ordinal,
                                 "block_end_ordinal": chunk.block_end_ordinal,

@@ -12,6 +12,7 @@ from customer_agent2.application import (
     DocumentManagementService,
     DocumentParsingService,
     StructureAwareDocumentChunker,
+    VectorRetrievalService,
 )
 from customer_agent2.application.services import ApplicationServices
 from customer_agent2.config import Settings
@@ -34,6 +35,7 @@ from customer_agent2.infrastructure.persistence import (
     KnowledgeBaseRecord,
     SQLAlchemyDocumentManagementRepository,
     SQLAlchemyIngestionRepository,
+    SQLAlchemyVectorSearchRepository,
 )
 from customer_agent2.main import create_app
 from tests.document_samples import CSV_SAMPLE, build_docx_bytes, build_pdf_bytes
@@ -104,6 +106,7 @@ def fake_model_services(
     )
     ingestion_repository = SQLAlchemyIngestionRepository(database.session_factory)
     management_repository = SQLAlchemyDocumentManagementRepository(database.session_factory)
+    retrieval_repository = SQLAlchemyVectorSearchRepository(database.session_factory)
     return ApplicationServices(
         ingestion=DocumentIngestionService(
             parser,
@@ -122,6 +125,12 @@ def fake_model_services(
                 EMBEDDING_DIMENSION,
                 True,
             ),
+        ),
+        retrieval=VectorRetrievalService(
+            embedding,
+            retrieval_repository,
+            recall_budget=settings.retrieval_recall_budget,
+            hnsw_ef_search=settings.retrieval_hnsw_ef_search,
         ),
     )
 
@@ -292,8 +301,16 @@ async def test_real_http_api_ingests_every_p0_document_format() -> None:
                             ChunkRecord.document_version_id.in_(version_ids)
                         )
                     )
+                    pdf_page_numbers = set(
+                        await session.scalars(
+                            select(ChunkRecord.page_number).where(
+                                ChunkRecord.document_version_id == version_ids[2]
+                            )
+                        )
+                    )
                 assert parser_names == {sample[3] for sample in samples}
                 assert chunk_count is not None and chunk_count >= len(samples)
+                assert pdf_page_numbers == {1}
         finally:
             if knowledge_base_id is not None:
                 async with database.session_factory.begin() as session:

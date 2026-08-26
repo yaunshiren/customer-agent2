@@ -14,6 +14,9 @@ from customer_agent2.infrastructure.persistence.models import (
     DocumentVersionRecord,
     KnowledgeBaseRecord,
 )
+from customer_agent2.infrastructure.persistence.retrieval_repository import (
+    SQLAlchemyVectorSearchRepository,
+)
 
 __all__ = [
     "EMBEDDING_DIMENSION",
@@ -24,4 +27,5 @@ __all__ = [
     "KnowledgeBaseRecord",
     "SQLAlchemyDocumentManagementRepository",
     "SQLAlchemyIngestionRepository",
+    "SQLAlchemyVectorSearchRepository",
 ]

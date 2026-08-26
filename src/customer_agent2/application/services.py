@@ -10,6 +10,8 @@ from customer_agent2.domain.models import (
     IngestionResult,
     KnowledgeBase,
     KnowledgeBaseDraft,
+    VectorSearchRequest,
+    VectorSearchResult,
 )
 
 
@@ -37,9 +39,16 @@ class DocumentManagementUseCase(Protocol):
     ) -> None: ...
 
 
+class VectorRetrievalUseCase(Protocol):
+    """Internal first-stage retrieval surface for later RAG orchestration."""
+
+    async def search(self, request: VectorSearchRequest) -> VectorSearchResult: ...
+
+
 @dataclass(frozen=True, slots=True)
 class ApplicationServices:
     """Long-lived use cases sharing one model adapter and database pool."""
 
     ingestion: DocumentIngestionUseCase
     documents: DocumentManagementUseCase
+    retrieval: VectorRetrievalUseCase

@@ -81,6 +81,7 @@ def test_pdf_parser_preserves_page_source_and_binary_identity() -> None:
     assert parsed.source.content == content
     assert parsed.blocks[0].text == "Refund policy"
     assert parsed.blocks[0].section_path == ("第 1 页",)
+    assert parsed.blocks[0].page_number == 1
 
 
 def test_docx_parser_preserves_headings_lists_and_table_records() -> None:

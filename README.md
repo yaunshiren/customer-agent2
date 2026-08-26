@@ -4,11 +4,11 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M2-F P0 多格式文档入库已完成。项目已有 PostgreSQL/Redis 连接管理、
+> 当前状态：M2-G 文档入库与在线向量召回已完成。项目已有 PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
 > `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT/PDF/DOCX/CSV
-> 解析，以及 400/64 Token 分块、原子版本切换和同步上传/状态/删除 API；在线向量检索仍是
-> 后续任务。
+> 解析，以及 400/64 Token 分块、原子版本切换、同步上传/状态/删除 API 和带作用域过滤的
+> active-only Cosine 向量召回；下一阶段是 M3 基础流式 RAG。
 
 ## 项目目标
 
@@ -78,8 +78,8 @@
 
 Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实云端模型或消耗额度。本地
 Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。M2-A 至
-M2-F 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embedding 和 pgvector 原子切换
-连成同步 HTTP 入库闭环。项目还没有对外问答 API 或在线向量检索。
+M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embedding、pgvector 原子切换和
+在线向量召回连成闭环。项目还没有对外问答或检索 API。
 
 ## 当前文档解析边界
 
@@ -126,6 +126,21 @@ M2-F 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 - `DELETE /api/v1/knowledge-bases/{knowledge_base_id}/documents/{document_id}`：级联硬删除文档、版本和 Chunk。
 
 当前 API 是受控开发/演示边界：没有身份认证、多租户、后台任务、进度轮询和对象存储。删除不可恢复。
+
+## 当前向量检索边界
+
+- `VectorRetrievalService` 只依赖类型化 Embedding 和检索仓储接口；SQLAlchemy、pgvector 与
+  JSONB 细节留在基础设施层。
+- 每次请求必须显式提供非空知识库 ID 列表；文档 ID、文档格式、解析器、章节和页码过滤均在
+  PostgreSQL 查询侧完成。未来“全局检索”也必须先由权限层解析为明确的可访问知识库列表。
+- 查询向量的 model ID、revision、维度和归一化必须与范围内每个知识库完全一致，不一致会返回
+  稳定错误，不会静默跳过。
+- 只检索 `active` 文档版本；`building`、`failed` 和 `superseded` Chunk 永远不会进入候选。
+- Cosine HNSW 查询默认召回预算为 20、`ef_search` 为 100；带过滤查询在单次事务内启用
+  `strict_order` 迭代扫描，设置不会泄漏到连接池中的后续请求。
+
+该能力目前是供 M3 Pipeline 使用的内部应用服务，不是公开 HTTP 契约；尚未实现 Prompt、
+Rerank 编排、SSE 或最终 TopK 上下文组装。
 
 ## 当前文档
 
@@ -245,7 +260,8 @@ $env:RUN_LOCAL_MODEL_SMOKE="1"
 pytest -m model_smoke
 ```
 
-如需用本地已迁移的 PostgreSQL 验证真实向量写入、Cosine 查询和版本唯一约束：
+如需用本地已迁移的 PostgreSQL 验证真实向量写入、过滤检索、Cosine 排名、active-only
+版本语义和索引配置拒绝行为：
 
 ```powershell
 $env:RUN_DATABASE_INTEGRATION="1"

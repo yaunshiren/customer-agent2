@@ -30,6 +30,13 @@ def test_settings_reject_rerank_limit_below_top_k() -> None:
         )
 
 
+def test_settings_bound_hnsw_search_effort() -> None:
+    assert Settings().retrieval_hnsw_ef_search == 100
+
+    with pytest.raises(ValidationError, match="retrieval_hnsw_ef_search"):
+        Settings(retrieval_hnsw_ef_search=1001)
+
+
 def test_settings_parse_typed_infrastructure_urls() -> None:
     settings = Settings.model_validate(
         {

@@ -135,6 +135,7 @@ class ParsedBlock:
     start_line: int
     end_line: int
     section_path: tuple[str, ...] = ()
+    page_number: int | None = None
     heading_level: int | None = None
     code_language: str | None = None
 
@@ -148,6 +149,8 @@ class ParsedBlock:
             raise ValueError("ParsedBlock 行号范围无效")
         if any(not section.strip() for section in self.section_path):
             raise ValueError("ParsedBlock.section_path 不能包含空标题")
+        if self.page_number is not None and self.page_number < 1:
+            raise ValueError("ParsedBlock.page_number 必须大于 0")
         if self.kind is ParsedBlockKind.HEADING:
             if self.heading_level is None or not 1 <= self.heading_level <= 6:
                 raise ValueError("标题 Block 必须包含 1 到 6 级 heading_level")

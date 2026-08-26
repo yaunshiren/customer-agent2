@@ -6,6 +6,7 @@ from customer_agent2.application.document_management import DocumentManagementSe
 from customer_agent2.application.document_parsing import DocumentParsingService
 from customer_agent2.application.model_gateway import ChatProfile, ModelGateway
 from customer_agent2.application.services import ApplicationServices
+from customer_agent2.application.vector_retrieval import VectorRetrievalService
 
 __all__ = [
     "ApplicationServices",
@@ -15,4 +16,5 @@ __all__ = [
     "DocumentParsingService",
     "ModelGateway",
     "StructureAwareDocumentChunker",
+    "VectorRetrievalService",
 ]
