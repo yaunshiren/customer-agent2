@@ -4,12 +4,13 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M3-A 内部基础流式 RAG Pipeline 已完成。项目已有 PostgreSQL/Redis 连接管理、
+> 当前状态：M3-B 公开流式 RAG API 已完成。项目已有 PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
 > `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT/PDF/DOCX/CSV
 > 解析，以及 400/64 Token 分块、原子版本切换、同步上传/状态/删除 API 和带作用域过滤的
-> active-only Cosine 向量召回。内部链路已连接 `问题 → 召回 → TopK → 安全 Prompt → Chat 流`；
-> 下一步是为 SSE 公开协议新增 ADR 并实现问答 API。
+> active-only Cosine 向量召回。`POST /api/v1/chat/stream` 已将
+> `问题 → 召回 → TopK → 安全 Prompt → Chat 流` 通过版本化 SSE 契约公开；下一步是单独设计
+> 会话消息与最小 RAG Run 持久化。
 
 ## 项目目标
 
@@ -80,7 +81,7 @@
 Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实云端模型或消耗额度。本地
 Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。M2-A 至
 M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embedding、pgvector 原子切换和
-在线向量召回连成闭环。M3-A 已在内部应用层接入最终 Chat 流；项目还没有对外问答或检索 API。
+在线向量召回连成闭环。M3-A 已在内部应用层接入最终 Chat 流，M3-B 已提供公开 SSE 问答 API。
 
 ## 当前文档解析边界
 
@@ -140,22 +141,24 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 - Cosine HNSW 查询默认召回预算为 20、`ef_search` 为 100；带过滤查询在单次事务内启用
   `strict_order` 迭代扫描，设置不会泄漏到连接池中的后续请求。
 
-该能力已经接入 M3-A 内部 Pipeline，但仍不是公开 HTTP 契约；尚未实现 Rerank 编排或 SSE。
+该能力已经接入 M3-A Pipeline，并由 M3-B SSE API 在请求提供的显式作用域内调用；尚未实现
+去重、RRF 或 Rerank 编排。
 
-## 当前基础 RAG Pipeline 边界
+## 当前基础 RAG Pipeline 与 SSE API 边界
 
 - 使用请求级 `ChatPipelineContext` 显式传递原问题、当前改写结果、检索结果、TopK、Prompt、
   引用来源和阶段 Trace，不使用全局可变状态。
-- 当前不做 Rewrite、Intent、Memory、去重或 Rerank：改写问题等于原问题，直接取构造时注入的
-  `context_top_k`；M3-B 接入默认运行时后使用 `RETRIEVAL_CONTEXT_TOP_K`，其余能力按 M4/M5
-  单独加入。
+- 当前不做 Rewrite、Intent、Memory、去重或 Rerank：改写问题等于原问题，默认运行时使用
+  `RETRIEVAL_CONTEXT_TOP_K`，其余能力按 M4/M5 单独加入。
 - Prompt 把文档标记为不可信资料，转义文档内容和来源属性，要求回答使用 `[1]` 形式引用；
   模型的 reasoning 增量不会作为答案事件向上游暴露。
 - 空检索以 `no_context` 正常结局短路，不调用 Chat 模型，因此不会在没有资料时生成答案。
-- Pipeline 使用单一全局截止时间约束检索和模型流；模型流协议现在要求可关闭的异步生成器，
-  超时、取消或调用方提前停止时会执行 `aclose()`。
-- 内部事件已有 retrieving/prompting/generating/completed 状态、正文、来源和完成结果；它们尚未
-  直接作为公开 SSE Schema。公开协议会在 M3-B 先通过 ADR 固定。
+- Pipeline 使用可配置的 `RAG_GLOBAL_TIMEOUT_SECONDS` 单一截止时间约束检索和模型流；模型流
+  协议要求可关闭的异步生成器，超时、取消或调用方提前停止时会逐层执行 `aclose()`。
+- `POST /api/v1/chat/stream` 要求非空知识库 ID 列表，返回 status/content/sources/error/done
+  事件、严格递增序号和 `X-Request-ID`。流开始后的错误以 error + done 表达；空检索返回
+  `no_context` 且不调用模型。
+- 当前没有认证、会话/RAG Run 持久化、断线重放或心跳；公开协议详情见 ADR-0005。
 
 ## 当前文档
 
@@ -166,6 +169,7 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 - [文档版本与向量索引模式](docs/adr/0002-document-index-schema.md)
 - [最小文档入库 API 契约](docs/adr/0003-minimal-ingestion-api.md)
 - [多格式文档安全解析边界](docs/adr/0004-multiformat-document-parsing.md)
+- [流式 RAG API 与 SSE 事件契约](docs/adr/0005-streaming-rag-api.md)
 - [AI 协作规则](AGENTS.md)
 
 ## 本地启动
@@ -216,6 +220,9 @@ alembic upgrade head
 
 ### 5. 启动 API
 
+默认服务图会在启动时创建最终 Chat 模型连接池，因此需要先在本地 `.env` 填写
+`DASHSCOPE_API_KEY`。不要把真实密钥写入 `.env.example` 或提交到 Git。
+
 ```powershell
 python -m uvicorn customer_agent2.main:app --reload
 ```
@@ -256,7 +263,24 @@ Invoke-RestMethod `
 上传是同步操作，本地 CPU Embedding 完成前请求会保持。当前接受 Markdown、TXT、PDF、
 DOCX 和 UTF-8 CSV，默认单文件上限 50 MiB；详细解析上限见 `.env.example`。
 
-### 7. 运行质量检查
+### 7. 调用流式问答 API
+
+```powershell
+$body = @{
+  question = "如何申请退款?"
+  scope = @{knowledge_base_ids = @($knowledgeBase.id)}
+} | ConvertTo-Json -Depth 4
+
+curl.exe -N `
+  -H "Content-Type: application/json" `
+  -d $body `
+  http://127.0.0.1:8000/api/v1/chat/stream
+```
+
+HTTP 200 表示 SSE 流已经建立；最终结果以 `done` 事件的 `outcome` 为准。来源事件只返回引用
+坐标和内容哈希，不返回完整文档正文。
+
+### 8. 运行质量检查
 
 ```powershell
 ruff check .
@@ -275,8 +299,8 @@ $env:RUN_LOCAL_MODEL_SMOKE="1"
 pytest -m model_smoke
 ```
 
-如需用本地已迁移的 PostgreSQL 验证真实向量写入、过滤检索、Cosine 排名、active-only
-版本语义、索引配置拒绝行为和 M3-A 基础 RAG Pipeline：
+如需用本地已迁移的 PostgreSQL 和 Redis 验证真实向量写入、过滤检索、Cosine 排名、
+active-only 版本语义、基础 RAG Pipeline 和 Fake Chat 驱动的公开 SSE 端到端路径：
 
 ```powershell
 $env:RUN_DATABASE_INTEGRATION="1"

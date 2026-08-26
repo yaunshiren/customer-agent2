@@ -8,6 +8,8 @@ import pytest
 from sqlalchemy import delete, func, select
 
 from customer_agent2.application import (
+    BasicRagPromptBuilder,
+    BasicStreamingRagPipeline,
     DocumentIngestionService,
     DocumentManagementService,
     DocumentParsingService,
@@ -27,7 +29,7 @@ from customer_agent2.infrastructure.documents import (
     PlainTextDocumentParser,
     SafeDocumentIdentifier,
 )
-from customer_agent2.infrastructure.models import FakeEmbeddingModel
+from customer_agent2.infrastructure.models import FakeChatModel, FakeEmbeddingModel
 from customer_agent2.infrastructure.persistence import (
     EMBEDDING_DIMENSION,
     ChunkRecord,
@@ -107,6 +109,22 @@ def fake_model_services(
     ingestion_repository = SQLAlchemyIngestionRepository(database.session_factory)
     management_repository = SQLAlchemyDocumentManagementRepository(database.session_factory)
     retrieval_repository = SQLAlchemyVectorSearchRepository(database.session_factory)
+    retrieval = VectorRetrievalService(
+        embedding,
+        retrieval_repository,
+        recall_budget=settings.retrieval_recall_budget,
+        hnsw_ef_search=settings.retrieval_hnsw_ef_search,
+    )
+    rag = BasicStreamingRagPipeline(
+        retrieval,
+        BasicRagPromptBuilder(context_top_k=settings.retrieval_context_top_k),
+        FakeChatModel(
+            "fake-final",
+            "请按退款说明提交订单号 [1]。",
+            stream_chunks=("请按退款说明", "提交订单号 [1]。"),
+        ),
+        global_timeout_seconds=settings.rag_global_timeout_seconds,
+    )
     return ApplicationServices(
         ingestion=DocumentIngestionService(
             parser,
@@ -126,12 +144,8 @@ def fake_model_services(
                 True,
             ),
         ),
-        retrieval=VectorRetrievalService(
-            embedding,
-            retrieval_repository,
-            recall_budget=settings.retrieval_recall_budget,
-            hnsw_ef_search=settings.retrieval_hnsw_ef_search,
-        ),
+        retrieval=retrieval,
+        rag=rag,
     )
 
 
@@ -311,6 +325,63 @@ async def test_real_http_api_ingests_every_p0_document_format() -> None:
                 assert parser_names == {sample[3] for sample in samples}
                 assert chunk_count is not None and chunk_count >= len(samples)
                 assert pdf_page_numbers == {1}
+        finally:
+            if knowledge_base_id is not None:
+                async with database.session_factory.begin() as session:
+                    await session.execute(
+                        delete(KnowledgeBaseRecord).where(
+                            KnowledgeBaseRecord.id == knowledge_base_id
+                        )
+                    )
+
+
+@pytest.mark.asyncio
+async def test_real_http_api_streams_answer_and_sources_from_active_document() -> None:
+    settings = Settings()
+    app = create_app(settings, service_factory=fake_model_services)
+    slug = f"chat-integration-{uuid4()}"
+    knowledge_base_id: UUID | None = None
+
+    async with app.router.lifespan_context(app):
+        resources = app.state.resources
+        assert isinstance(resources, ApplicationResources)
+        database = resources.database
+        assert isinstance(database, DatabaseManager)
+        transport = httpx.ASGITransport(app=app)
+        try:
+            async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+                created = await client.post(
+                    f"{settings.api_prefix}/knowledge-bases",
+                    json={"slug": slug, "name": "Chat integration"},
+                )
+                assert created.status_code == 201
+                knowledge_base_id = UUID(created.json()["id"])
+                uploaded = await client.post(
+                    f"{settings.api_prefix}/knowledge-bases/{knowledge_base_id}/documents",
+                    files={
+                        "file": (
+                            "refund.md",
+                            "# 退款说明\n\n退款请提交订单号。".encode(),
+                            "text/markdown",
+                        )
+                    },
+                )
+                assert uploaded.status_code == 201
+
+                streamed = await client.post(
+                    f"{settings.api_prefix}/chat/stream",
+                    json={
+                        "question": "如何申请退款?",
+                        "scope": {"knowledge_base_ids": [str(knowledge_base_id)]},
+                    },
+                )
+
+                assert streamed.status_code == 200
+                assert "event: content" in streamed.text
+                assert "event: sources" in streamed.text
+                assert '"outcome":"completed"' in streamed.text
+                assert str(knowledge_base_id) in streamed.text
+                assert "退款请提交订单号。" not in streamed.text
         finally:
             if knowledge_base_id is not None:
                 async with database.session_factory.begin() as session:

@@ -14,7 +14,7 @@ def get_application_services(request: Request) -> ApplicationServices:
     if services is None:
         detail = PublicErrorDetail(
             code="service_unavailable",
-            message="文档入库服务尚未就绪",
+            message="应用服务尚未就绪",
             retryable=True,
         )
         raise HTTPException(

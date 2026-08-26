@@ -82,6 +82,13 @@ def test_settings_reject_first_packet_timeout_above_total_timeout() -> None:
         )
 
 
+def test_settings_keep_rag_deadline_at_least_as_large_as_model_timeout() -> None:
+    assert Settings().rag_global_timeout_seconds == 120
+
+    with pytest.raises(ValidationError, match="RAG_GLOBAL_TIMEOUT_SECONDS"):
+        Settings(llm_timeout_seconds=100, rag_global_timeout_seconds=99)
+
+
 def test_settings_protect_fixed_embedding_baseline_capabilities() -> None:
     with pytest.raises(ValidationError, match="DIMENSION"):
         Settings(local_embedding_dimension=1024)

@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     chat_model_fast: str = "qwen3.7-flash"
     llm_timeout_seconds: float = Field(default=100.0, gt=0)
     llm_first_packet_timeout_seconds: float = Field(default=30.0, gt=0)
+    rag_global_timeout_seconds: float = Field(default=120.0, gt=0)
 
     embedding_provider: Literal["local"] = "local"
     local_embedding_model: str = "BAAI/bge-base-zh-v1.5"
@@ -155,6 +156,8 @@ class Settings(BaseSettings):
         """Keep configured model capabilities consistent with the accepted baseline."""
         if self.llm_first_packet_timeout_seconds > self.llm_timeout_seconds:
             raise ValueError("LLM_FIRST_PACKET_TIMEOUT_SECONDS 不能大于 LLM_TIMEOUT_SECONDS")
+        if self.rag_global_timeout_seconds < self.llm_timeout_seconds:
+            raise ValueError("RAG_GLOBAL_TIMEOUT_SECONDS 不能小于 LLM_TIMEOUT_SECONDS")
 
         if self.local_embedding_model == "BAAI/bge-base-zh-v1.5":
             if self.local_embedding_dimension != 768:

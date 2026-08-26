@@ -1,6 +1,8 @@
 """Concrete application-service composition for the default runtime."""
 
 from customer_agent2.application import (
+    BasicRagPromptBuilder,
+    BasicStreamingRagPipeline,
     DocumentIngestionService,
     DocumentManagementService,
     DocumentParsingService,
@@ -20,7 +22,10 @@ from customer_agent2.infrastructure.documents import (
     SafeDocumentIdentifier,
     TransformersTextTokenCodec,
 )
-from customer_agent2.infrastructure.models import SentenceTransformerEmbeddingModel
+from customer_agent2.infrastructure.models import (
+    OpenAICompatibleChatModel,
+    SentenceTransformerEmbeddingModel,
+)
 from customer_agent2.infrastructure.persistence import (
     SQLAlchemyDocumentManagementRepository,
     SQLAlchemyIngestionRepository,
@@ -75,6 +80,25 @@ def build_application_services(
     ingestion_repository = SQLAlchemyIngestionRepository(database.session_factory)
     management_repository = SQLAlchemyDocumentManagementRepository(database.session_factory)
     retrieval_repository = SQLAlchemyVectorSearchRepository(database.session_factory)
+    retrieval = VectorRetrievalService(
+        embedding,
+        retrieval_repository,
+        recall_budget=settings.retrieval_recall_budget,
+        hnsw_ef_search=settings.retrieval_hnsw_ef_search,
+    )
+    final_chat = OpenAICompatibleChatModel(
+        api_key=settings.dashscope_api_key,
+        base_url=str(settings.dashscope_base_url).rstrip("/"),
+        model_id=settings.chat_model_final,
+        timeout_seconds=settings.llm_timeout_seconds,
+        first_packet_timeout_seconds=settings.llm_first_packet_timeout_seconds,
+    )
+    rag = BasicStreamingRagPipeline(
+        retrieval,
+        BasicRagPromptBuilder(context_top_k=settings.retrieval_context_top_k),
+        final_chat,
+        global_timeout_seconds=settings.rag_global_timeout_seconds,
+    )
     return ApplicationServices(
         ingestion=DocumentIngestionService(
             parser,
@@ -86,10 +110,7 @@ def build_application_services(
             management_repository,
             index_configuration,
         ),
-        retrieval=VectorRetrievalService(
-            embedding,
-            retrieval_repository,
-            recall_budget=settings.retrieval_recall_budget,
-            hnsw_ef_search=settings.retrieval_hnsw_ef_search,
-        ),
+        retrieval=retrieval,
+        rag=rag,
+        closeables=(final_chat,),
     )

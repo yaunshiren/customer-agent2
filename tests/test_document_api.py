@@ -1,5 +1,6 @@
 """HTTP contract tests for the minimal M2-E ingestion API."""
 
+from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 from io import BytesIO
 from uuid import UUID, uuid4
@@ -27,6 +28,8 @@ from customer_agent2.domain.models import (
     KnowledgeBaseDraft,
     ModelError,
     ModelErrorCode,
+    PipelineEvent,
+    RagPipelineRequest,
     VectorSearchRequest,
     VectorSearchResult,
 )
@@ -103,6 +106,12 @@ class UnexpectedRetrievalUseCase:
         raise AssertionError(f"API 测试不应调用检索服务: {request.scope}")
 
 
+class UnexpectedRagPipeline:
+    async def stream(self, request: RagPipelineRequest) -> AsyncGenerator[PipelineEvent, None]:
+        raise AssertionError(f"文档 API 测试不应调用 RAG Pipeline: {request.request_id}")
+        yield
+
+
 def service_bundle() -> tuple[ApplicationServices, FakeIngestionUseCase, FakeManagementUseCase]:
     now = datetime.now(UTC)
     knowledge_base_id = uuid4()
@@ -147,7 +156,12 @@ def service_bundle() -> tuple[ApplicationServices, FakeIngestionUseCase, FakeMan
     ingestion = FakeIngestionUseCase(result)
     management = FakeManagementUseCase(knowledge_base, document)
     return (
-        ApplicationServices(ingestion, management, UnexpectedRetrievalUseCase()),
+        ApplicationServices(
+            ingestion,
+            management,
+            UnexpectedRetrievalUseCase(),
+            UnexpectedRagPipeline(),
+        ),
         ingestion,
         management,
     )

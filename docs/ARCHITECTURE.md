@@ -121,6 +121,9 @@ M3-A 先落地当前已实现阶段需要的字段：请求身份与显式检索
 `rewritten_question == original_question`，记忆为空；Intent、Guidance 和持久化 Trace 字段在
 对应 M4/M3 后续子阶段加入，不用无约束字典提前占位。
 
+M3-B 的 API 适配器只负责把已实现的内部事件映射到 ADR-0005 SSE Schema。它生成请求 ID，
+但不把 FastAPI Request、StreamingResponse 或无类型字典放入 Pipeline 上下文。
+
 ### 5.3 短路语义
 
 以下情况允许提前结束 Pipeline：
@@ -136,6 +139,10 @@ M3-A 先落地当前已实现阶段需要的字段：请求身份与显式检索
 M3-A 已实现空检索 `no_context` 短路：只产生内部状态和完成事件，不调用 Chat 模型。检索、
 Prompt 和生成阶段记录不含文档正文的轻量 Trace。单一截止时间覆盖检索和逐个模型流读取；
 超时、任务取消或上游提前关闭时，Pipeline 在 `finally` 中关闭模型异步生成器。
+
+M3-B 已将空检索映射为明确的 no_context status + done。流开始后的 Pipeline、检索或模型失败
+映射为 error + done；客户端断开不伪造无法送达的终端事件，取消继续向下传播并逐层关闭
+Pipeline、模型流和供应商 HTTP 响应。
 
 ## 6. 检索架构
 
@@ -257,22 +264,22 @@ Identify → Parse → Chunk → Embed → Index
 
 ## 9. SSE 事件协议
 
-P0 规划事件类型：
+P0 事件类型：
 
 | 事件 | 作用 |
 |---|---|
-| `status` | 当前阶段，例如 rewriting、retrieving、reranking |
-| `reply_to` | 当前回答对应的用户消息 ID |
+| `status` | 当前阶段；现有 retrieving、prompting、generating、completed、no_context |
+| `reply_to` | 当前回答对应的用户消息 ID（会话持久化后加入） |
 | `content` | 正文增量 |
 | `sources` | 最终引用来源 |
-| `guidance` | 需要用户澄清的信息 |
+| `guidance` | 需要用户澄清的信息（M4 加入） |
 | `error` | 结构化错误码和可公开信息 |
-| `done` | 完成状态、耗时和取消信息 |
+| `done` | 完成结局、阶段 Trace 和可选模型用量 |
 
-事件 Schema 在实现后作为公开契约维护；修改必须新增 ADR 或版本号。
-
-M3-A 的事件仍是应用层内部类型，不构成公开 SSE 契约。M3-B 在新增 ADR 后再固定 JSON 字段、
-事件顺序、HTTP 状态和流开始后的错误语义。
+M3-B 已在 `POST /api/v1/chat/stream` 实现 status、content、sources、error 和 done。每个事件
+包含请求 UUID 和严格递增序号；HTTP 200 只表示流已建立，最终结果以 done.outcome 为准。
+完整 JSON 字段、事件顺序、HTTP 错误边界和断开语义由 [ADR-0005](adr/0005-streaming-rag-api.md)
+维护，修改必须更新 ADR 或增加 API 版本。
 
 ## 10. 数据存储
 
@@ -288,7 +295,8 @@ M2-A 已实现：
 这四张表采用版本隔离、单一 active 版本和固定 768 维 Cosine HNSW 索引，详细决策见
 [ADR-0002](adr/0002-document-index-schema.md)。M2-F 已实现五种 P0 格式的事务化入库与最小 HTTP API；
 M2-G 已实现复用同一 Embedding 实例的内部向量召回服务、active-only 查询、索引配置校验和
-数据库侧作用域过滤。公开问答/检索 API 在 M3 实现。
+数据库侧作用域过滤。M3-B 已在显式知识库作用域上提供公开流式问答 API；会话和 RAG Run
+表仍是下一子阶段的规划项。
 
 后续规划保存：
 
@@ -318,6 +326,7 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 应用启动时至少校验：
 
 - 必需模型配置与 API Key 是否存在。
+- RAG 全局截止时间不得小于单次模型请求总超时。
 - Embedding 维度和索引维度是否一致。
 - 检索漏斗预算是否合法。
 - PostgreSQL、pgvector 和 Redis 是否可连接。
@@ -332,6 +341,7 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 - 文档内容视为不可信输入，Prompt 中明确区分资料和系统指令。
 - M3-A 使用固定 `<knowledge_context>` 边界并转义问题、文档正文和来源属性；模型 reasoning
   增量不会进入对上游暴露的答案正文事件。
+- M3-B 的来源事件不包含正文；未知流异常只返回通用错误，不公开异常文本或堆栈。
 - MCP 工具使用 Allowlist；P1 默认只实现只读工具。
 - 错误响应不暴露密钥、数据库 DSN、堆栈和完整文档内容。
 - 日志中的问题和文档片段应支持截断或关闭。

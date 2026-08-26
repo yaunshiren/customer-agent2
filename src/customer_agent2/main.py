@@ -7,6 +7,7 @@ from fastapi import FastAPI
 
 from customer_agent2 import __version__
 from customer_agent2.api.errors import register_application_error_handlers
+from customer_agent2.api.routes.chat import router as chat_router
 from customer_agent2.api.routes.documents import router as documents_router
 from customer_agent2.api.routes.health import router as health_router
 from customer_agent2.application.services import ApplicationServices
@@ -32,14 +33,20 @@ def create_app(
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncGenerator[None]:
         resources = build_resources(app_settings)
+        services: ApplicationServices | None = None
         application.state.resources = resources
         await resources.open()
         try:
-            application.state.services = build_services(app_settings, resources)
+            services = build_services(app_settings, resources)
+            application.state.services = services
             yield
         finally:
             application.state.services = None
-            await resources.close()
+            try:
+                if services is not None:
+                    await services.aclose()
+            finally:
+                await resources.close()
 
     application = FastAPI(
         title=app_settings.app_name,
@@ -53,6 +60,7 @@ def create_app(
     application.state.services = None
     register_application_error_handlers(application)
     application.include_router(health_router)
+    application.include_router(chat_router, prefix=app_settings.api_prefix)
     application.include_router(documents_router, prefix=app_settings.api_prefix)
     return application
 
