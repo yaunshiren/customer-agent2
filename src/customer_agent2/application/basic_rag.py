@@ -94,6 +94,8 @@ class BasicStreamingRagPipeline:
         assembly = self._prompt_builder.build(
             context.rewritten_question,
             context.ranked_chunks,
+            memory_messages=context.memory_messages,
+            summary=context.summary,
         )
         prompting_trace = PipelineTraceEntry(
             PipelineStage.PROMPTING,

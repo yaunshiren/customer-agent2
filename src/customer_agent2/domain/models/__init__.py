@@ -59,6 +59,13 @@ from customer_agent2.domain.models.ingestion import (
     KnowledgeBase,
     KnowledgeBaseDraft,
 )
+from customer_agent2.domain.models.memory import (
+    ConversationMemory,
+    ConversationMemoryRepository,
+    ConversationSummaryCandidate,
+    ConversationSummaryUpdate,
+    StoredConversationMessage,
+)
 from customer_agent2.domain.models.pipeline import (
     ChatPipelineContext,
     PipelineContentEvent,
@@ -109,6 +116,10 @@ __all__ = [
     "ChunkingErrorCode",
     "ChunkingPolicy",
     "ChunkingResult",
+    "ConversationMemory",
+    "ConversationMemoryRepository",
+    "ConversationSummaryCandidate",
+    "ConversationSummaryUpdate",
     "DocumentError",
     "DocumentErrorCode",
     "DocumentFormat",
@@ -167,6 +178,7 @@ __all__ = [
     "RetrievalError",
     "RetrievalErrorCode",
     "RetrievedChunkSource",
+    "StoredConversationMessage",
     "StreamingRagPipeline",
     "TextTokenCodec",
     "TokenUsage",

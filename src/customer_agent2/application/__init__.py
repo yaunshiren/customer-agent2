@@ -1,6 +1,11 @@
 """Application services and explicit use-case orchestration."""
 
 from customer_agent2.application.basic_rag import BasicStreamingRagPipeline
+from customer_agent2.application.conversation_memory import (
+    ConversationSummaryService,
+    MemoryAwareStreamingRagPipeline,
+    SummarizingStreamingRagPipeline,
+)
 from customer_agent2.application.document_chunking import StructureAwareDocumentChunker
 from customer_agent2.application.document_ingestion import DocumentIngestionService
 from customer_agent2.application.document_management import DocumentManagementService
@@ -16,11 +21,14 @@ __all__ = [
     "BasicRagPromptBuilder",
     "BasicStreamingRagPipeline",
     "ChatProfile",
+    "ConversationSummaryService",
     "DocumentIngestionService",
     "DocumentManagementService",
     "DocumentParsingService",
+    "MemoryAwareStreamingRagPipeline",
     "ModelGateway",
     "PersistentStreamingRagPipeline",
     "StructureAwareDocumentChunker",
+    "SummarizingStreamingRagPipeline",
     "VectorRetrievalService",
 ]

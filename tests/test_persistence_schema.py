@@ -20,6 +20,7 @@ def test_metadata_contains_all_accepted_business_tables() -> None:
     assert set(Base.metadata.tables) == {
         "chunks",
         "conversations",
+        "conversation_summaries",
         "document_versions",
         "documents",
         "knowledge_bases",
@@ -97,3 +98,15 @@ def test_conversation_deletion_cascades_runs_and_messages() -> None:
     assert run_fk.ondelete == "CASCADE"
     assert message_fks["conversations"].ondelete == "CASCADE"
     assert message_fks["rag_runs"].ondelete == "SET NULL"
+
+
+def test_conversation_deletion_cascades_its_summary() -> None:
+    summary_table = Base.metadata.tables["conversation_summaries"]
+    summary_fk = next(
+        constraint
+        for constraint in summary_table.constraints
+        if isinstance(constraint, ForeignKeyConstraint)
+    )
+
+    assert summary_fk.referred_table.name == "conversations"
+    assert summary_fk.ondelete == "CASCADE"

@@ -2,6 +2,7 @@
 
 - 状态：Accepted
 - 日期：2026-08-26
+- 修订：[ADR-0007](0007-conversation-memory-baseline.md) 已实现持久化摘要和最近消息加载
 
 ## 背景
 

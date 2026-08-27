@@ -116,17 +116,22 @@ flowchart TD
 
 阶段不得通过全局变量共享请求状态。
 
-M3-A 先落地当前已实现阶段需要的字段：请求身份与显式检索范围、原问题/当前改写问题、
-子问题、记忆占位、向量通道结果、TopK Chunk、Prompt 消息、编号来源和阶段 Trace。当前
-`rewritten_question == original_question`，记忆为空；Intent、Guidance 和持久化 Trace 字段在
-对应 M4/M3 后续子阶段加入，不用无约束字典提前占位。
+M3-A 先落地请求身份与显式检索范围、原问题/当前改写问题、子问题、记忆占位、向量通道结果、
+TopK Chunk、Prompt 消息、编号来源和阶段 Trace。M4-A 已用类型化字段填充可选摘要和最近
+completed 消息；当前仍为 `rewritten_question == original_question`。Intent 和 Guidance 字段在
+对应 M4 后续子阶段加入，不用无约束字典提前占位。
 
 M3-B 的 API 适配器只负责把已实现的内部事件映射到 ADR-0005 SSE Schema。它生成请求 ID，
 但不把 FastAPI Request、StreamingResponse 或无类型字典放入 Pipeline 上下文。
 
 M3-C 使用 `PersistentStreamingRagPipeline` 装饰基础 Pipeline。装饰器只依赖领域仓储端口，
 在内层开始前提交 user 消息与 running Run，在成功 done 前提交终局；基础 Pipeline 仍不知道
-SQLAlchemy。当前持久化历史尚未加载进 Prompt，因此这不是已经实现的 Memory。
+SQLAlchemy。
+
+M4-A 的默认组合顺序是
+`Summarizing(Persistent(MemoryAware(Basic)))`：Persistent 先保存当前 user；MemoryAware 只加载
+此前 completed 消息，因此不会重复当前问题；Persistent 在 completed done 前保存回答；最外层
+Summarizing 随后把滑出最近 6 轮窗口的完整轮次增量摘要。摘要失败只记录降级，不改变成功 done。
 
 ### 5.3 短路语义
 
@@ -313,7 +318,8 @@ M3-C 已实现：
 - messages
 - rag_runs（内含当前阶段的轻量 JSONB Trace 与引用 Chunk ID）
 
-后续规划保存 `conversation_summaries`；是否拆分 `rag_trace_nodes` 等评测查询证明需要后再决定。
+M4-A 已实现 `conversation_summaries`：每个会话一条最新摘要、覆盖边界、累计来源消息数和 fast
+模型 ID。是否拆分 `rag_trace_nodes` 等评测查询证明需要后再决定。
 
 ### Redis
 
@@ -339,6 +345,7 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 - RAG 全局截止时间不得小于单次模型请求总超时。
 - Embedding 维度和索引维度是否一致。
 - 检索漏斗预算是否合法。
+- 最近记忆为 6 轮，摘要触发轮数 12 必须大于最近窗口，摘要输出与超时必须为正数。
 - PostgreSQL、pgvector 和 Redis 是否可连接。
 - 启用 Rerank 时 Workspace ID 是否配置。
 - 启用 VLM/MCP 时相应端点是否配置。
@@ -353,6 +360,8 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
   增量不会进入对上游暴露的答案正文事件。
 - M3-B 的来源事件不包含正文；未知流异常只返回通用错误，不公开异常文本或堆栈。
 - M3-C 不保存 reasoning、Prompt、完整召回正文或底层异常；failed/cancelled 只保存稳定错误码。
+- M4-A 把历史与摘要放入转义后的 `<conversation_memory>` 不可信数据边界；历史只能解析指代，
+  回答事实仍必须由 `<knowledge_context>` 支撑。
 - MCP 工具使用 Allowlist；P1 默认只实现只读工具。
 - 错误响应不暴露密钥、数据库 DSN、堆栈和完整文档内容。
 - 日志中的问题和文档片段应支持截断或关闭。
@@ -369,5 +378,7 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 
 M3-C 已记录当前实际存在的 Retrieval、Prompting、Generation Trace、最终来源 Chunk、模型结果、
 Token 用量和终局。Rewrite、Intent、Rerank 与降级字段必须等对应阶段实现后再写入，不能伪造。
+M4-A 摘要失败使用不含消息正文和异常文本的结构化 `conversation_summary_degraded` 告警；摘要
+目前不伪装成公开 Pipeline Trace 阶段。
 
 评测器通过稳定 API 获取意图、来源、延迟和回答，避免从日志文本反向解析。

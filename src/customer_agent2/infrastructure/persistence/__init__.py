@@ -1,6 +1,9 @@
 """Database persistence records and metadata."""
 
 from customer_agent2.infrastructure.persistence.base import Base
+from customer_agent2.infrastructure.persistence.conversation_memory_repository import (
+    SQLAlchemyConversationMemoryRepository,
+)
 from customer_agent2.infrastructure.persistence.document_repository import (
     SQLAlchemyDocumentManagementRepository,
 )
@@ -11,6 +14,7 @@ from customer_agent2.infrastructure.persistence.models import (
     EMBEDDING_DIMENSION,
     ChunkRecord,
     ConversationRecord,
+    ConversationSummaryRecord,
     DocumentRecord,
     DocumentVersionRecord,
     KnowledgeBaseRecord,
@@ -29,11 +33,13 @@ __all__ = [
     "Base",
     "ChunkRecord",
     "ConversationRecord",
+    "ConversationSummaryRecord",
     "DocumentRecord",
     "DocumentVersionRecord",
     "KnowledgeBaseRecord",
     "MessageRecord",
     "RagRunRecord",
+    "SQLAlchemyConversationMemoryRepository",
     "SQLAlchemyDocumentManagementRepository",
     "SQLAlchemyIngestionRepository",
     "SQLAlchemyRagRunRepository",

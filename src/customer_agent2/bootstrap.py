@@ -3,11 +3,14 @@
 from customer_agent2.application import (
     BasicRagPromptBuilder,
     BasicStreamingRagPipeline,
+    ConversationSummaryService,
     DocumentIngestionService,
     DocumentManagementService,
     DocumentParsingService,
+    MemoryAwareStreamingRagPipeline,
     PersistentStreamingRagPipeline,
     StructureAwareDocumentChunker,
+    SummarizingStreamingRagPipeline,
     VectorRetrievalService,
 )
 from customer_agent2.application.services import ApplicationServices
@@ -28,6 +31,7 @@ from customer_agent2.infrastructure.models import (
     SentenceTransformerEmbeddingModel,
 )
 from customer_agent2.infrastructure.persistence import (
+    SQLAlchemyConversationMemoryRepository,
     SQLAlchemyDocumentManagementRepository,
     SQLAlchemyIngestionRepository,
     SQLAlchemyRagRunRepository,
@@ -39,7 +43,7 @@ def build_application_services(
     settings: Settings,
     database: DatabaseManager,
 ) -> ApplicationServices:
-    """Build one reusable M2 service graph after the database pool is open."""
+    """Build one reusable application service graph after the database pool is open."""
     embedding = SentenceTransformerEmbeddingModel.from_settings(settings)
     parser = DocumentParsingService(
         SafeDocumentIdentifier(
@@ -95,14 +99,36 @@ def build_application_services(
         timeout_seconds=settings.llm_timeout_seconds,
         first_packet_timeout_seconds=settings.llm_first_packet_timeout_seconds,
     )
-    rag = PersistentStreamingRagPipeline(
-        BasicStreamingRagPipeline(
-            retrieval,
-            BasicRagPromptBuilder(context_top_k=settings.retrieval_context_top_k),
-            final_chat,
-            global_timeout_seconds=settings.rag_global_timeout_seconds,
+    fast_chat = OpenAICompatibleChatModel(
+        api_key=settings.dashscope_api_key,
+        base_url=str(settings.dashscope_base_url).rstrip("/"),
+        model_id=settings.chat_model_fast,
+        timeout_seconds=settings.llm_timeout_seconds,
+        first_packet_timeout_seconds=settings.llm_first_packet_timeout_seconds,
+    )
+    memory_repository = SQLAlchemyConversationMemoryRepository(database.session_factory)
+    rag = SummarizingStreamingRagPipeline(
+        PersistentStreamingRagPipeline(
+            MemoryAwareStreamingRagPipeline(
+                BasicStreamingRagPipeline(
+                    retrieval,
+                    BasicRagPromptBuilder(context_top_k=settings.retrieval_context_top_k),
+                    final_chat,
+                    global_timeout_seconds=settings.rag_global_timeout_seconds,
+                ),
+                memory_repository,
+                recent_turns=settings.memory_recent_turns,
+            ),
+            SQLAlchemyRagRunRepository(database.session_factory),
         ),
-        SQLAlchemyRagRunRepository(database.session_factory),
+        ConversationSummaryService(
+            memory_repository,
+            fast_chat,
+            trigger_turns=settings.memory_summary_trigger_turns,
+            retain_recent_turns=settings.memory_recent_turns,
+            timeout_seconds=settings.memory_summary_timeout_seconds,
+            max_output_tokens=settings.memory_summary_max_output_tokens,
+        ),
     )
     return ApplicationServices(
         ingestion=DocumentIngestionService(
@@ -117,5 +143,5 @@ def build_application_services(
         ),
         retrieval=retrieval,
         rag=rag,
-        closeables=(final_chat,),
+        closeables=(final_chat, fast_chat),
     )

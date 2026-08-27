@@ -89,6 +89,18 @@ def test_settings_keep_rag_deadline_at_least_as_large_as_model_timeout() -> None
         Settings(llm_timeout_seconds=100, rag_global_timeout_seconds=99)
 
 
+def test_settings_expose_confirmed_memory_baseline() -> None:
+    settings = Settings()
+
+    assert settings.memory_recent_turns == 6
+    assert settings.memory_summary_trigger_turns == 12
+    assert settings.memory_summary_timeout_seconds == 30
+    assert settings.memory_summary_max_output_tokens == 512
+
+    with pytest.raises(ValidationError, match="MEMORY_SUMMARY_TRIGGER_TURNS"):
+        Settings(memory_recent_turns=6, memory_summary_trigger_turns=6)
+
+
 def test_settings_protect_fixed_embedding_baseline_capabilities() -> None:
     with pytest.raises(ValidationError, match="DIMENSION"):
         Settings(local_embedding_dimension=1024)

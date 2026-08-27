@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = Field(default=100.0, gt=0)
     llm_first_packet_timeout_seconds: float = Field(default=30.0, gt=0)
     rag_global_timeout_seconds: float = Field(default=120.0, gt=0)
+    memory_recent_turns: int = Field(default=6, ge=1, le=20)
+    memory_summary_trigger_turns: int = Field(default=12, ge=2, le=100)
+    memory_summary_timeout_seconds: float = Field(default=30.0, gt=0)
+    memory_summary_max_output_tokens: int = Field(default=512, ge=1, le=4096)
 
     embedding_provider: Literal["local"] = "local"
     local_embedding_model: str = "BAAI/bge-base-zh-v1.5"
@@ -149,6 +153,13 @@ class Settings(BaseSettings):
             raise ValueError("RETRIEVAL_RECALL_BUDGET 不能小于 RETRIEVAL_CONTEXT_TOP_K")
         if self.retrieval_rerank_candidate_limit < top_k:
             raise ValueError("RETRIEVAL_RERANK_CANDIDATE_LIMIT 不能小于 RETRIEVAL_CONTEXT_TOP_K")
+        return self
+
+    @model_validator(mode="after")
+    def validate_memory_window(self) -> Self:
+        """Keep enough unsummarized turns to retain the configured recent window."""
+        if self.memory_summary_trigger_turns <= self.memory_recent_turns:
+            raise ValueError("MEMORY_SUMMARY_TRIGGER_TURNS 必须大于 MEMORY_RECENT_TURNS")
         return self
 
     @model_validator(mode="after")

@@ -12,11 +12,14 @@ from sqlalchemy import delete, func, select
 from customer_agent2.application import (
     BasicRagPromptBuilder,
     BasicStreamingRagPipeline,
+    ConversationSummaryService,
     DocumentIngestionService,
     DocumentManagementService,
     DocumentParsingService,
+    MemoryAwareStreamingRagPipeline,
     PersistentStreamingRagPipeline,
     StructureAwareDocumentChunker,
+    SummarizingStreamingRagPipeline,
     VectorRetrievalService,
 )
 from customer_agent2.application.services import ApplicationServices
@@ -41,6 +44,7 @@ from customer_agent2.infrastructure.persistence import (
     KnowledgeBaseRecord,
     MessageRecord,
     RagRunRecord,
+    SQLAlchemyConversationMemoryRepository,
     SQLAlchemyDocumentManagementRepository,
     SQLAlchemyIngestionRepository,
     SQLAlchemyRagRunRepository,
@@ -122,18 +126,33 @@ def fake_model_services(
         recall_budget=settings.retrieval_recall_budget,
         hnsw_ef_search=settings.retrieval_hnsw_ef_search,
     )
-    rag = PersistentStreamingRagPipeline(
-        BasicStreamingRagPipeline(
-            retrieval,
-            BasicRagPromptBuilder(context_top_k=settings.retrieval_context_top_k),
-            FakeChatModel(
-                "fake-final",
-                "请按退款说明提交订单号 [1]。",
-                stream_chunks=("请按退款说明", "提交订单号 [1]。"),
+    memory_repository = SQLAlchemyConversationMemoryRepository(database.session_factory)
+    rag = SummarizingStreamingRagPipeline(
+        PersistentStreamingRagPipeline(
+            MemoryAwareStreamingRagPipeline(
+                BasicStreamingRagPipeline(
+                    retrieval,
+                    BasicRagPromptBuilder(context_top_k=settings.retrieval_context_top_k),
+                    FakeChatModel(
+                        "fake-final",
+                        "请按退款说明提交订单号 [1]。",
+                        stream_chunks=("请按退款说明", "提交订单号 [1]。"),
+                    ),
+                    global_timeout_seconds=settings.rag_global_timeout_seconds,
+                ),
+                memory_repository,
+                recent_turns=settings.memory_recent_turns,
             ),
-            global_timeout_seconds=settings.rag_global_timeout_seconds,
+            SQLAlchemyRagRunRepository(database.session_factory),
         ),
-        SQLAlchemyRagRunRepository(database.session_factory),
+        ConversationSummaryService(
+            memory_repository,
+            FakeChatModel("fake-fast", "对话摘要"),
+            trigger_turns=settings.memory_summary_trigger_turns,
+            retain_recent_turns=settings.memory_recent_turns,
+            timeout_seconds=settings.memory_summary_timeout_seconds,
+            max_output_tokens=settings.memory_summary_max_output_tokens,
+        ),
     )
     return ApplicationServices(
         ingestion=DocumentIngestionService(

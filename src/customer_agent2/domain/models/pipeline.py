@@ -7,7 +7,7 @@ from enum import StrEnum
 from typing import Protocol, TypeAlias
 from uuid import UUID
 
-from customer_agent2.domain.models.chat import ChatMessage, TokenUsage
+from customer_agent2.domain.models.chat import ChatMessage, ChatRole, TokenUsage
 from customer_agent2.domain.models.document import DocumentFormat
 from customer_agent2.domain.models.retrieval import (
     VectorSearchCandidate,
@@ -69,6 +69,8 @@ class RagPipelineRequest:
     search_scope: VectorSearchScope
     conversation_id: UUID | None = None
     user_id: str | None = None
+    memory_messages: tuple[ChatMessage, ...] = ()
+    memory_summary: str | None = None
 
     def __post_init__(self) -> None:
         normalized_question = self.question.strip()
@@ -81,8 +83,24 @@ class RagPipelineRequest:
             normalized_user_id = normalized_user_id.strip()
             if not normalized_user_id or len(normalized_user_id) > 200:
                 raise ValueError("RagPipelineRequest.user_id 必须是不超过 200 个字符的非空值")
+        normalized_summary = (
+            self.memory_summary.strip() if self.memory_summary is not None else None
+        )
+        if normalized_summary == "":
+            raise ValueError("RagPipelineRequest.memory_summary 不能为空")
+        if (
+            self.memory_messages or normalized_summary is not None
+        ) and self.conversation_id is None:
+            raise ValueError("会话记忆必须绑定 conversation_id")
+        if len(self.memory_messages) % 2 != 0:
+            raise ValueError("RagPipelineRequest.memory_messages 必须包含完整轮次")
+        for index, message in enumerate(self.memory_messages):
+            expected_role = ChatRole.USER if index % 2 == 0 else ChatRole.ASSISTANT
+            if message.role is not expected_role:
+                raise ValueError("RagPipelineRequest.memory_messages 顺序无效")
         object.__setattr__(self, "question", normalized_question)
         object.__setattr__(self, "user_id", normalized_user_id)
+        object.__setattr__(self, "memory_summary", normalized_summary)
 
 
 @dataclass(frozen=True, slots=True)
@@ -175,13 +193,13 @@ class ChatPipelineContext:
 
     @classmethod
     def start(cls, request: RagPipelineRequest) -> "ChatPipelineContext":
-        """Create the M3 baseline context before memory and rewrite exist."""
+        """Create request context with memory supplied by the M4-A decorator."""
         return cls(
             request=request,
             rewritten_question=request.question,
             sub_questions=(request.question,),
-            memory_messages=(),
-            summary=None,
+            memory_messages=request.memory_messages,
+            summary=request.memory_summary,
             retrieval_result=None,
             ranked_chunks=(),
             prompt_messages=(),

@@ -1,9 +1,9 @@
-"""Default runtime composition tests for M3-B."""
+"""Default runtime composition tests."""
 
 import pytest
 from pydantic import SecretStr
 
-from customer_agent2.application import PersistentStreamingRagPipeline
+from customer_agent2.application import SummarizingStreamingRagPipeline
 from customer_agent2.bootstrap import build_application_services
 from customer_agent2.domain.models import ModelError, ModelErrorCode
 from customer_agent2.infrastructure.database import DatabaseManager
@@ -12,16 +12,20 @@ from tests.settings import IsolatedSettings
 
 
 @pytest.mark.asyncio
-async def test_default_service_graph_builds_and_owns_final_chat_model() -> None:
+async def test_default_service_graph_builds_and_owns_final_and_fast_chat_models() -> None:
     settings = IsolatedSettings(app_env="test", dashscope_api_key=SecretStr("test-key"))
     database = DatabaseManager(settings)
     await database.open()
     try:
         services = build_application_services(settings, database)
 
-        assert isinstance(services.rag, PersistentStreamingRagPipeline)
-        assert len(services.closeables) == 1
-        assert isinstance(services.closeables[0], OpenAICompatibleChatModel)
+        assert isinstance(services.rag, SummarizingStreamingRagPipeline)
+        assert len(services.closeables) == 2
+        final_chat, fast_chat = services.closeables
+        assert isinstance(final_chat, OpenAICompatibleChatModel)
+        assert isinstance(fast_chat, OpenAICompatibleChatModel)
+        assert final_chat.model_id == settings.chat_model_final
+        assert fast_chat.model_id == settings.chat_model_fast
 
         await services.aclose()
     finally:

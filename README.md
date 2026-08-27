@@ -4,13 +4,14 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M3-C 基础流式 RAG 纵向链路已完成。项目已有 PostgreSQL/Redis 连接管理、
+> 当前状态：M4-A 会话记忆 Baseline 已完成。项目已有 PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
 > `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT/PDF/DOCX/CSV
 > 解析，以及 400/64 Token 分块、原子版本切换、同步上传/状态/删除 API 和带作用域过滤的
 > active-only Cosine 向量召回。`POST /api/v1/chat/stream` 已将
-> `保存用户消息 → 召回 → TopK → 安全 Prompt → Chat 流 → 保存回答/Trace` 通过版本化 SSE
-> 契约公开；下一步进入 M4 的历史消息加载、Rewrite、Intent 与 Memory。
+> `保存用户消息 → 加载摘要与最近 6 轮 → 召回 → TopK → 安全 Prompt → Chat 流 → 保存回答/Trace`
+> 通过版本化 SSE 契约公开；超过 12 个 completed 轮次后会用 fast 模型增量摘要滑出窗口的旧轮次。
+> 下一步进入 M4-B 的 Query Rewrite、多问题拆分与 Intent。
 
 ## 项目目标
 
@@ -72,7 +73,7 @@
 - Chat 同时定义非流式、流式、推理内容和 Token 用量结构。
 - Chat 适配器使用异步连接池，支持独立首包超时，并在流结束、取消或调用方提前停止时释放响应。
 - 供应商认证、额度、限流、超时、不可用和协议错误会转换为稳定且脱敏的领域错误。
-- final 模型只用于最终回答，fast 模型供后续改写、意图和摘要等内部任务选择。
+- final 模型只用于最终回答；fast 模型已用于长会话摘要，后续继续用于改写和意图等内部任务。
 - Embedding 模型按首次请求懒加载，CPU 推理在工作线程执行，并串行保护同一个模型实例。
 - Embedding 结果会验证批量形状、768 维、NaN/无限值和 L2 归一化；最大序列固定为 512 Token。
 - Rerank 未启用时使用显式 No-op，保留原始顺序并记录降级原因，不使用 Chat 模型冒充 Rerank。
@@ -82,7 +83,7 @@ Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实云端模型�
 Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。M2-A 至
 M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embedding、pgvector 原子切换和
 在线向量召回连成闭环。M3-A 已接入最终 Chat 流，M3-B 已提供公开 SSE 问答 API，M3-C 已保存
-最小会话消息和 RAG Run 终局。
+最小会话消息和 RAG Run 终局；M4-A 已把持久化摘要和最近 completed 消息接入 Prompt。
 
 ## 当前文档解析边界
 
@@ -145,12 +146,16 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 该能力已经接入 M3-A Pipeline，并由 M3-B SSE API 在请求提供的显式作用域内调用；尚未实现
 去重、RRF 或 Rerank 编排。
 
-## 当前基础 RAG Pipeline 与 SSE API 边界
+## 当前 RAG Pipeline、记忆与 SSE API 边界
 
 - 使用请求级 `ChatPipelineContext` 显式传递原问题、当前改写结果、检索结果、TopK、Prompt、
   引用来源和阶段 Trace，不使用全局可变状态。
-- 当前不做 Rewrite、Intent、Memory、去重或 Rerank：改写问题等于原问题，默认运行时使用
-  `RETRIEVAL_CONTEXT_TOP_K`，其余能力按 M4/M5 单独加入。
+- 当前加载可选持久化摘要和最近 6 个 completed user/assistant 轮次；running、no_context、failed、
+  cancelled 和残缺消息不会进入 Prompt。历史只用于理解指代，不作为知识事实来源。
+- 累计 completed 对话不超过 12 轮时不调用摘要模型；超过后，每个滑出最近 6 轮窗口的完整轮次
+  使用 fast Chat 增量合并进摘要。摘要失败保留旧摘要并降级到最近消息，不推翻成功回答。
+- 当前仍不做 Rewrite、Intent、去重或 Rerank：改写问题等于原问题，默认运行时使用
+  `RETRIEVAL_CONTEXT_TOP_K`，其余能力按后续 M4/M5 子阶段单独加入。
 - Prompt 把文档标记为不可信资料，转义文档内容和来源属性，要求回答使用 `[1]` 形式引用；
   模型的 reasoning 增量不会作为答案事件向上游暴露。
 - 空检索以 `no_context` 正常结局短路，不调用 Chat 模型，因此不会在没有资料时生成答案。
@@ -161,8 +166,8 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
   `conversation_id`，后续请求用 reply_to 返回的 ID 继续会话。
 - 每个已开始请求会保存 user 消息与 RAG Run；completed 会原子保存 assistant 消息、来源 Chunk、
   模型用量和轻量 Trace，no_context/failed/cancelled 不保存伪成功回答。
-- 当前没有认证、历史消息 Prompt、会话管理 API、断线重放或心跳；协议和持久化边界分别见
-  ADR-0005、ADR-0006。
+- 当前没有认证、Rewrite/Intent、会话管理 API、断线重放或心跳；协议、Run 持久化和记忆边界
+  分别见 ADR-0005、ADR-0006、ADR-0007。
 
 ## 当前文档
 
@@ -175,6 +180,7 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 - [多格式文档安全解析边界](docs/adr/0004-multiformat-document-parsing.md)
 - [流式 RAG API 与 SSE 事件契约](docs/adr/0005-streaming-rag-api.md)
 - [最小会话消息与 RAG Run 持久化](docs/adr/0006-conversation-rag-run-persistence.md)
+- [会话记忆与 M4 意图基线参数](docs/adr/0007-conversation-memory-baseline.md)
 - [AI 协作规则](AGENTS.md)
 
 ## 本地启动
@@ -217,7 +223,8 @@ docker compose ps
 ### 4. 执行数据库迁移
 
 Alembic 会确保 pgvector 扩展存在，创建 M2 的 `knowledge_bases`、`documents`、
-`document_versions`、`chunks`，以及 M3-C 的 `conversations`、`messages`、`rag_runs`。
+`document_versions`、`chunks`，M3-C 的 `conversations`、`messages`、`rag_runs`，以及 M4-A 的
+`conversation_summaries`。
 迁移只建立存储模式，不会自动解析或导入文档。
 
 ```powershell
@@ -307,8 +314,8 @@ pytest -m model_smoke
 ```
 
 如需用本地已迁移的 PostgreSQL 和 Redis 验证真实向量写入、过滤检索、Cosine 排名、
-active-only 版本语义、基础 RAG Pipeline、会话/RAG Run 持久化和 Fake Chat 驱动的公开 SSE
-端到端路径：
+active-only 版本语义、基础 RAG Pipeline、会话/RAG Run 持久化、最近记忆/摘要窗口和 Fake Chat
+驱动的公开 SSE 端到端路径：
 
 ```powershell
 $env:RUN_DATABASE_INTEGRATION="1"

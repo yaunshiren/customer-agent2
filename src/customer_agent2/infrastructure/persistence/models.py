@@ -51,6 +51,45 @@ class ConversationRecord(Base):
     )
 
 
+class ConversationSummaryRecord(Base):
+    """Latest durable compression of completed messages in one conversation."""
+
+    __tablename__ = "conversation_summaries"
+    __table_args__ = (
+        CheckConstraint(
+            "summarized_through_ordinal > 0",
+            name="summarized_through_ordinal_positive",
+        ),
+        CheckConstraint(
+            "source_message_count > 0 AND source_message_count % 2 = 0",
+            name="source_message_count_complete_turns",
+        ),
+        CheckConstraint("char_length(btrim(content)) > 0", name="content_not_blank"),
+        CheckConstraint("char_length(btrim(model_id)) > 0", name="model_id_not_blank"),
+    )
+
+    conversation_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True),
+        ForeignKey("conversations.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    summarized_through_ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
+    source_message_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    model_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
 class RagRunRecord(Base):
     """Minimal trace and terminal outcome for one public RAG request."""
 
