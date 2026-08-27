@@ -5,7 +5,13 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from customer_agent2.domain.models import DocumentFormat, PipelineStage, VectorSearchScope
+from customer_agent2.domain.models import (
+    DocumentFormat,
+    GuidanceReason,
+    IntentRoute,
+    PipelineStage,
+    VectorSearchScope,
+)
 
 
 class ChatSearchScopeRequest(BaseModel):
@@ -119,6 +125,13 @@ class SseErrorEventData(SseEventData):
     retryable: bool
 
 
+class SseGuidanceEventData(SseEventData):
+    """One clarification question and its stable routing reason."""
+
+    message: str = Field(min_length=1, max_length=1000)
+    reason: GuidanceReason
+
+
 class SseTraceEntry(BaseModel):
     """Public-safe stage timing without prompts or document content."""
 
@@ -128,6 +141,7 @@ class SseTraceEntry(BaseModel):
     duration_ms: float = Field(ge=0)
     candidate_count: int | None = Field(default=None, ge=0)
     degradation_reason: str | None = Field(default=None, min_length=1, max_length=100)
+    decision: str | None = Field(default=None, min_length=1, max_length=100)
 
 
 class SseTokenUsage(BaseModel):
@@ -143,8 +157,25 @@ class SseTokenUsage(BaseModel):
 class SseDoneEventData(SseEventData):
     """Terminal outcome for every stream that remains connected."""
 
-    outcome: Literal["completed", "no_context", "error"]
+    outcome: Literal["completed", "no_context", "clarification", "error"]
     trace: tuple[SseTraceEntry, ...] = ()
+    intent_route: IntentRoute | None = None
     model_id: str | None = None
     finish_reason: str | None = None
     usage: SseTokenUsage | None = None
+
+    @model_validator(mode="after")
+    def validate_intent_route(self) -> Self:
+        """Keep transport terminal routes aligned with the domain event contract."""
+        if self.outcome == "error":
+            if self.intent_route is not None:
+                raise ValueError("error done 不能包含 intent_route")
+        elif self.intent_route is None:
+            raise ValueError("非错误 done 必须包含 intent_route")
+        elif self.outcome == "clarification" and self.intent_route is not IntentRoute.CLARIFICATION:
+            raise ValueError("clarification done 路由无效")
+        elif self.outcome == "no_context" and self.intent_route is not IntentRoute.KNOWLEDGE_BASE:
+            raise ValueError("no_context done 路由无效")
+        elif self.outcome == "completed" and self.intent_route is IntentRoute.CLARIFICATION:
+            raise ValueError("completed done 路由无效")
+        return self

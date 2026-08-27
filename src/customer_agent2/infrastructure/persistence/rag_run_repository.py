@@ -112,7 +112,10 @@ class SQLAlchemyRagRunRepository:
                 if conversation is None:
                     raise _persistence_error("RAG Run 的会话状态无效")
 
-                if completion.outcome is PipelineOutcome.COMPLETED:
+                if completion.outcome in {
+                    PipelineOutcome.COMPLETED,
+                    PipelineOutcome.CLARIFICATION,
+                }:
                     assert completion.answer is not None
                     assistant_message_id = uuid4()
                     session.add(
@@ -132,12 +135,14 @@ class SQLAlchemyRagRunRepository:
                 run.finish_reason = completion.finish_reason
                 run.input_tokens = usage.input_tokens if usage is not None else None
                 run.output_tokens = usage.output_tokens if usage is not None else None
+                run.intent_route = completion.intent_route.value
                 run.trace = [
                     {
                         "stage": entry.stage.value,
                         "duration_ms": entry.duration_ms,
                         "candidate_count": entry.candidate_count,
                         "degradation_reason": entry.degradation_reason,
+                        "decision": entry.decision,
                     }
                     for entry in completion.trace
                 ]

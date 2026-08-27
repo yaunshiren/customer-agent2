@@ -1,0 +1,162 @@
+[
+  {
+    "id": "direct_greeting",
+    "question": "你好",
+    "scores": {"system_direct": 0.95, "knowledge_base": 0.10, "clarification": 0.05},
+    "clarification_question": null,
+    "expected_route": "system_direct",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "direct_thanks",
+    "question": "谢谢你的帮助",
+    "scores": {"system_direct": 0.88, "knowledge_base": 0.12, "clarification": 0.04},
+    "clarification_question": null,
+    "expected_route": "system_direct",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "direct_capabilities",
+    "question": "你能做什么？",
+    "scores": {"system_direct": 0.91, "knowledge_base": 0.18, "clarification": 0.05},
+    "clarification_question": null,
+    "expected_route": "system_direct",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "direct_identity",
+    "question": "你是谁？",
+    "scores": {"system_direct": 0.86, "knowledge_base": 0.15, "clarification": 0.08},
+    "clarification_question": null,
+    "expected_route": "system_direct",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "direct_usage",
+    "question": "我应该怎样向你提问？",
+    "scores": {"system_direct": 0.80, "knowledge_base": 0.20, "clarification": 0.10},
+    "clarification_question": null,
+    "expected_route": "system_direct",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "knowledge_refund",
+    "question": "退款需要满足哪些条件？",
+    "scores": {"system_direct": 0.04, "knowledge_base": 0.96, "clarification": 0.08},
+    "clarification_question": null,
+    "expected_route": "knowledge_base",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "knowledge_return_deadline",
+    "question": "退货申请最晚什么时候提交？",
+    "scores": {"system_direct": 0.03, "knowledge_base": 0.94, "clarification": 0.10},
+    "clarification_question": null,
+    "expected_route": "knowledge_base",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "knowledge_manual",
+    "question": "安装手册里有哪些步骤？",
+    "scores": {"system_direct": 0.05, "knowledge_base": 0.92, "clarification": 0.07},
+    "clarification_question": null,
+    "expected_route": "knowledge_base",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "knowledge_pdf",
+    "question": "PDF 中对发票抬头有什么规定？",
+    "scores": {"system_direct": 0.03, "knowledge_base": 0.95, "clarification": 0.06},
+    "clarification_question": null,
+    "expected_route": "knowledge_base",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "knowledge_installation",
+    "question": "设备第一次启动需要做什么？",
+    "scores": {"system_direct": 0.06, "knowledge_base": 0.89, "clarification": 0.12},
+    "clarification_question": null,
+    "expected_route": "knowledge_base",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "knowledge_warranty",
+    "question": "保修期是多少个月？",
+    "scores": {"system_direct": 0.07, "knowledge_base": 0.87, "clarification": 0.10},
+    "clarification_question": null,
+    "expected_route": "knowledge_base",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "knowledge_policy",
+    "question": "文档中的售后流程是什么？",
+    "scores": {"system_direct": 0.05, "knowledge_base": 0.90, "clarification": 0.08},
+    "clarification_question": null,
+    "expected_route": "knowledge_base",
+    "expected_reason": "high_confidence"
+  },
+  {
+    "id": "explicit_missing_object",
+    "question": "这个怎么办？",
+    "scores": {"system_direct": 0.08, "knowledge_base": 0.20, "clarification": 0.88},
+    "clarification_question": "请问“这个”具体指什么？",
+    "expected_route": "clarification",
+    "expected_reason": "explicit_clarification"
+  },
+  {
+    "id": "explicit_missing_goal",
+    "question": "帮我处理一下",
+    "scores": {"system_direct": 0.10, "knowledge_base": 0.18, "clarification": 0.84},
+    "clarification_question": "请说明您希望处理的具体问题。",
+    "expected_route": "clarification",
+    "expected_reason": "explicit_clarification"
+  },
+  {
+    "id": "explicit_pronoun",
+    "question": "它怎么样？",
+    "scores": {"system_direct": 0.05, "knowledge_base": 0.22, "clarification": 0.82},
+    "clarification_question": "请问您说的“它”是哪项产品或规则？",
+    "expected_route": "clarification",
+    "expected_reason": "explicit_clarification"
+  },
+  {
+    "id": "low_short_ack",
+    "question": "嗯",
+    "scores": {"system_direct": 0.45, "knowledge_base": 0.35, "clarification": 0.40},
+    "clarification_question": "请补充您接下来想了解的问题。",
+    "expected_route": "clarification",
+    "expected_reason": "low_confidence"
+  },
+  {
+    "id": "low_vague_topic",
+    "question": "我想问个事情",
+    "scores": {"system_direct": 0.25, "knowledge_base": 0.55, "clarification": 0.50},
+    "clarification_question": "请问您具体想了解哪方面？",
+    "expected_route": "clarification",
+    "expected_reason": "low_confidence"
+  },
+  {
+    "id": "low_followup",
+    "question": "然后呢",
+    "scores": {"system_direct": 0.35, "knowledge_base": 0.48, "clarification": 0.52},
+    "clarification_question": "请说明您希望继续了解哪一步。",
+    "expected_route": "clarification",
+    "expected_reason": "low_confidence"
+  },
+  {
+    "id": "ambiguous_direct_knowledge",
+    "question": "介绍一下你和退款功能",
+    "scores": {"system_direct": 0.82, "knowledge_base": 0.76, "clarification": 0.20},
+    "clarification_question": "您想先了解系统能力还是退款规则？",
+    "expected_route": "clarification",
+    "expected_reason": "ambiguous"
+  },
+  {
+    "id": "ambiguity_boundary_is_routeable",
+    "question": "先说说你能做什么，也说说保修期",
+    "scores": {"system_direct": 0.85, "knowledge_base": 0.75, "clarification": 0.15},
+    "clarification_question": null,
+    "expected_route": "system_direct",
+    "expected_reason": "high_confidence"
+  }
+]

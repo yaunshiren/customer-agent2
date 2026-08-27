@@ -9,6 +9,7 @@ from customer_agent2.domain.models import (
     PipelineContentEvent,
     PipelineDoneEvent,
     PipelineEvent,
+    PipelineGuidanceEvent,
     PipelineReplyToEvent,
     PipelineSourcesEvent,
     RagPersistenceError,
@@ -51,6 +52,7 @@ class PersistentStreamingRagPipeline:
         inner_stream: AsyncGenerator[PipelineEvent, None] | None = None
         terminal_persisted = False
         answer_parts: list[str] = []
+        guidance_message: str | None = None
         sources = ()
         try:
             yield PipelineReplyToEvent(
@@ -66,7 +68,13 @@ class PersistentStreamingRagPipeline:
                 if isinstance(event, PipelineReplyToEvent):
                     raise _pipeline_protocol_error()
                 if isinstance(event, PipelineContentEvent):
+                    if guidance_message is not None:
+                        raise _pipeline_protocol_error()
                     answer_parts.append(event.delta)
+                elif isinstance(event, PipelineGuidanceEvent):
+                    if guidance_message is not None or answer_parts:
+                        raise _pipeline_protocol_error()
+                    guidance_message = event.message
                 elif isinstance(event, PipelineSourcesEvent):
                     sources = event.sources
                 elif isinstance(event, PipelineDoneEvent):
@@ -76,9 +84,10 @@ class PersistentStreamingRagPipeline:
                         RagRunCompletion(
                             rag_run_id=start.rag_run_id,
                             outcome=event.outcome,
-                            answer=("".join(answer_parts) if answer_parts else None),
+                            answer=("".join(answer_parts) if answer_parts else guidance_message),
                             sources=sources,
                             trace=event.trace,
+                            intent_route=event.intent_route,
                             model_id=event.model_id,
                             finish_reason=event.finish_reason,
                             usage=event.usage,

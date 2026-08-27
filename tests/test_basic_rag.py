@@ -16,10 +16,17 @@ from customer_agent2.domain.models import (
     ChatStreamChunk,
     DocumentFormat,
     EmbeddingIndexConfiguration,
+    GuidanceReason,
+    IntentCandidate,
+    IntentClassificationRequest,
+    IntentDecision,
+    IntentDecisionReason,
+    IntentRoute,
     ModelError,
     ModelErrorCode,
     PipelineContentEvent,
     PipelineDoneEvent,
+    PipelineGuidanceEvent,
     PipelineOutcome,
     PipelineSourcesEvent,
     PipelineStage,
@@ -69,6 +76,26 @@ class FakeQueryRewriter:
             request.question,
             (request.question,),
             model_id="fast-chat",
+        )
+
+
+class FakeIntentClassifier:
+    def __init__(self, result: IntentDecision | None = None) -> None:
+        self.result = result
+        self.requests: list[IntentClassificationRequest] = []
+
+    async def classify(self, request: IntentClassificationRequest) -> IntentDecision:
+        self.requests.append(request)
+        return self.result or IntentDecision(
+            route=IntentRoute.KNOWLEDGE_BASE,
+            reason=IntentDecisionReason.HIGH_CONFIDENCE,
+            candidates=(
+                IntentCandidate(IntentRoute.KNOWLEDGE_BASE, 0.9),
+                IntentCandidate(IntentRoute.SYSTEM_DIRECT, 0.05),
+                IntentCandidate(IntentRoute.CLARIFICATION, 0.05),
+            ),
+            classifier_model_id="fast-chat",
+            classifier_finish_reason="stop",
         )
 
 
@@ -195,6 +222,7 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
         BasicRagPromptBuilder(context_top_k=1),
         chat,
         FakeQueryRewriter(),
+        FakeIntentClassifier(),
         global_timeout_seconds=1,
     )
     pipeline_request = request()
@@ -202,6 +230,7 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
     events = [event async for event in pipeline.stream(pipeline_request)]
 
     assert [type(event) for event in events] == [
+        PipelineStatusEvent,
         PipelineStatusEvent,
         PipelineStatusEvent,
         PipelineStatusEvent,
@@ -215,6 +244,7 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
     statuses = [event.stage for event in events if isinstance(event, PipelineStatusEvent)]
     assert statuses == [
         PipelineStage.REWRITING,
+        PipelineStage.INTENT,
         PipelineStage.RETRIEVING,
         PipelineStage.PROMPTING,
         PipelineStage.GENERATING,
@@ -236,13 +266,16 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
     assert done.usage == usage
     assert [entry.stage for entry in done.trace] == [
         PipelineStage.REWRITING,
+        PipelineStage.INTENT,
         PipelineStage.RETRIEVING,
         PipelineStage.PROMPTING,
         PipelineStage.GENERATING,
     ]
     assert done.trace[0].candidate_count == 1
-    assert done.trace[1].candidate_count == 2
-    assert done.trace[2].candidate_count == 1
+    assert done.trace[1].candidate_count == 3
+    assert done.trace[1].decision == "knowledge_base"
+    assert done.trace[2].candidate_count == 2
+    assert done.trace[3].candidate_count == 1
 
     assert retrieval.requests == [VectorSearchRequest("如何退款?", pipeline_request.search_scope)]
     assert len(chat.stream_requests) == 1
@@ -264,6 +297,7 @@ async def test_empty_retrieval_short_circuits_without_calling_chat() -> None:
         BasicRagPromptBuilder(context_top_k=10),
         chat,
         FakeQueryRewriter(),
+        FakeIntentClassifier(),
         global_timeout_seconds=1,
     )
 
@@ -271,6 +305,7 @@ async def test_empty_retrieval_short_circuits_without_calling_chat() -> None:
 
     assert [event.stage for event in events if isinstance(event, PipelineStatusEvent)] == [
         PipelineStage.REWRITING,
+        PipelineStage.INTENT,
         PipelineStage.RETRIEVING,
         PipelineStage.NO_CONTEXT,
     ]
@@ -289,6 +324,7 @@ async def test_global_timeout_closes_the_model_stream() -> None:
         BasicRagPromptBuilder(context_top_k=1),
         chat,
         FakeQueryRewriter(),
+        FakeIntentClassifier(),
         global_timeout_seconds=0.02,
     )
 
@@ -309,10 +345,12 @@ async def test_closing_pipeline_early_closes_the_model_stream() -> None:
         BasicRagPromptBuilder(context_top_k=1),
         chat,
         FakeQueryRewriter(),
+        FakeIntentClassifier(),
         global_timeout_seconds=1,
     )
     stream = pipeline.stream(request())
 
+    assert isinstance(await anext(stream), PipelineStatusEvent)
     assert isinstance(await anext(stream), PipelineStatusEvent)
     assert isinstance(await anext(stream), PipelineStatusEvent)
     assert isinstance(await anext(stream), PipelineStatusEvent)
@@ -332,6 +370,7 @@ async def test_cancelling_pipeline_task_closes_the_model_stream() -> None:
         BasicRagPromptBuilder(context_top_k=1),
         chat,
         FakeQueryRewriter(),
+        FakeIntentClassifier(),
         global_timeout_seconds=1,
     )
 
@@ -354,6 +393,7 @@ async def test_pipeline_rejects_a_stream_without_answer_content() -> None:
         BasicRagPromptBuilder(context_top_k=1),
         FakeChatModel("final-chat", "", stream_chunks=()),
         FakeQueryRewriter(),
+        FakeIntentClassifier(),
         global_timeout_seconds=1,
     )
 
@@ -379,6 +419,7 @@ async def test_pipeline_preserves_retrieval_and_model_failures() -> None:
         BasicRagPromptBuilder(context_top_k=1),
         chat,
         FakeQueryRewriter(),
+        FakeIntentClassifier(),
         global_timeout_seconds=1,
     )
 
@@ -397,6 +438,7 @@ async def test_pipeline_preserves_retrieval_and_model_failures() -> None:
         BasicRagPromptBuilder(context_top_k=1),
         FakeChatModel("final-chat", "", error=model_failure),
         FakeQueryRewriter(),
+        FakeIntentClassifier(),
         global_timeout_seconds=1,
     )
     with pytest.raises(ModelError) as model_captured:
@@ -430,6 +472,7 @@ async def test_pipeline_retrieves_all_sub_questions_concurrently_and_merges_chun
         BasicRagPromptBuilder(context_top_k=10),
         chat,
         rewriter,
+        FakeIntentClassifier(),
         global_timeout_seconds=1,
     )
 
@@ -441,9 +484,95 @@ async def test_pipeline_retrieves_all_sub_questions_concurrently_and_merges_chun
     assert [source.chunk_id for source in sources] == [first.chunk_id, second.chunk_id]
     done = next(event for event in events if isinstance(event, PipelineDoneEvent))
     assert done.trace[0].candidate_count == 3
-    assert done.trace[1].candidate_count == 2
+    assert done.trace[1].candidate_count == 3
+    assert done.trace[2].candidate_count == 2
     final_prompt = chat.stream_requests[0].messages[1].content
     assert "退款条件、时效和渠道分别是什么?" in final_prompt
+
+
+@pytest.mark.asyncio
+async def test_system_direct_route_skips_retrieval_and_streams_without_sources() -> None:
+    retrieval = FakeRetrievalUseCase((candidate(1),))
+    chat = FakeChatModel("final-chat", "你好, 我可以基于已授权知识库回答问题.")
+    classifier = FakeIntentClassifier(
+        IntentDecision(
+            route=IntentRoute.SYSTEM_DIRECT,
+            reason=IntentDecisionReason.HIGH_CONFIDENCE,
+            candidates=(
+                IntentCandidate(IntentRoute.SYSTEM_DIRECT, 0.9),
+                IntentCandidate(IntentRoute.KNOWLEDGE_BASE, 0.06),
+                IntentCandidate(IntentRoute.CLARIFICATION, 0.04),
+            ),
+            classifier_model_id="fast-chat",
+            classifier_finish_reason="stop",
+        )
+    )
+    pipeline = BasicStreamingRagPipeline(
+        retrieval,
+        BasicRagPromptBuilder(context_top_k=1),
+        chat,
+        FakeQueryRewriter(),
+        classifier,
+        global_timeout_seconds=1,
+    )
+
+    events = [event async for event in pipeline.stream(request())]
+
+    assert retrieval.requests == []
+    assert not any(isinstance(event, PipelineSourcesEvent) for event in events)
+    assert [event.stage for event in events if isinstance(event, PipelineStatusEvent)] == [
+        PipelineStage.REWRITING,
+        PipelineStage.INTENT,
+        PipelineStage.GENERATING,
+        PipelineStage.COMPLETED,
+    ]
+    done = next(event for event in events if isinstance(event, PipelineDoneEvent))
+    assert done.outcome is PipelineOutcome.COMPLETED
+    assert done.intent_route is IntentRoute.SYSTEM_DIRECT
+    assert done.trace[1].decision == "system_direct"
+    direct_prompt = chat.stream_requests[0]
+    assert "不得声称已经检索知识库" in direct_prompt.messages[0].content
+    assert "<current_question>" in direct_prompt.messages[1].content
+
+
+@pytest.mark.asyncio
+async def test_clarification_route_emits_guidance_without_retrieval_or_final_chat() -> None:
+    retrieval = FakeRetrievalUseCase((candidate(1),))
+    chat = FakeChatModel("final-chat", "不应调用")
+    classifier = FakeIntentClassifier(
+        IntentDecision(
+            route=IntentRoute.CLARIFICATION,
+            reason=IntentDecisionReason.LOW_CONFIDENCE,
+            candidates=(
+                IntentCandidate(IntentRoute.KNOWLEDGE_BASE, 0.5),
+                IntentCandidate(IntentRoute.SYSTEM_DIRECT, 0.3),
+                IntentCandidate(IntentRoute.CLARIFICATION, 0.2),
+            ),
+            guidance_message="请问您想了解哪一种商品?",
+            classifier_model_id="fast-chat",
+            classifier_finish_reason="stop",
+        )
+    )
+    pipeline = BasicStreamingRagPipeline(
+        retrieval,
+        BasicRagPromptBuilder(context_top_k=1),
+        chat,
+        FakeQueryRewriter(),
+        classifier,
+        global_timeout_seconds=1,
+    )
+
+    events = [event async for event in pipeline.stream(request())]
+
+    guidance = next(event for event in events if isinstance(event, PipelineGuidanceEvent))
+    assert guidance.message == "请问您想了解哪一种商品?"
+    assert guidance.reason is GuidanceReason.LOW_CONFIDENCE
+    assert retrieval.requests == []
+    assert chat.stream_requests == ()
+    done = next(event for event in events if isinstance(event, PipelineDoneEvent))
+    assert done.outcome is PipelineOutcome.CLARIFICATION
+    assert done.intent_route is IntentRoute.CLARIFICATION
+    assert done.model_id == "fast-chat"
 
 
 @pytest.mark.asyncio
@@ -461,6 +590,7 @@ async def test_pipeline_exposes_query_rewrite_degradation_without_input_content(
         BasicRagPromptBuilder(context_top_k=1),
         FakeChatModel("final-chat", "不应调用"),
         rewriter,
+        FakeIntentClassifier(),
         global_timeout_seconds=1,
     )
 
@@ -490,6 +620,7 @@ async def test_multi_question_retrieval_failure_cancels_sibling_tasks() -> None:
                 model_id="fast-chat",
             )
         ),
+        FakeIntentClassifier(),
         global_timeout_seconds=1,
     )
 

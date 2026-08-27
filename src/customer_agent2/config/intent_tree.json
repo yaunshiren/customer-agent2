@@ -1,0 +1,17 @@
+{
+  "version": "m4-c-v1",
+  "routes": [
+    {
+      "name": "system_direct",
+      "description": "问候、系统能力、使用方式或礼貌交流；不需要知识库事实、订单、物流、联网信息或业务工具。"
+    },
+    {
+      "name": "knowledge_base",
+      "description": "需要从请求已授权的知识库中检索事实、规则、流程、产品说明或文档内容，并给出引用。"
+    },
+    {
+      "name": "clarification",
+      "description": "缺少决定性对象、条件或目标，无法安全判断用户真正要问什么，需要先提出一个简短澄清问题。"
+    }
+  ]
+}

@@ -119,7 +119,7 @@ flowchart TD
 M3-A 先落地请求身份与显式检索范围、原问题/当前改写问题、子问题、记忆占位、向量通道结果、
 TopK Chunk、Prompt 消息、编号来源和阶段 Trace。M4-A 已用类型化字段填充可选摘要和最近
 completed 消息；M4-B 通过 `QueryRewriter` 填充独立问题和 1～3 个实际检索子问题。Intent 和
-Guidance 字段在对应 M4 后续子阶段加入，不用无约束字典提前占位。
+Guidance 已由 M4-C 以 `IntentDecision` 和类型化事件加入，不使用无约束字典。
 
 M3-B 的 API 适配器只负责把已实现的内部事件映射到 ADR-0005 SSE Schema。它生成请求 ID，
 但不把 FastAPI Request、StreamingResponse 或无类型字典放入 Pipeline 上下文。
@@ -130,12 +130,17 @@ SQLAlchemy。
 
 M4-A 的默认组合顺序是
 `Summarizing(Persistent(MemoryAware(Basic)))`：Persistent 先保存当前 user；MemoryAware 只加载
-此前 completed 消息，因此不会重复当前问题；Persistent 在 completed done 前保存回答；最外层
-Summarizing 随后把滑出最近 6 轮窗口的完整轮次增量摘要。摘要失败只记录降级，不改变成功 done。
+此前 completed/clarification 完整消息，因此不会重复当前问题；Persistent 在成功 done 前保存
+回答或澄清；最外层 Summarizing 随后把滑出最近 6 轮窗口的完整轮次增量摘要。摘要失败只记录
+降级，不改变成功 done。
 Basic 内部在检索前调用复用 fast 模型的 `FastModelQueryRewriter`；严格 JSON 不合规、已知模型
 错误或 20 秒改写超时时退回原问题。子问题在同一全局截止时间和同一作用域内并发检索，退出前
 收拢全部任务；候选按 Chunk UUID 去重，以最好单查询名次和相似度稳定合并。该规则是 M4-B
 临时基线，不是 RRF，M5 再通过评测替换。
+
+M4-C 在 Rewrite 后调用共享 fast 模型的 `FastModelIntentClassifier`。分类器按打包的固定三节点
+意图树输出独立 0～1 分数；最高分至少 0.75 且与第二名差值至少 0.10 才执行高置信路由。模型
+失败、20 秒超时或协议错误使用稳定原因降级到当前请求已授权的知识库作用域，不扩大权限。
 
 ### 5.3 短路语义
 
@@ -161,6 +166,10 @@ Pipeline、模型流和供应商 HTTP 响应。
 M3-C 会把已开始但未完成的取消标记为 cancelled；检索/模型/协议失败标记为 failed；空检索
 标记为 no_context 且不创建 assistant 消息。completed 只有在 assistant 消息与 Run 终局事务
 提交后才向客户端发送 done。
+
+M4-C 已实现另外两条短路：系统直答跳过检索和 sources，使用 final 模型的受限系统 Prompt；
+低置信、意图歧义或显式 clarification 返回 guidance，不调用检索或 final 模型。澄清内容作为
+assistant 消息持久化，Run 使用独立 clarification 状态与 intent_route。
 
 ## 6. 检索架构
 
@@ -198,8 +207,8 @@ rerank_candidate_limit >= context_top_k
 
 ### 6.3 向量检索作用域
 
-- 高置信知识库意图：只在意图绑定的知识库中检索。
-- 无意图或低置信：允许在权限层解析出的全部可访问知识库中检索兜底。
+- 高置信知识库意图：只在请求显式提供的知识库作用域中检索。
+- 低置信或歧义：返回澄清，不检索；仅分类器自身失败时才在请求已授权作用域内降级检索。
 - 检索过滤必须在数据库查询侧完成，不能只在返回结果后过滤。
 - M2-G 的 `VectorSearchScope` 要求非空知识库 ID 列表，不提供隐式“查询所有知识库”开关；
   未来全局兜底也必须由上游传入明确授权后的知识库集合。
@@ -275,7 +284,8 @@ Identify → Parse → Chunk → Embed → Index
 模型失败策略：
 
 - 最终模型额度不足：返回可识别错误，支持修改模型 ID 后重试。
-- 快速模型失败：可按配置降级到最终模型，但记录额外成本与延迟。
+- 快速模型失败：按具体任务执行显式降级；当前 Rewrite 退回原问题，Intent 在已授权作用域内检索，
+  摘要保留旧摘要，均不会自动改用 final 模型。
 - Rerank 失败：显式 No-op 降级，保留融合排名。
 - 流式首包超时：取消当前请求，再决定是否切换候选模型。
 - 已经向客户端输出正文后，不自动切换模型重放答案，避免重复内容。
@@ -286,17 +296,18 @@ P0 事件类型：
 
 | 事件 | 作用 |
 |---|---|
-| `status` | 当前阶段；现有 rewriting、retrieving、prompting、generating、completed、no_context |
+| `status` | 当前阶段；含 rewriting、intent、retrieving、prompting、generating、clarification、completed、no_context |
 | `reply_to` | 当前会话、对应 user 消息和 RAG Run ID |
 | `content` | 正文增量 |
 | `sources` | 最终引用来源 |
-| `guidance` | 需要用户澄清的信息（M4 加入） |
+| `guidance` | 需要用户澄清的问题与稳定原因 |
 | `error` | 结构化错误码和可公开信息 |
 | `done` | 完成结局、阶段 Trace 和可选模型用量 |
 
 M3-B 已在 `POST /api/v1/chat/stream` 实现 status、content、sources、error 和 done，M3-C
 增加 reply_to 和可选 `conversation_id`，M4-B 增加 rewriting 状态和可选 Trace 降级代码。每个
-事件包含请求 UUID 和严格递增序号；HTTP 200
+事件包含请求 UUID 和严格递增序号；M4-C 增加 intent/clarification 状态、guidance、
+`done.intent_route` 和 clarification 终局。HTTP 200
 只表示流已建立，最终结果以 done.outcome 为准。
 完整 JSON 字段、事件顺序、HTTP 错误边界和断开语义由 [ADR-0005](adr/0005-streaming-rag-api.md)
 与 [ADR-0006](adr/0006-conversation-rag-run-persistence.md) 维护，修改必须更新 ADR 或增加 API
@@ -325,7 +336,9 @@ M3-C 已实现：
 - rag_runs（内含当前阶段的轻量 JSONB Trace 与引用 Chunk ID）
 
 M4-A 已实现 `conversation_summaries`：每个会话一条最新摘要、覆盖边界、累计来源消息数和 fast
-模型 ID。是否拆分 `rag_trace_nodes` 等评测查询证明需要后再决定。
+模型 ID。M4-C 为 `rag_runs` 增加 intent_route，并允许独立 clarification 终局；系统直答的
+completed Run 没有来源，知识库 completed Run 保持非空来源。是否拆分 `rag_trace_nodes` 等评测
+查询证明需要后再决定。
 
 ### Redis
 
@@ -353,6 +366,7 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 - 检索漏斗预算是否合法。
 - 最近记忆为 6 轮，摘要触发轮数 12 必须大于最近窗口，摘要输出与超时必须为正数。
 - Query Rewrite 默认最多 3 个子问题、512 输出 token、20 秒超时，且改写超时必须小于全局截止时间。
+- Intent 默认 0.75 高置信阈值、0.10 歧义差值、256 输出 token、20 秒超时，且超时小于全局截止时间。
 - PostgreSQL、pgvector 和 Redis 是否可连接。
 - 启用 Rerank 时 Workspace ID 是否配置。
 - 启用 VLM/MCP 时相应端点是否配置。
@@ -371,6 +385,8 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
   回答事实仍必须由 `<knowledge_context>` 支撑。
 - M4-B 也把摘要、消息和当前问题放入转义后的独立标签；严格输出只用于问题补全和拆分，原始
   模型输出、问题正文和 Prompt 不进入 Trace。
+- M4-C 的分类 Prompt 同样转义输入并严格校验 JSON；系统直答 Prompt 禁止声称访问知识库、订单、
+  工具或网络。Intent 日志和 Trace 只保留稳定路由、候选数与降级代码。
 - MCP 工具使用 Allowlist；P1 默认只实现只读工具。
 - 错误响应不暴露密钥、数据库 DSN、堆栈和完整文档内容。
 - 日志中的问题和文档片段应支持截断或关闭。
@@ -386,8 +402,8 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 - 引用文档 ID，不默认保存完整上下文。
 
 M3-C 已记录 Retrieval、Prompting、Generation Trace、最终来源 Chunk、模型结果、Token 用量和
-终局。M4-B 增加 Rewrite 耗时、实际子问题数量和可选稳定降级代码；Intent、Rerank 字段仍必须
-等对应阶段实现后再写入，不能伪造。
+终局。M4-B 增加 Rewrite 耗时、实际子问题数量和可选稳定降级代码；M4-C 增加 Intent 耗时、
+候选数、决策与可选分类降级代码。Rerank 字段仍必须等 M5 实现后再写入，不能伪造。
 M4-A 摘要失败使用不含消息正文和异常文本的结构化 `conversation_summary_degraded` 告警；摘要
 目前不伪装成公开 Pipeline Trace 阶段。
 

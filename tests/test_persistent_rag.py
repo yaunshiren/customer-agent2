@@ -8,11 +8,14 @@ import pytest
 from customer_agent2.application import PersistentStreamingRagPipeline
 from customer_agent2.domain.models import (
     DocumentFormat,
+    GuidanceReason,
+    IntentRoute,
     ModelError,
     ModelErrorCode,
     PipelineContentEvent,
     PipelineDoneEvent,
     PipelineEvent,
+    PipelineGuidanceEvent,
     PipelineOutcome,
     PipelineReplyToEvent,
     PipelineSourcesEvent,
@@ -164,6 +167,72 @@ async def test_persistent_pipeline_commits_answer_before_success_done() -> None:
     assert completion.answer == "退款说明 [1]"
     assert completion.sources[0].citation_number == 1
     assert completion.usage == TokenUsage(12, 5)
+
+
+@pytest.mark.asyncio
+async def test_system_direct_completion_persists_answer_without_sources() -> None:
+    repository = RecordingRepository()
+
+    def events(request_id: UUID) -> tuple[PipelineEvent, ...]:
+        return (
+            PipelineContentEvent(request_id, "你好, 我可以介绍系统能力."),
+            PipelineDoneEvent(
+                request_id,
+                PipelineOutcome.COMPLETED,
+                (PipelineTraceEntry(PipelineStage.INTENT, 1.0, 3, decision="system_direct"),),
+                intent_route=IntentRoute.SYSTEM_DIRECT,
+                model_id="fake-final",
+                finish_reason="stop",
+            ),
+        )
+
+    _ = [
+        event
+        async for event in PersistentStreamingRagPipeline(
+            ScriptedPipeline(events),
+            repository,
+        ).stream(_request())
+    ]
+
+    completion = repository.completions[0]
+    assert completion.answer == "你好, 我可以介绍系统能力."
+    assert completion.sources == ()
+    assert completion.intent_route is IntentRoute.SYSTEM_DIRECT
+
+
+@pytest.mark.asyncio
+async def test_clarification_persists_guidance_as_assistant_answer() -> None:
+    repository = RecordingRepository()
+
+    def events(request_id: UUID) -> tuple[PipelineEvent, ...]:
+        return (
+            PipelineGuidanceEvent(
+                request_id,
+                "请问您说的是哪一种商品?",
+                GuidanceReason.LOW_CONFIDENCE,
+            ),
+            PipelineDoneEvent(
+                request_id,
+                PipelineOutcome.CLARIFICATION,
+                (PipelineTraceEntry(PipelineStage.INTENT, 1.0, 3, decision="clarification"),),
+                intent_route=IntentRoute.CLARIFICATION,
+                model_id="fake-fast",
+                finish_reason="stop",
+            ),
+        )
+
+    _ = [
+        event
+        async for event in PersistentStreamingRagPipeline(
+            ScriptedPipeline(events),
+            repository,
+        ).stream(_request())
+    ]
+
+    completion = repository.completions[0]
+    assert completion.outcome is PipelineOutcome.CLARIFICATION
+    assert completion.answer == "请问您说的是哪一种商品?"
+    assert completion.intent_route is IntentRoute.CLARIFICATION
 
 
 @pytest.mark.asyncio

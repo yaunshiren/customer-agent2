@@ -10,6 +10,7 @@ from customer_agent2.config import Settings
 from customer_agent2.domain.models import (
     ConversationSummaryUpdate,
     DocumentFormat,
+    IntentRoute,
     PipelineOutcome,
     RagPersistenceError,
     RagPersistenceErrorCode,
@@ -181,4 +182,49 @@ async def test_memory_repository_rejects_unknown_conversation() -> None:
 
         assert captured.value.code is RagPersistenceErrorCode.CONVERSATION_NOT_FOUND
     finally:
+        await manager.close()
+
+
+@pytest.mark.asyncio
+async def test_memory_repository_includes_clarification_turns() -> None:
+    manager = DatabaseManager(Settings())
+    await manager.open()
+    runs = SQLAlchemyRagRunRepository(manager.session_factory)
+    memory = SQLAlchemyConversationMemoryRepository(manager.session_factory)
+    conversation_id: UUID | None = None
+    try:
+        started = await runs.begin_run(
+            RagRunBeginRequest(
+                request_id=uuid4(),
+                conversation_id=None,
+                question="它怎么样?",
+                knowledge_base_ids=(uuid4(),),
+            )
+        )
+        conversation_id = started.conversation_id
+        await runs.complete_run(
+            RagRunCompletion(
+                rag_run_id=started.rag_run_id,
+                outcome=PipelineOutcome.CLARIFICATION,
+                answer="请问您说的“它”是哪一种商品?",
+                sources=(),
+                trace=(),
+                intent_route=IntentRoute.CLARIFICATION,
+                model_id="fake-fast",
+                finish_reason="stop",
+            )
+        )
+
+        loaded = await memory.load_memory(conversation_id, recent_turns=6)
+
+        assert [message.content for message in loaded.messages] == [
+            "它怎么样?",
+            "请问您说的“它”是哪一种商品?",
+        ]
+    finally:
+        if conversation_id is not None:
+            async with manager.session_factory.begin() as session:
+                await session.execute(
+                    delete(ConversationRecord).where(ConversationRecord.id == conversation_id)
+                )
         await manager.close()

@@ -9,6 +9,7 @@ from sqlalchemy import delete, select
 from customer_agent2.config import Settings
 from customer_agent2.domain.models import (
     DocumentFormat,
+    IntentRoute,
     PipelineOutcome,
     PipelineStage,
     PipelineTraceEntry,
@@ -127,8 +128,10 @@ async def test_repository_persists_completed_run_and_continues_ordered_conversat
                 "duration_ms": 3.5,
                 "candidate_count": 1,
                 "degradation_reason": None,
+                "decision": None,
             }
         ]
+        assert first_run.intent_route == IntentRoute.KNOWLEDGE_BASE.value
         assert first_run.finished_at is not None
         assert second_run is not None
         assert second_run.status == RagRunStatus.CANCELLED.value
@@ -197,6 +200,63 @@ async def test_repository_persists_no_context_and_failure_without_assistant_mess
             async with manager.session_factory.begin() as session:
                 await session.execute(
                     delete(ConversationRecord).where(ConversationRecord.id.in_(conversation_ids))
+                )
+        await manager.close()
+
+
+@pytest.mark.asyncio
+async def test_repository_persists_clarification_as_a_complete_memory_turn() -> None:
+    manager = DatabaseManager(Settings())
+    await manager.open()
+    repository = SQLAlchemyRagRunRepository(manager.session_factory)
+    conversation_id: UUID | None = None
+    try:
+        started = await repository.begin_run(_begin_request())
+        conversation_id = started.conversation_id
+        assistant_id = await repository.complete_run(
+            RagRunCompletion(
+                rag_run_id=started.rag_run_id,
+                outcome=PipelineOutcome.CLARIFICATION,
+                answer="请问您想了解哪一种商品?",
+                sources=(),
+                trace=(
+                    PipelineTraceEntry(
+                        PipelineStage.INTENT,
+                        2.0,
+                        3,
+                        decision="clarification",
+                    ),
+                ),
+                intent_route=IntentRoute.CLARIFICATION,
+                model_id="fake-fast",
+                finish_reason="stop",
+            )
+        )
+
+        async with manager.session_factory() as session:
+            messages = list(
+                await session.scalars(
+                    select(MessageRecord)
+                    .where(MessageRecord.conversation_id == conversation_id)
+                    .order_by(MessageRecord.ordinal)
+                )
+            )
+            run = await session.get(RagRunRecord, started.rag_run_id)
+
+        assert assistant_id is not None
+        assert [(message.role, message.content) for message in messages] == [
+            ("user", "如何申请退款?"),
+            ("assistant", "请问您想了解哪一种商品?"),
+        ]
+        assert run is not None
+        assert run.status == RagRunStatus.CLARIFICATION.value
+        assert run.intent_route == IntentRoute.CLARIFICATION.value
+        assert run.source_chunk_ids == []
+    finally:
+        if conversation_id is not None:
+            async with manager.session_factory.begin() as session:
+                await session.execute(
+                    delete(ConversationRecord).where(ConversationRecord.id == conversation_id)
                 )
         await manager.close()
 

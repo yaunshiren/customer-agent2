@@ -2,7 +2,8 @@
 
 - 状态：Accepted
 - 日期：2026-08-26
-- 修订：[ADR-0007](0007-conversation-memory-baseline.md) 已实现持久化摘要和最近消息加载
+- 修订：[ADR-0007](0007-conversation-memory-baseline.md) 已实现持久化摘要和最近消息加载；
+  [ADR-0009](0009-intent-routing-and-guidance.md) 增加意图与澄清终局
 
 ## 背景
 

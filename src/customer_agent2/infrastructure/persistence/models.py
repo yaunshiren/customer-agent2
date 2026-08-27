@@ -96,7 +96,8 @@ class RagRunRecord(Base):
     __tablename__ = "rag_runs"
     __table_args__ = (
         CheckConstraint(
-            "status IN ('running', 'completed', 'no_context', 'failed', 'cancelled')",
+            "status IN "
+            "('running', 'completed', 'no_context', 'clarification', 'failed', 'cancelled')",
             name="status_allowed",
         ),
         CheckConstraint(
@@ -109,11 +110,18 @@ class RagRunRecord(Base):
             name="finished_at_matches_status",
         ),
         CheckConstraint(
-            "status <> 'completed' OR "
+            "status NOT IN ('completed', 'clarification') OR "
             "(model_id IS NOT NULL AND finish_reason IS NOT NULL "
             "AND char_length(btrim(model_id)) > 0 "
             "AND char_length(btrim(finish_reason)) > 0)",
             name="completed_model_result_present",
+        ),
+        CheckConstraint(
+            "(status = 'completed' AND intent_route IN ('system_direct', 'knowledge_base')) "
+            "OR (status = 'no_context' AND intent_route = 'knowledge_base') "
+            "OR (status = 'clarification' AND intent_route = 'clarification') "
+            "OR (status IN ('running', 'failed', 'cancelled') AND intent_route IS NULL)",
+            name="intent_route_matches_status",
         ),
         CheckConstraint(
             "input_tokens IS NULL OR input_tokens >= 0",
@@ -166,6 +174,7 @@ class RagRunRecord(Base):
     finish_reason: Mapped[str | None] = mapped_column(String(100))
     input_tokens: Mapped[int | None] = mapped_column(Integer)
     output_tokens: Mapped[int | None] = mapped_column(Integer)
+    intent_route: Mapped[str | None] = mapped_column(String(32))
     trace: Mapped[list[dict[str, object]]] = mapped_column(
         JSONB,
         nullable=False,

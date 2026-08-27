@@ -9,6 +9,7 @@ from sqlalchemy import delete
 from customer_agent2.application import (
     BasicRagPromptBuilder,
     BasicStreamingRagPipeline,
+    FastModelIntentClassifier,
     FastModelQueryRewriter,
     VectorRetrievalService,
 )
@@ -23,6 +24,7 @@ from customer_agent2.domain.models import (
     VectorSearchScope,
 )
 from customer_agent2.infrastructure.database import DatabaseManager
+from customer_agent2.infrastructure.intents import load_default_intent_tree
 from customer_agent2.infrastructure.models import FakeChatModel, FakeEmbeddingModel
 from customer_agent2.infrastructure.persistence import (
     EMBEDDING_DIMENSION,
@@ -90,6 +92,20 @@ async def test_real_pgvector_pipeline_retrieves_prompts_and_streams_with_sources
             timeout_seconds=1,
             max_output_tokens=512,
             max_sub_questions=3,
+        ),
+        FastModelIntentClassifier(
+            FakeChatModel(
+                "fake-fast-intent",
+                (
+                    '{"scores":{"system_direct":0.02,"knowledge_base":0.96,'
+                    '"clarification":0.02},"clarification_question":null}'
+                ),
+            ),
+            load_default_intent_tree(),
+            high_confidence_threshold=0.75,
+            ambiguity_margin=0.10,
+            timeout_seconds=1,
+            max_output_tokens=256,
         ),
         global_timeout_seconds=5,
     )

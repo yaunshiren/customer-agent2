@@ -10,6 +10,7 @@ from customer_agent2.application.document_chunking import StructureAwareDocument
 from customer_agent2.application.document_ingestion import DocumentIngestionService
 from customer_agent2.application.document_management import DocumentManagementService
 from customer_agent2.application.document_parsing import DocumentParsingService
+from customer_agent2.application.intent_classification import FastModelIntentClassifier
 from customer_agent2.application.model_gateway import ChatProfile, ModelGateway
 from customer_agent2.application.persistent_rag import PersistentStreamingRagPipeline
 from customer_agent2.application.query_rewrite import FastModelQueryRewriter
@@ -26,6 +27,7 @@ __all__ = [
     "DocumentIngestionService",
     "DocumentManagementService",
     "DocumentParsingService",
+    "FastModelIntentClassifier",
     "FastModelQueryRewriter",
     "MemoryAwareStreamingRagPipeline",
     "ModelGateway",

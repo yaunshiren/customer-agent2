@@ -7,6 +7,7 @@ from customer_agent2.application import (
     DocumentIngestionService,
     DocumentManagementService,
     DocumentParsingService,
+    FastModelIntentClassifier,
     FastModelQueryRewriter,
     MemoryAwareStreamingRagPipeline,
     PersistentStreamingRagPipeline,
@@ -27,6 +28,7 @@ from customer_agent2.infrastructure.documents import (
     SafeDocumentIdentifier,
     TransformersTextTokenCodec,
 )
+from customer_agent2.infrastructure.intents import load_default_intent_tree
 from customer_agent2.infrastructure.models import (
     OpenAICompatibleChatModel,
     SentenceTransformerEmbeddingModel,
@@ -120,6 +122,14 @@ def build_application_services(
                         timeout_seconds=settings.query_rewrite_timeout_seconds,
                         max_output_tokens=settings.query_rewrite_max_output_tokens,
                         max_sub_questions=settings.query_rewrite_max_sub_questions,
+                    ),
+                    FastModelIntentClassifier(
+                        fast_chat,
+                        load_default_intent_tree(),
+                        high_confidence_threshold=(settings.intent_high_confidence_threshold),
+                        ambiguity_margin=settings.intent_ambiguity_margin,
+                        timeout_seconds=settings.intent_timeout_seconds,
+                        max_output_tokens=settings.intent_max_output_tokens,
                     ),
                     global_timeout_seconds=settings.rag_global_timeout_seconds,
                 ),

@@ -46,6 +46,9 @@ customer-agent2 = "customer_agent2.__main__:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"customer_agent2.config" = ["*.json"]
+
 [tool.pytest.ini_options]
 addopts = "-q --strict-config --strict-markers"
 asyncio_mode = "auto"

@@ -16,6 +16,7 @@ from customer_agent2.application import (
     DocumentIngestionService,
     DocumentManagementService,
     DocumentParsingService,
+    FastModelIntentClassifier,
     FastModelQueryRewriter,
     MemoryAwareStreamingRagPipeline,
     PersistentStreamingRagPipeline,
@@ -36,6 +37,7 @@ from customer_agent2.infrastructure.documents import (
     PlainTextDocumentParser,
     SafeDocumentIdentifier,
 )
+from customer_agent2.infrastructure.intents import load_default_intent_tree
 from customer_agent2.infrastructure.models import FakeChatModel, FakeEmbeddingModel
 from customer_agent2.infrastructure.persistence import (
     EMBEDDING_DIMENSION,
@@ -150,6 +152,21 @@ def fake_model_services(
                         timeout_seconds=settings.query_rewrite_timeout_seconds,
                         max_output_tokens=settings.query_rewrite_max_output_tokens,
                         max_sub_questions=settings.query_rewrite_max_sub_questions,
+                    ),
+                    FastModelIntentClassifier(
+                        FakeChatModel(
+                            "fake-fast-intent",
+                            (
+                                '{"scores":{"system_direct":0.02,'
+                                '"knowledge_base":0.96,"clarification":0.02},'
+                                '"clarification_question":null}'
+                            ),
+                        ),
+                        load_default_intent_tree(),
+                        high_confidence_threshold=(settings.intent_high_confidence_threshold),
+                        ambiguity_margin=settings.intent_ambiguity_margin,
+                        timeout_seconds=settings.intent_timeout_seconds,
+                        max_output_tokens=settings.intent_max_output_tokens,
                     ),
                     global_timeout_seconds=settings.rag_global_timeout_seconds,
                 ),

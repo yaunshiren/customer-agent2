@@ -7,14 +7,18 @@ from uuid import UUID, uuid4
 
 import httpx
 import pytest
+from pydantic import ValidationError
 
 from customer_agent2.api.routes.chat import _stream_sse  # pyright: ignore[reportPrivateUsage]
+from customer_agent2.api.schemas import SseDoneEventData
 from customer_agent2.application.services import ApplicationServices
 from customer_agent2.domain.models import (
     DocumentFormat,
     DocumentIngestionRequest,
     DocumentStatus,
+    GuidanceReason,
     IngestionResult,
+    IntentRoute,
     KnowledgeBase,
     KnowledgeBaseDraft,
     ModelError,
@@ -22,6 +26,7 @@ from customer_agent2.domain.models import (
     PipelineContentEvent,
     PipelineDoneEvent,
     PipelineEvent,
+    PipelineGuidanceEvent,
     PipelineOutcome,
     PipelineReplyToEvent,
     PipelineSourcesEvent,
@@ -213,12 +218,19 @@ def _completed_events(request_id: UUID) -> tuple[PipelineEvent, ...]:
             candidate_count=1,
             degradation_reason="query_rewrite_protocol",
         ),
+        PipelineTraceEntry(
+            PipelineStage.INTENT,
+            0.7,
+            candidate_count=3,
+            decision="knowledge_base",
+        ),
         PipelineTraceEntry(PipelineStage.RETRIEVING, 1.5, candidate_count=1),
         PipelineTraceEntry(PipelineStage.GENERATING, 2.5, candidate_count=1),
     )
     return (
         PipelineReplyToEvent(request_id, request_id, uuid4(), uuid4()),
         PipelineStatusEvent(request_id, PipelineStage.REWRITING),
+        PipelineStatusEvent(request_id, PipelineStage.INTENT),
         PipelineStatusEvent(request_id, PipelineStage.RETRIEVING),
         PipelineContentEvent(request_id, "请参考"),
         PipelineContentEvent(request_id, "退款说明 [1]。"),
@@ -232,6 +244,25 @@ def _completed_events(request_id: UUID) -> tuple[PipelineEvent, ...]:
             finish_reason="stop",
         ),
     )
+
+
+def test_done_schema_rejects_terminal_route_mismatches() -> None:
+    request_id = uuid4()
+
+    with pytest.raises(ValidationError, match="completed done 路由无效"):
+        SseDoneEventData(
+            request_id=request_id,
+            sequence=1,
+            outcome="completed",
+            intent_route=IntentRoute.CLARIFICATION,
+        )
+
+    with pytest.raises(ValidationError, match="非错误 done 必须包含 intent_route"):
+        SseDoneEventData(
+            request_id=request_id,
+            sequence=1,
+            outcome="no_context",
+        )
 
 
 def _parse_sse(body: str) -> list[tuple[str, str, dict[str, object]]]:
@@ -269,6 +300,7 @@ async def test_chat_stream_exposes_ordered_sanitized_sse_contract() -> None:
         "reply_to",
         "status",
         "status",
+        "status",
         "content",
         "content",
         "sources",
@@ -276,17 +308,20 @@ async def test_chat_stream_exposes_ordered_sanitized_sse_contract() -> None:
         "done",
     ]
     assert [event[0] for event in events] == [
-        f"{request_id}:{sequence}" for sequence in range(1, 9)
+        f"{request_id}:{sequence}" for sequence in range(1, 10)
     ]
     assert all(event[2]["request_id"] == str(request_id) for event in events)
     assert events[-1][2]["outcome"] == "completed"
     assert events[0][2]["conversation_id"] == str(request_id)
     assert events[1][2]["stage"] == "rewriting"
-    sources = cast(list[dict[str, object]], events[5][2]["sources"])
+    assert events[2][2]["stage"] == "intent"
+    sources = cast(list[dict[str, object]], events[6][2]["sources"])
     assert sources[0]["citation_number"] == 1
     assert "content" not in sources[0]
     trace = cast(list[dict[str, object]], events[-1][2]["trace"])
     assert trace[0]["degradation_reason"] == "query_rewrite_protocol"
+    assert trace[1]["decision"] == "knowledge_base"
+    assert events[-1][2]["intent_route"] == "knowledge_base"
     assert pipeline.closed is True
     assert len(pipeline.requests) == 1
     captured = pipeline.requests[0]
@@ -306,6 +341,7 @@ async def test_empty_retrieval_returns_no_context_done_without_sources() -> None
         return (
             PipelineReplyToEvent(request_id, request_id, uuid4(), uuid4()),
             PipelineStatusEvent(request_id, PipelineStage.REWRITING),
+            PipelineStatusEvent(request_id, PipelineStage.INTENT),
             PipelineStatusEvent(request_id, PipelineStage.RETRIEVING),
             PipelineStatusEvent(request_id, PipelineStage.NO_CONTEXT),
             PipelineDoneEvent(request_id, PipelineOutcome.NO_CONTEXT, ()),
@@ -324,9 +360,57 @@ async def test_empty_retrieval_returns_no_context_done_without_sources() -> None
         "status",
         "status",
         "status",
+        "status",
         "done",
     ]
     assert parsed[-1][2]["outcome"] == "no_context"
+    assert parsed[-1][2]["intent_route"] == "knowledge_base"
+
+
+@pytest.mark.asyncio
+async def test_clarification_exposes_guidance_and_distinct_done_outcome() -> None:
+    def events(request_id: UUID) -> tuple[PipelineEvent, ...]:
+        trace = (PipelineTraceEntry(PipelineStage.INTENT, 1.0, 3, decision="clarification"),)
+        return (
+            PipelineReplyToEvent(request_id, request_id, uuid4(), uuid4()),
+            PipelineStatusEvent(request_id, PipelineStage.REWRITING),
+            PipelineStatusEvent(request_id, PipelineStage.INTENT),
+            PipelineStatusEvent(request_id, PipelineStage.CLARIFICATION),
+            PipelineGuidanceEvent(
+                request_id,
+                "请问您想了解哪一种商品?",
+                GuidanceReason.AMBIGUOUS,
+            ),
+            PipelineDoneEvent(
+                request_id,
+                PipelineOutcome.CLARIFICATION,
+                trace,
+                intent_route=IntentRoute.CLARIFICATION,
+                model_id="fake-fast",
+                finish_reason="stop",
+            ),
+        )
+
+    pipeline = ScriptedRagPipeline(events)
+    app = _app(pipeline)
+    async with app.router.lifespan_context(app):
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post("/api/v1/chat/stream", json=_request_body(uuid4()))
+
+    parsed = _parse_sse(response.text)
+    assert [event[1] for event in parsed] == [
+        "reply_to",
+        "status",
+        "status",
+        "status",
+        "guidance",
+        "done",
+    ]
+    assert parsed[-2][2]["message"] == "请问您想了解哪一种商品?"
+    assert parsed[-2][2]["reason"] == "ambiguous"
+    assert parsed[-1][2]["outcome"] == "clarification"
+    assert parsed[-1][2]["intent_route"] == "clarification"
 
 
 @pytest.mark.parametrize(

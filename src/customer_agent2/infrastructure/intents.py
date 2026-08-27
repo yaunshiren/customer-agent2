@@ -1,0 +1,45 @@
+"""Strict loader for the packaged M4-C intent tree."""
+
+import json
+from importlib.resources import files
+from typing import cast
+
+from customer_agent2.domain.models import IntentDefinition, IntentRoute, IntentTree
+
+
+def load_default_intent_tree() -> IntentTree:
+    """Load and validate the versioned tree included in the installed package."""
+    resource = files("customer_agent2.config").joinpath("intent_tree.json")
+    return load_intent_tree_json(resource.read_text(encoding="utf-8"))
+
+
+def load_intent_tree_json(content: str) -> IntentTree:
+    """Parse an exact JSON object without passing untyped mappings across layers."""
+    raw: object = json.loads(content)
+    if not isinstance(raw, dict):
+        raise ValueError("Intent Tree 必须是 JSON 对象")
+    tree = cast(dict[str, object], raw)
+    if set(tree) != {"version", "routes"}:
+        raise ValueError("Intent Tree 顶层字段无效")
+    version = tree["version"]
+    raw_routes = tree["routes"]
+    if not isinstance(version, str) or not isinstance(raw_routes, list):
+        raise TypeError("Intent Tree 顶层类型无效")
+
+    definitions: list[IntentDefinition] = []
+    for raw_route in cast(list[object], raw_routes):
+        if not isinstance(raw_route, dict):
+            raise TypeError("Intent Tree 路由必须是对象")
+        route = cast(dict[str, object], raw_route)
+        if set(route) != {"name", "description"}:
+            raise ValueError("Intent Tree 路由字段无效")
+        name = route["name"]
+        description = route["description"]
+        if not isinstance(name, str) or not isinstance(description, str):
+            raise TypeError("Intent Tree 路由类型无效")
+        try:
+            intent_route = IntentRoute(name)
+        except ValueError:
+            raise ValueError("Intent Tree 包含未知路由") from None
+        definitions.append(IntentDefinition(intent_route, description))
+    return IntentTree(version, tuple(definitions))

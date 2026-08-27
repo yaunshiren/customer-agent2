@@ -4,14 +4,14 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M4-B Query Rewrite 与多问题检索 Baseline 已完成。项目已有 PostgreSQL/Redis 连接管理、
+> 当前状态：M4-C Intent 路由与澄清 Baseline 已完成。项目已有 PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
 > `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT/PDF/DOCX/CSV
 > 解析，以及 400/64 Token 分块、原子版本切换、同步上传/状态/删除 API 和带作用域过滤的
 > active-only Cosine 向量召回。`POST /api/v1/chat/stream` 已将
-> `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → 并发召回 → 临时去重合并 → TopK → 安全 Prompt → Chat 流 → 保存回答/Trace`
+> `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → Intent 路由 → 检索或短路 → 安全 Prompt → Chat 流 → 保存回答/Trace`
 > 通过版本化 SSE 契约公开；超过 12 个 completed 轮次后会用 fast 模型增量摘要滑出窗口的旧轮次。
-> 下一步进入 M4-C 的 Intent 分类、低置信澄清和固定 Smoke Test。
+> 下一步进入 M5 的正式候选融合、Rerank、评测与加固。
 
 ## 项目目标
 
@@ -73,8 +73,7 @@
 - Chat 同时定义非流式、流式、推理内容和 Token 用量结构。
 - Chat 适配器使用异步连接池，支持独立首包超时，并在流结束、取消或调用方提前停止时释放响应。
 - 供应商认证、额度、限流、超时、不可用和协议错误会转换为稳定且脱敏的领域错误。
-- final 模型只用于最终回答；fast 模型已用于长会话摘要和严格 JSON Query Rewrite，后续继续
-  用于 Intent 等内部任务。
+- final 模型只用于最终回答；fast 模型已用于长会话摘要、严格 JSON Query Rewrite 和 Intent 分类。
 - Embedding 模型按首次请求懒加载，CPU 推理在工作线程执行，并串行保护同一个模型实例。
 - Embedding 结果会验证批量形状、768 维、NaN/无限值和 L2 归一化；最大序列固定为 512 Token。
 - Rerank 未启用时使用显式 No-op，保留原始顺序并记录降级原因，不使用 Chat 模型冒充 Rerank。
@@ -85,7 +84,8 @@ Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属�
 M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embedding、pgvector 原子切换和
 在线向量召回连成闭环。M3-A 已接入最终 Chat 流，M3-B 已提供公开 SSE 问答 API，M3-C 已保存
 最小会话消息和 RAG Run 终局；M4-A 已把持久化摘要和最近 completed 消息接入 Prompt，M4-B
-已让上下文改写和最多 3 个子问题实际参与向量召回。
+已让上下文改写和最多 3 个子问题实际参与向量召回；M4-C 已实现系统直答、知识库问答、需要
+澄清三类路由和固定 20 条决策 Smoke Test。
 
 ## 当前文档解析边界
 
@@ -153,27 +153,32 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 
 - 使用请求级 `ChatPipelineContext` 显式传递原问题、当前改写结果、检索结果、TopK、Prompt、
   引用来源和阶段 Trace，不使用全局可变状态。
-- 当前加载可选持久化摘要和最近 6 个 completed user/assistant 轮次；running、no_context、failed、
-  cancelled 和残缺消息不会进入 Prompt。历史只用于理解指代，不作为知识事实来源。
-- 累计 completed 对话不超过 12 轮时不调用摘要模型；超过后，每个滑出最近 6 轮窗口的完整轮次
+- 当前加载可选持久化摘要和最近 6 个 completed/clarification user/assistant 完整轮次；running、
+  no_context、failed、cancelled 和残缺消息不会进入 Prompt。历史只用于理解指代，不作为知识事实来源。
+- 累计完整对话不超过 12 轮时不调用摘要模型；超过后，每个滑出最近 6 轮窗口的完整轮次
   使用 fast Chat 增量合并进摘要。摘要失败保留旧摘要并降级到最近消息，不推翻成功回答。
 - fast 模型把当前问题改写为可独立理解的问题，并输出 1～3 个不重复检索子问题；输出必须是
   严格 JSON。默认改写超时 20 秒、最多 512 token，模型错误、超时或协议不合规时退回原问题，
   并在日志与 Trace 保留稳定降级代码。
 - 子问题使用结构化并发检索，异常、超时和取消会收拢全部子任务。当前只做 Chunk UUID 最小去重
-  和临时最好名次合并，Intent、RRF 与 Rerank 仍分别留给 M4-C/M5。
+  和临时最好名次合并；RRF 与 Rerank 留给 M5。
+- fast 模型按打包的三节点意图树输出三个独立置信分数。最高分至少 `0.75` 且与第二名差值至少
+  `0.10` 才执行系统直答或知识库问答；低置信、歧义或显式澄清路由会返回 `guidance`，不检索也
+  不调用 final 模型。分类模型失败、超时或协议不合规时，只在请求已授权的知识库作用域内降级检索。
+- 系统直答跳过检索且不产生 `sources`；其 Prompt 明确禁止声称访问过知识库、订单、工具或网络。
 - Prompt 把文档标记为不可信资料，转义文档内容和来源属性，要求回答使用 `[1]` 形式引用；
   模型的 reasoning 增量不会作为答案事件向上游暴露。
 - 空检索以 `no_context` 正常结局短路，不调用 Chat 模型，因此不会在没有资料时生成答案。
 - Pipeline 使用可配置的 `RAG_GLOBAL_TIMEOUT_SECONDS` 单一截止时间约束改写、检索和模型流；模型流
   协议要求可关闭的异步生成器，超时、取消或调用方提前停止时会逐层执行 `aclose()`。
 - `POST /api/v1/chat/stream` 要求非空知识库 ID 列表，返回
-  reply_to/status/content/sources/error/done 事件、严格递增序号和 `X-Request-ID`。首次请求省略
+  reply_to/status/content/sources/guidance/error/done 事件、严格递增序号和 `X-Request-ID`。首次请求省略
   `conversation_id`，后续请求用 reply_to 返回的 ID 继续会话。
-- 每个已开始请求会保存 user 消息与 RAG Run；completed 会原子保存 assistant 消息、来源 Chunk、
-  模型用量和轻量 Trace，no_context/failed/cancelled 不保存伪成功回答。
-- 当前没有认证、Intent/澄清、正式候选融合、会话管理 API、断线重放或心跳；协议、Run 持久化、
-  记忆和改写边界分别见 ADR-0005、ADR-0006、ADR-0007、ADR-0008。
+- 每个已开始请求会保存 user 消息与 RAG Run；completed 会原子保存 assistant 消息、可选来源 Chunk、
+  模型用量和轻量 Trace；clarification 会保存 guidance assistant 消息；no_context/failed/cancelled
+  不保存伪成功回答。Run 同时保存稳定 `intent_route`。
+- 当前没有认证、正式候选融合、会话管理 API、断线重放或心跳；协议、Run 持久化、记忆、改写和
+  Intent 边界分别见 ADR-0005 至 ADR-0009。
 
 ## 当前文档
 
@@ -188,6 +193,7 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 - [最小会话消息与 RAG Run 持久化](docs/adr/0006-conversation-rag-run-persistence.md)
 - [会话记忆与 M4 意图基线参数](docs/adr/0007-conversation-memory-baseline.md)
 - [Query Rewrite 与多问题检索基线](docs/adr/0008-query-rewrite-and-multi-question-retrieval.md)
+- [Intent 路由、澄清与降级契约](docs/adr/0009-intent-routing-and-guidance.md)
 - [AI 协作规则](AGENTS.md)
 
 ## 本地启动
@@ -231,7 +237,7 @@ docker compose ps
 
 Alembic 会确保 pgvector 扩展存在，创建 M2 的 `knowledge_bases`、`documents`、
 `document_versions`、`chunks`，M3-C 的 `conversations`、`messages`、`rag_runs`，以及 M4-A 的
-`conversation_summaries`。
+`conversation_summaries`。M4-C 为 `rag_runs` 增加 `intent_route`，并增加独立 `clarification` 终局。
 迁移只建立存储模式，不会自动解析或导入文档。
 
 ```powershell
@@ -322,7 +328,7 @@ pytest -m model_smoke
 
 如需用本地已迁移的 PostgreSQL 和 Redis 验证真实向量写入、过滤检索、Cosine 排名、
 active-only 版本语义、基础 RAG Pipeline、会话/RAG Run 持久化、最近记忆/摘要窗口、Query
-Rewrite 和 Fake Chat 驱动的公开 SSE 端到端路径：
+Rewrite、Intent 路由/澄清和 Fake Chat 驱动的公开 SSE 端到端路径：
 
 ```powershell
 $env:RUN_DATABASE_INTEGRATION="1"

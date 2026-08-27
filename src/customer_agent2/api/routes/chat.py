@@ -16,6 +16,7 @@ from customer_agent2.api.schemas import (
     SseDoneEventData,
     SseErrorEventData,
     SseEventData,
+    SseGuidanceEventData,
     SseReplyToEventData,
     SseSource,
     SseSourcesEventData,
@@ -27,6 +28,7 @@ from customer_agent2.domain.models import (
     ModelError,
     PipelineContentEvent,
     PipelineEvent,
+    PipelineGuidanceEvent,
     PipelineReplyToEvent,
     PipelineSourcesEvent,
     PipelineStatusEvent,
@@ -53,9 +55,7 @@ ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
     responses={
         status.HTTP_200_OK: {
             "content": {"text/event-stream": {"schema": {"type": "string"}}},
-            "description": (
-                "按 ADR-0005/0006/0008 输出 reply_to/status/content/sources/error/done 事件"
-            ),
+            "description": ("按 ADR-0005/0006/0008/0009 输出流式问答与澄清事件"),
         },
         **ERROR_RESPONSES,
     },
@@ -190,6 +190,16 @@ def _public_event(event: PipelineEvent, sequence: int) -> tuple[str, SseEventDat
                 delta=event.delta,
             ),
         )
+    if isinstance(event, PipelineGuidanceEvent):
+        return (
+            "guidance",
+            SseGuidanceEventData(
+                request_id=event.request_id,
+                sequence=sequence,
+                message=event.message,
+                reason=event.reason,
+            ),
+        )
     if isinstance(event, PipelineSourcesEvent):
         return (
             "sources",
@@ -228,10 +238,12 @@ def _public_event(event: PipelineEvent, sequence: int) -> tuple[str, SseEventDat
                     duration_ms=entry.duration_ms,
                     candidate_count=entry.candidate_count,
                     degradation_reason=entry.degradation_reason,
+                    decision=entry.decision,
                 )
                 for entry in event.trace
             ),
             model_id=event.model_id,
+            intent_route=event.intent_route,
             finish_reason=event.finish_reason,
             usage=(
                 SseTokenUsage(

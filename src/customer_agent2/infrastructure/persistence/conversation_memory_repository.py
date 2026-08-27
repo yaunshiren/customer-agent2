@@ -161,7 +161,9 @@ def _completed_messages(conversation_id: UUID) -> Select[tuple[MessageRecord]]:
         .join(RagRunRecord, MessageRecord.rag_run_id == RagRunRecord.id)
         .where(
             MessageRecord.conversation_id == conversation_id,
-            RagRunRecord.status == RagRunStatus.COMPLETED.value,
+            RagRunRecord.status.in_(
+                (RagRunStatus.COMPLETED.value, RagRunStatus.CLARIFICATION.value)
+            ),
         )
     )
 

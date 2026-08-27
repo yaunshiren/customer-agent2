@@ -114,6 +114,20 @@ def test_settings_expose_bounded_query_rewrite_baseline() -> None:
         Settings(query_rewrite_max_sub_questions=4)
 
 
+def test_settings_expose_confirmed_intent_baseline() -> None:
+    settings = Settings()
+
+    assert settings.intent_high_confidence_threshold == 0.75
+    assert settings.intent_ambiguity_margin == 0.10
+    assert settings.intent_timeout_seconds == 20
+    assert settings.intent_max_output_tokens == 256
+
+    with pytest.raises(ValidationError, match="INTENT_TIMEOUT_SECONDS"):
+        Settings(intent_timeout_seconds=120)
+    with pytest.raises(ValidationError, match="INTENT_AMBIGUITY_MARGIN"):
+        Settings(intent_high_confidence_threshold=0.2, intent_ambiguity_margin=0.3)
+
+
 def test_settings_protect_fixed_embedding_baseline_capabilities() -> None:
     with pytest.raises(ValidationError, match="DIMENSION"):
         Settings(local_embedding_dimension=1024)

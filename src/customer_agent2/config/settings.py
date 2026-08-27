@@ -47,6 +47,10 @@ class Settings(BaseSettings):
     query_rewrite_timeout_seconds: float = Field(default=20.0, gt=0)
     query_rewrite_max_output_tokens: int = Field(default=512, ge=1, le=4096)
     query_rewrite_max_sub_questions: int = Field(default=3, ge=1, le=3)
+    intent_high_confidence_threshold: float = Field(default=0.75, ge=0, le=1)
+    intent_ambiguity_margin: float = Field(default=0.10, ge=0, le=1)
+    intent_timeout_seconds: float = Field(default=20.0, gt=0)
+    intent_max_output_tokens: int = Field(default=256, ge=1, le=4096)
 
     embedding_provider: Literal["local"] = "local"
     local_embedding_model: str = "BAAI/bge-base-zh-v1.5"
@@ -174,6 +178,10 @@ class Settings(BaseSettings):
             raise ValueError("RAG_GLOBAL_TIMEOUT_SECONDS 不能小于 LLM_TIMEOUT_SECONDS")
         if self.query_rewrite_timeout_seconds >= self.rag_global_timeout_seconds:
             raise ValueError("QUERY_REWRITE_TIMEOUT_SECONDS 必须小于 RAG_GLOBAL_TIMEOUT_SECONDS")
+        if self.intent_timeout_seconds >= self.rag_global_timeout_seconds:
+            raise ValueError("INTENT_TIMEOUT_SECONDS 必须小于 RAG_GLOBAL_TIMEOUT_SECONDS")
+        if self.intent_ambiguity_margin > self.intent_high_confidence_threshold:
+            raise ValueError("INTENT_AMBIGUITY_MARGIN 不能大于 INTENT_HIGH_CONFIDENCE_THRESHOLD")
 
         if self.local_embedding_model == "BAAI/bge-base-zh-v1.5":
             if self.local_embedding_dimension != 768:

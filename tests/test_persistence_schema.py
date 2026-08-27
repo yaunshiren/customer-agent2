@@ -1,7 +1,7 @@
 """Static contract tests for the accepted persistence schema."""
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import ForeignKeyConstraint, Index
+from sqlalchemy import CheckConstraint, ForeignKeyConstraint, Index, String
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.schema import CreateIndex
 
@@ -78,6 +78,24 @@ def test_only_one_running_rag_run_is_allowed_per_conversation() -> None:
 
     assert index.unique is True
     assert "WHERE status = 'running'" in sql
+
+
+def test_rag_run_schema_accepts_only_consistent_intent_terminal_routes() -> None:
+    table = Base.metadata.tables["rag_runs"]
+    constraints = {
+        constraint.name: str(constraint.sqltext)
+        for constraint in table.constraints
+        if isinstance(constraint, CheckConstraint)
+    }
+
+    intent_route_type = table.c.intent_route.type
+    assert isinstance(intent_route_type, String)
+    assert intent_route_type.length == 32
+    assert "clarification" in constraints["ck_rag_runs_status_allowed"]
+    route_constraint = constraints["ck_rag_runs_intent_route_matches_status"]
+    assert "system_direct" in route_constraint
+    assert "knowledge_base" in route_constraint
+    assert "clarification" in route_constraint
 
 
 def test_conversation_deletion_cascades_runs_and_messages() -> None:

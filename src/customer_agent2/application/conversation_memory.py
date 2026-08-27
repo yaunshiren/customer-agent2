@@ -156,7 +156,7 @@ class SummarizingStreamingRagPipeline:
                     conversation_id = event.conversation_id
                 elif (
                     isinstance(event, PipelineDoneEvent)
-                    and event.outcome is PipelineOutcome.COMPLETED
+                    and event.outcome in {PipelineOutcome.COMPLETED, PipelineOutcome.CLARIFICATION}
                     and conversation_id is not None
                 ):
                     await self._refresh_safely(request.request_id, conversation_id)

@@ -2,6 +2,7 @@
 
 - 状态：Accepted
 - 日期：2026-08-27
+- 修订：[ADR-0009](0009-intent-routing-and-guidance.md) 接入已确认的三类路由和阈值
 
 ## 背景
 

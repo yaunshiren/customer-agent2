@@ -6,6 +6,7 @@ from typing import Protocol
 from uuid import UUID
 
 from customer_agent2.domain.models.chat import TokenUsage
+from customer_agent2.domain.models.intent import IntentRoute
 from customer_agent2.domain.models.pipeline import (
     PipelineOutcome,
     PipelineTraceEntry,
@@ -19,6 +20,7 @@ class RagRunStatus(StrEnum):
     RUNNING = "running"
     COMPLETED = "completed"
     NO_CONTEXT = "no_context"
+    CLARIFICATION = "clarification"
     FAILED = "failed"
     CANCELLED = "cancelled"
 
@@ -89,6 +91,7 @@ class RagRunCompletion:
     answer: str | None
     sources: tuple[RagSource, ...]
     trace: tuple[PipelineTraceEntry, ...]
+    intent_route: IntentRoute = IntentRoute.KNOWLEDGE_BASE
     model_id: str | None = None
     finish_reason: str | None = None
     usage: TokenUsage | None = None
@@ -101,16 +104,33 @@ class RagRunCompletion:
                 raise ValueError("completed RAG Run 必须包含 model_id")
             if self.finish_reason is None or not self.finish_reason.strip():
                 raise ValueError("completed RAG Run 必须包含 finish_reason")
-            if not self.sources:
-                raise ValueError("completed RAG Run 必须包含引用来源")
+            if self.intent_route is IntentRoute.KNOWLEDGE_BASE and not self.sources:
+                raise ValueError("知识库 completed RAG Run 必须包含引用来源")
+            if self.intent_route is IntentRoute.SYSTEM_DIRECT and self.sources:
+                raise ValueError("系统直答 completed RAG Run 不能包含引用来源")
+            if self.intent_route is IntentRoute.CLARIFICATION:
+                raise ValueError("completed RAG Run 不能使用 clarification 路由")
+        elif self.outcome is PipelineOutcome.CLARIFICATION:
+            if (
+                self.intent_route is not IntentRoute.CLARIFICATION
+                or self.answer is None
+                or not self.answer.strip()
+                or self.sources
+                or self.model_id is None
+                or not self.model_id.strip()
+                or self.finish_reason is None
+                or not self.finish_reason.strip()
+            ):
+                raise ValueError("clarification RAG Run 终局字段无效")
         elif (
-            self.answer is not None
+            self.intent_route is not IntentRoute.KNOWLEDGE_BASE
+            or self.answer is not None
             or self.sources
             or self.model_id is not None
             or self.finish_reason is not None
             or self.usage is not None
         ):
-            raise ValueError("no_context RAG Run 不能包含答案、来源或模型结果")
+            raise ValueError("no_context RAG Run 只能是无模型结果的知识库路由")
 
 
 class RagRunRepository(Protocol):

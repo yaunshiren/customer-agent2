@@ -9,6 +9,11 @@ from uuid import UUID
 
 from customer_agent2.domain.models.chat import ChatMessage, ChatRole, TokenUsage
 from customer_agent2.domain.models.document import DocumentFormat
+from customer_agent2.domain.models.intent import (
+    GuidanceReason,
+    IntentDecision,
+    IntentRoute,
+)
 from customer_agent2.domain.models.retrieval import (
     VectorSearchCandidate,
     VectorSearchResult,
@@ -47,11 +52,13 @@ class PipelineStage(StrEnum):
     """Observable stages implemented by the streaming RAG pipeline."""
 
     REWRITING = "rewriting"
+    INTENT = "intent"
     RETRIEVING = "retrieving"
     PROMPTING = "prompting"
     GENERATING = "generating"
     COMPLETED = "completed"
     NO_CONTEXT = "no_context"
+    CLARIFICATION = "clarification"
 
 
 class PipelineOutcome(StrEnum):
@@ -59,6 +66,7 @@ class PipelineOutcome(StrEnum):
 
     COMPLETED = "completed"
     NO_CONTEXT = "no_context"
+    CLARIFICATION = "clarification"
 
 
 @dataclass(frozen=True, slots=True)
@@ -144,6 +152,7 @@ class PipelineTraceEntry:
     duration_ms: float
     candidate_count: int | None = None
     degradation_reason: str | None = None
+    decision: str | None = None
 
     def __post_init__(self) -> None:
         if not math.isfinite(self.duration_ms) or self.duration_ms < 0:
@@ -160,6 +169,14 @@ class PipelineTraceEntry:
         ):
             raise ValueError("PipelineTraceEntry.degradation_reason 格式无效")
         object.__setattr__(self, "degradation_reason", degradation_reason)
+        decision = self.decision.strip() if self.decision is not None else None
+        if decision is not None and (
+            not decision
+            or len(decision) > 100
+            or any(ord(character) < 32 for character in decision)
+        ):
+            raise ValueError("PipelineTraceEntry.decision 格式无效")
+        object.__setattr__(self, "decision", decision)
 
 
 @dataclass(frozen=True, slots=True)
@@ -187,6 +204,7 @@ class ChatPipelineContext:
     sub_questions: tuple[str, ...]
     memory_messages: tuple[ChatMessage, ...]
     summary: str | None
+    intent_decision: IntentDecision | None
     retrieval_result: VectorSearchResult | None
     ranked_chunks: tuple[VectorSearchCandidate, ...]
     prompt_messages: tuple[ChatMessage, ...]
@@ -212,6 +230,7 @@ class ChatPipelineContext:
             sub_questions=(request.question,),
             memory_messages=request.memory_messages,
             summary=request.memory_summary,
+            intent_decision=None,
             retrieval_result=None,
             ranked_chunks=(),
             prompt_messages=(),
@@ -263,30 +282,61 @@ class PipelineSourcesEvent:
 
 
 @dataclass(frozen=True, slots=True)
+class PipelineGuidanceEvent:
+    """One public-safe clarification question retained as conversation memory."""
+
+    request_id: UUID
+    message: str
+    reason: GuidanceReason
+
+    def __post_init__(self) -> None:
+        message = self.message.strip()
+        if not message or len(message) > 1000:
+            raise ValueError("PipelineGuidanceEvent.message 长度无效")
+        object.__setattr__(self, "message", message)
+
+
+@dataclass(frozen=True, slots=True)
 class PipelineDoneEvent:
     """Terminal event for a generated answer or an empty-retrieval short circuit."""
 
     request_id: UUID
     outcome: PipelineOutcome
     trace: tuple[PipelineTraceEntry, ...]
+    intent_route: IntentRoute = IntentRoute.KNOWLEDGE_BASE
     model_id: str | None = None
     finish_reason: str | None = None
     usage: TokenUsage | None = None
 
     def __post_init__(self) -> None:
         if self.outcome is PipelineOutcome.COMPLETED:
+            if self.intent_route is IntentRoute.CLARIFICATION:
+                raise ValueError("completed 事件不能使用 clarification 路由")
             if self.model_id is None or not self.model_id.strip():
                 raise ValueError("完成事件必须包含 model_id")
             if self.finish_reason is None or not self.finish_reason.strip():
                 raise ValueError("完成事件必须包含 finish_reason")
-        elif self.model_id is not None or self.finish_reason is not None or self.usage is not None:
-            raise ValueError("空检索完成事件不能包含模型结果")
+        elif self.outcome is PipelineOutcome.CLARIFICATION:
+            if self.intent_route is not IntentRoute.CLARIFICATION:
+                raise ValueError("clarification 事件必须使用 clarification 路由")
+            if self.model_id is None or not self.model_id.strip():
+                raise ValueError("clarification 事件必须包含 model_id")
+            if self.finish_reason is None or not self.finish_reason.strip():
+                raise ValueError("clarification 事件必须包含 finish_reason")
+        elif (
+            self.intent_route is not IntentRoute.KNOWLEDGE_BASE
+            or self.model_id is not None
+            or self.finish_reason is not None
+            or self.usage is not None
+        ):
+            raise ValueError("空检索事件只能是无模型结果的 knowledge_base 路由")
 
 
 PipelineEvent: TypeAlias = (
     PipelineReplyToEvent
     | PipelineStatusEvent
     | PipelineContentEvent
+    | PipelineGuidanceEvent
     | PipelineSourcesEvent
     | PipelineDoneEvent
 )
