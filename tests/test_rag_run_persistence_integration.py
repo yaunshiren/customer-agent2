@@ -122,7 +122,12 @@ async def test_repository_persists_completed_run_and_continues_ordered_conversat
         assert first_run.output_tokens == 6
         assert first_run.source_chunk_ids == [source.chunk_id]
         assert first_run.trace == [
-            {"stage": "retrieving", "duration_ms": 3.5, "candidate_count": 1}
+            {
+                "stage": "retrieving",
+                "duration_ms": 3.5,
+                "candidate_count": 1,
+                "degradation_reason": None,
+            }
         ]
         assert first_run.finished_at is not None
         assert second_run is not None

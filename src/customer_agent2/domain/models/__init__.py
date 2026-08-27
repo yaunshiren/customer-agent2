@@ -84,6 +84,12 @@ from customer_agent2.domain.models.pipeline import (
     RagSource,
     StreamingRagPipeline,
 )
+from customer_agent2.domain.models.query_rewrite import (
+    QueryRewriteDegradationReason,
+    QueryRewriter,
+    QueryRewriteRequest,
+    QueryRewriteResult,
+)
 from customer_agent2.domain.models.rerank import (
     RerankDegradationReason,
     RerankDocument,
@@ -158,6 +164,10 @@ __all__ = [
     "PipelineStatusEvent",
     "PipelineTraceEntry",
     "PromptAssembly",
+    "QueryRewriteDegradationReason",
+    "QueryRewriteRequest",
+    "QueryRewriteResult",
+    "QueryRewriter",
     "RagPersistenceError",
     "RagPersistenceErrorCode",
     "RagPipelineError",

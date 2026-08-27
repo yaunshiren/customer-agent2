@@ -137,6 +137,7 @@ class SQLAlchemyRagRunRepository:
                         "stage": entry.stage.value,
                         "duration_ms": entry.duration_ms,
                         "candidate_count": entry.candidate_count,
+                        "degradation_reason": entry.degradation_reason,
                     }
                     for entry in completion.trace
                 ]

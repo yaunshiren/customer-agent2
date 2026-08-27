@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     memory_summary_trigger_turns: int = Field(default=12, ge=2, le=100)
     memory_summary_timeout_seconds: float = Field(default=30.0, gt=0)
     memory_summary_max_output_tokens: int = Field(default=512, ge=1, le=4096)
+    query_rewrite_timeout_seconds: float = Field(default=20.0, gt=0)
+    query_rewrite_max_output_tokens: int = Field(default=512, ge=1, le=4096)
+    query_rewrite_max_sub_questions: int = Field(default=3, ge=1, le=3)
 
     embedding_provider: Literal["local"] = "local"
     local_embedding_model: str = "BAAI/bge-base-zh-v1.5"
@@ -169,6 +172,8 @@ class Settings(BaseSettings):
             raise ValueError("LLM_FIRST_PACKET_TIMEOUT_SECONDS 不能大于 LLM_TIMEOUT_SECONDS")
         if self.rag_global_timeout_seconds < self.llm_timeout_seconds:
             raise ValueError("RAG_GLOBAL_TIMEOUT_SECONDS 不能小于 LLM_TIMEOUT_SECONDS")
+        if self.query_rewrite_timeout_seconds >= self.rag_global_timeout_seconds:
+            raise ValueError("QUERY_REWRITE_TIMEOUT_SECONDS 必须小于 RAG_GLOBAL_TIMEOUT_SECONDS")
 
         if self.local_embedding_model == "BAAI/bge-base-zh-v1.5":
             if self.local_embedding_dimension != 768:

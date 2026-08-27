@@ -127,6 +127,7 @@ class SseTraceEntry(BaseModel):
     stage: PipelineStage
     duration_ms: float = Field(ge=0)
     candidate_count: int | None = Field(default=None, ge=0)
+    degradation_reason: str | None = Field(default=None, min_length=1, max_length=100)
 
 
 class SseTokenUsage(BaseModel):

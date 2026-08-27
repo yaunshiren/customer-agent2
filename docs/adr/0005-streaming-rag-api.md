@@ -2,7 +2,8 @@
 
 - 状态：Accepted
 - 日期：2026-08-26
-- 修订：[ADR-0006](0006-conversation-rag-run-persistence.md) 增加可选会话 ID 与 `reply_to` 事件
+- 修订：[ADR-0006](0006-conversation-rag-run-persistence.md) 增加可选会话 ID 与 `reply_to` 事件；
+  [ADR-0008](0008-query-rewrite-and-multi-question-retrieval.md) 增加 `rewriting` 状态及 Trace 降级字段
 
 ## 背景
 
@@ -66,7 +67,7 @@ data: {"request_id":"...","sequence":1,...}
 
 1. `reply_to`：成功开始持久化 Run 后首先返回 `conversation_id`、`user_message_id` 和
    `rag_run_id`，字段语义由 ADR-0006 定义。
-2. `status`：增加 `stage`，当前可能为 `retrieving`、`prompting`、`generating`、
+2. `status`：增加 `stage`，当前可能为 `rewriting`、`retrieving`、`prompting`、`generating`、
    `completed` 或 `no_context`。
 3. `content`：增加非空 `delta`，只包含答案正文，不包含模型 reasoning。
 4. `sources`：增加非空 `sources` 数组；每项包含连续 `citation_number`、Chunk/知识库/
@@ -75,10 +76,12 @@ data: {"request_id":"...","sequence":1,...}
 5. `error`：增加稳定 `code`、可公开 `message` 和 `retryable`。
 6. `done`：增加 `outcome`，取值为 `completed`、`no_context` 或 `error`；成功时可包含
    `model_id`、`finish_reason` 和 Token 用量。正常或空检索结局包含 Pipeline 返回的轻量
-   `trace`；当前异常对象不携带部分上下文，因此 error 结局的 `trace` 为空。
+   `trace`；每项包含阶段耗时、可选候选数，并可包含不泄露输入内容的
+   `degradation_reason`。当前异常对象不携带部分上下文，因此 error 结局的 `trace` 为空。
 
-正常回答的事件顺序为 reply_to、status、零到多个 content、sources、completed status、done。
-空检索为 reply_to、retrieving status、no_context status、done，且不调用 Chat 模型。开始
+正常回答的事件顺序为 reply_to、rewriting status、retrieving status、prompting status、
+generating status、零到多个 content、sources、completed status、done。空检索为 reply_to、
+rewriting status、retrieving status、no_context status、done，且不调用最终 Chat 模型。开始
 持久化失败时可以在 reply_to 之前直接返回 error + done；其余流开始后的失败
 必须输出一个 error，紧接一个 `outcome=error` 的 done，然后关闭流；不得切换模型并重放已
 输出的正文。客户端应忽略当前版本中不认识的事件名，以允许以后增加 `guidance` 等事件，

@@ -54,7 +54,7 @@ ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
         status.HTTP_200_OK: {
             "content": {"text/event-stream": {"schema": {"type": "string"}}},
             "description": (
-                "按 ADR-0005/0006 输出 reply_to/status/content/sources/error/done 事件"
+                "按 ADR-0005/0006/0008 输出 reply_to/status/content/sources/error/done 事件"
             ),
         },
         **ERROR_RESPONSES,
@@ -227,6 +227,7 @@ def _public_event(event: PipelineEvent, sequence: int) -> tuple[str, SseEventDat
                     stage=entry.stage,
                     duration_ms=entry.duration_ms,
                     candidate_count=entry.candidate_count,
+                    degradation_reason=entry.degradation_reason,
                 )
                 for entry in event.trace
             ),

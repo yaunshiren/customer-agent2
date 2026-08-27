@@ -16,6 +16,7 @@ from customer_agent2.application import (
     DocumentIngestionService,
     DocumentManagementService,
     DocumentParsingService,
+    FastModelQueryRewriter,
     MemoryAwareStreamingRagPipeline,
     PersistentStreamingRagPipeline,
     StructureAwareDocumentChunker,
@@ -138,6 +139,18 @@ def fake_model_services(
                         "请按退款说明提交订单号 [1]。",
                         stream_chunks=("请按退款说明", "提交订单号 [1]。"),
                     ),
+                    FastModelQueryRewriter(
+                        FakeChatModel(
+                            "fake-fast-rewrite",
+                            (
+                                '{"rewritten_question":"退款要求是什么?",'
+                                '"sub_questions":["退款要求是什么?"]}'
+                            ),
+                        ),
+                        timeout_seconds=settings.query_rewrite_timeout_seconds,
+                        max_output_tokens=settings.query_rewrite_max_output_tokens,
+                        max_sub_questions=settings.query_rewrite_max_sub_questions,
+                    ),
                     global_timeout_seconds=settings.rag_global_timeout_seconds,
                 ),
                 memory_repository,
@@ -193,6 +206,18 @@ async def test_real_http_api_creates_rebuilds_reports_and_deletes_document() -> 
         transport = httpx.ASGITransport(app=app)
         try:
             async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+                health = await client.get("/health")
+                readiness = await client.get("/ready")
+                assert health.status_code == 200
+                assert readiness.status_code == 200
+                assert readiness.json() == {
+                    "status": "ready",
+                    "checks": {
+                        "postgresql": {"status": "ok", "version": None},
+                        "pgvector": {"status": "ok", "version": "0.8.6"},
+                        "redis": {"status": "ok", "version": None},
+                    },
+                }
                 created = await client.post(
                     f"{settings.api_prefix}/knowledge-bases",
                     json={"slug": slug, "name": "API integration"},

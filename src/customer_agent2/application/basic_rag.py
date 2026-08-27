@@ -1,9 +1,10 @@
-"""Minimal explicit Retrieval -> Prompt -> streaming Chat pipeline."""
+"""Explicit Rewrite -> Retrieval -> Prompt -> streaming Chat pipeline."""
 
 import asyncio
 from collections.abc import AsyncGenerator
 from dataclasses import replace
 from time import perf_counter
+from uuid import UUID
 
 from customer_agent2.application.rag_prompt import BasicRagPromptBuilder
 from customer_agent2.application.services import VectorRetrievalUseCase
@@ -20,21 +21,28 @@ from customer_agent2.domain.models import (
     PipelineStage,
     PipelineStatusEvent,
     PipelineTraceEntry,
+    QueryRewriter,
+    QueryRewriteRequest,
     RagPipelineError,
     RagPipelineErrorCode,
     RagPipelineRequest,
+    RetrievalError,
+    RetrievalErrorCode,
+    VectorSearchCandidate,
     VectorSearchRequest,
+    VectorSearchResult,
 )
 
 
 class BasicStreamingRagPipeline:
-    """Run the M3 baseline stages with request-local state and bounded awaits."""
+    """Run the implemented RAG stages with request-local state and bounded awaits."""
 
     def __init__(
         self,
         retrieval: VectorRetrievalUseCase,
         prompt_builder: BasicRagPromptBuilder,
         chat_model: ChatModel,
+        query_rewriter: QueryRewriter,
         *,
         global_timeout_seconds: float,
     ) -> None:
@@ -43,6 +51,7 @@ class BasicStreamingRagPipeline:
         self._retrieval = retrieval
         self._prompt_builder = prompt_builder
         self._chat_model = chat_model
+        self._query_rewriter = query_rewriter
         self._global_timeout_seconds = global_timeout_seconds
 
     async def stream(
@@ -53,18 +62,49 @@ class BasicStreamingRagPipeline:
         context = ChatPipelineContext.start(request)
         deadline = asyncio.get_running_loop().time() + self._global_timeout_seconds
 
+        yield PipelineStatusEvent(request.request_id, PipelineStage.REWRITING)
+        rewriting_started = perf_counter()
+        try:
+            rewrite_result = await asyncio.wait_for(
+                self._query_rewriter.rewrite(
+                    QueryRewriteRequest(
+                        request_id=request.request_id,
+                        question=request.question,
+                        memory_messages=context.memory_messages,
+                        summary=context.summary,
+                    )
+                ),
+                timeout=_remaining_seconds(deadline),
+            )
+        except TimeoutError:
+            raise _global_timeout_error() from None
+        rewriting_trace = PipelineTraceEntry(
+            PipelineStage.REWRITING,
+            _elapsed_ms(rewriting_started),
+            candidate_count=len(rewrite_result.sub_questions),
+            degradation_reason=(
+                rewrite_result.degradation_reason.value
+                if rewrite_result.degradation_reason is not None
+                else None
+            ),
+        )
+        context = replace(
+            context,
+            rewritten_question=rewrite_result.rewritten_question,
+            sub_questions=rewrite_result.sub_questions,
+            trace=(*context.trace, rewriting_trace),
+        )
+
         yield PipelineStatusEvent(request.request_id, PipelineStage.RETRIEVING)
         retrieval_started = perf_counter()
         try:
-            remaining = _remaining_seconds(deadline)
             retrieval_result = await asyncio.wait_for(
-                self._retrieval.search(
-                    VectorSearchRequest(
-                        context.rewritten_question,
-                        request.search_scope,
-                    )
+                _retrieve_all(
+                    self._retrieval,
+                    context.sub_questions,
+                    request,
                 ),
-                timeout=remaining,
+                timeout=_remaining_seconds(deadline),
             )
         except TimeoutError:
             raise _global_timeout_error() from None
@@ -192,4 +232,66 @@ def _model_stream_protocol_error() -> RagPipelineError:
         RagPipelineErrorCode.MODEL_STREAM_PROTOCOL,
         "Chat 模型流式结果不完整",
         retryable=False,
+    )
+
+
+async def _retrieve_all(
+    retrieval: VectorRetrievalUseCase,
+    questions: tuple[str, ...],
+    request: RagPipelineRequest,
+) -> VectorSearchResult:
+    tasks = tuple(
+        asyncio.create_task(
+            retrieval.search(VectorSearchRequest(question, request.search_scope)),
+            name=f"rag-retrieval-{index}",
+        )
+        for index, question in enumerate(questions)
+    )
+    try:
+        results = await asyncio.gather(*tasks)
+    except BaseException:
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+        raise
+    return _merge_search_results(tuple(results))
+
+
+def _merge_search_results(results: tuple[VectorSearchResult, ...]) -> VectorSearchResult:
+    first = results[0]
+    if any(result.index_configuration != first.index_configuration for result in results[1:]):
+        raise RetrievalError(
+            RetrievalErrorCode.INDEX_CONFIGURATION_MISMATCH,
+            "多问题检索返回了不一致的索引配置",
+            retryable=False,
+        )
+
+    best_by_chunk: dict[UUID, tuple[int, VectorSearchCandidate]] = {}
+    for query_index, result in enumerate(results):
+        for candidate in result.candidates:
+            previous = best_by_chunk.get(candidate.chunk_id)
+            current = (query_index, candidate)
+            if previous is None or _candidate_merge_key(*current) < _candidate_merge_key(*previous):
+                best_by_chunk[candidate.chunk_id] = current
+
+    ordered = sorted(
+        best_by_chunk.values(),
+        key=lambda item: _candidate_merge_key(*item),
+    )
+    candidates = tuple(
+        replace(candidate, rank=rank) for rank, (_, candidate) in enumerate(ordered, start=1)
+    )
+    return VectorSearchResult(first.index_configuration, candidates)
+
+
+def _candidate_merge_key(
+    query_index: int,
+    candidate: VectorSearchCandidate,
+) -> tuple[int, float, int, str]:
+    return (
+        candidate.rank,
+        -candidate.similarity,
+        query_index,
+        str(candidate.chunk_id),
     )

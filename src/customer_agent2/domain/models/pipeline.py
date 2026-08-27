@@ -44,8 +44,9 @@ class RagPipelineError(RuntimeError):
 
 
 class PipelineStage(StrEnum):
-    """Observable stages implemented by the M3-A minimal pipeline."""
+    """Observable stages implemented by the streaming RAG pipeline."""
 
+    REWRITING = "rewriting"
     RETRIEVING = "retrieving"
     PROMPTING = "prompting"
     GENERATING = "generating"
@@ -142,12 +143,23 @@ class PipelineTraceEntry:
     stage: PipelineStage
     duration_ms: float
     candidate_count: int | None = None
+    degradation_reason: str | None = None
 
     def __post_init__(self) -> None:
         if not math.isfinite(self.duration_ms) or self.duration_ms < 0:
             raise ValueError("PipelineTraceEntry.duration_ms 不能小于 0")
         if self.candidate_count is not None and self.candidate_count < 0:
             raise ValueError("PipelineTraceEntry.candidate_count 不能小于 0")
+        degradation_reason = (
+            self.degradation_reason.strip() if self.degradation_reason is not None else None
+        )
+        if degradation_reason is not None and (
+            not degradation_reason
+            or len(degradation_reason) > 100
+            or any(ord(character) < 32 for character in degradation_reason)
+        ):
+            raise ValueError("PipelineTraceEntry.degradation_reason 格式无效")
+        object.__setattr__(self, "degradation_reason", degradation_reason)
 
 
 @dataclass(frozen=True, slots=True)

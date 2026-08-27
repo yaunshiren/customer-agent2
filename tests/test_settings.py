@@ -101,6 +101,19 @@ def test_settings_expose_confirmed_memory_baseline() -> None:
         Settings(memory_recent_turns=6, memory_summary_trigger_turns=6)
 
 
+def test_settings_expose_bounded_query_rewrite_baseline() -> None:
+    settings = Settings()
+
+    assert settings.query_rewrite_timeout_seconds == 20
+    assert settings.query_rewrite_max_output_tokens == 512
+    assert settings.query_rewrite_max_sub_questions == 3
+
+    with pytest.raises(ValidationError, match="QUERY_REWRITE_TIMEOUT_SECONDS"):
+        Settings(query_rewrite_timeout_seconds=120)
+    with pytest.raises(ValidationError, match="query_rewrite_max_sub_questions"):
+        Settings(query_rewrite_max_sub_questions=4)
+
+
 def test_settings_protect_fixed_embedding_baseline_capabilities() -> None:
     with pytest.raises(ValidationError, match="DIMENSION"):
         Settings(local_embedding_dimension=1024)

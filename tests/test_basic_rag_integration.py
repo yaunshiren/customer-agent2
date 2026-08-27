@@ -9,6 +9,7 @@ from sqlalchemy import delete
 from customer_agent2.application import (
     BasicRagPromptBuilder,
     BasicStreamingRagPipeline,
+    FastModelQueryRewriter,
     VectorRetrievalService,
 )
 from customer_agent2.config import Settings
@@ -81,6 +82,15 @@ async def test_real_pgvector_pipeline_retrieves_prompts_and_streams_with_sources
         ),
         BasicRagPromptBuilder(context_top_k=10),
         chat,
+        FastModelQueryRewriter(
+            FakeChatModel(
+                "fake-fast-chat",
+                '{"rewritten_question":"退款流程","sub_questions":["退款流程"]}',
+            ),
+            timeout_seconds=1,
+            max_output_tokens=512,
+            max_sub_questions=3,
+        ),
         global_timeout_seconds=5,
     )
 

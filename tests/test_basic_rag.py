@@ -2,6 +2,7 @@
 
 import asyncio
 from collections.abc import AsyncGenerator
+from dataclasses import replace
 from uuid import uuid4
 
 import pytest
@@ -23,6 +24,9 @@ from customer_agent2.domain.models import (
     PipelineSourcesEvent,
     PipelineStage,
     PipelineStatusEvent,
+    QueryRewriteDegradationReason,
+    QueryRewriteRequest,
+    QueryRewriteResult,
     RagPipelineError,
     RagPipelineErrorCode,
     RagPipelineRequest,
@@ -52,6 +56,56 @@ class FakeRetrievalUseCase:
         if self.error is not None:
             raise self.error
         return self.result
+
+
+class FakeQueryRewriter:
+    def __init__(self, result: QueryRewriteResult | None = None) -> None:
+        self.result = result
+        self.requests: list[QueryRewriteRequest] = []
+
+    async def rewrite(self, request: QueryRewriteRequest) -> QueryRewriteResult:
+        self.requests.append(request)
+        return self.result or QueryRewriteResult(
+            request.question,
+            (request.question,),
+            model_id="fast-chat",
+        )
+
+
+class QueryAwareRetrievalUseCase:
+    def __init__(self, results: dict[str, VectorSearchResult]) -> None:
+        self.results = results
+        self.requests: list[VectorSearchRequest] = []
+        self.active = 0
+        self.maximum_active = 0
+
+    async def search(self, request: VectorSearchRequest) -> VectorSearchResult:
+        self.requests.append(request)
+        self.active += 1
+        self.maximum_active = max(self.maximum_active, self.active)
+        try:
+            await asyncio.sleep(0.01)
+            return self.results[request.query]
+        finally:
+            self.active -= 1
+
+
+class PartiallyFailingRetrievalUseCase:
+    def __init__(self, error: RetrievalError) -> None:
+        self.error = error
+        self.slow_started = asyncio.Event()
+        self.slow_cancelled = False
+
+    async def search(self, request: VectorSearchRequest) -> VectorSearchResult:
+        if request.query == "慢查询":
+            self.slow_started.set()
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                self.slow_cancelled = True
+                raise
+        await self.slow_started.wait()
+        raise self.error
 
 
 class TrackingChatModel:
@@ -140,6 +194,7 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
         retrieval,
         BasicRagPromptBuilder(context_top_k=1),
         chat,
+        FakeQueryRewriter(),
         global_timeout_seconds=1,
     )
     pipeline_request = request()
@@ -147,6 +202,7 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
     events = [event async for event in pipeline.stream(pipeline_request)]
 
     assert [type(event) for event in events] == [
+        PipelineStatusEvent,
         PipelineStatusEvent,
         PipelineStatusEvent,
         PipelineStatusEvent,
@@ -158,6 +214,7 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
     ]
     statuses = [event.stage for event in events if isinstance(event, PipelineStatusEvent)]
     assert statuses == [
+        PipelineStage.REWRITING,
         PipelineStage.RETRIEVING,
         PipelineStage.PROMPTING,
         PipelineStage.GENERATING,
@@ -178,12 +235,14 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
     assert done.finish_reason == "stop"
     assert done.usage == usage
     assert [entry.stage for entry in done.trace] == [
+        PipelineStage.REWRITING,
         PipelineStage.RETRIEVING,
         PipelineStage.PROMPTING,
         PipelineStage.GENERATING,
     ]
-    assert done.trace[0].candidate_count == 2
-    assert done.trace[1].candidate_count == 1
+    assert done.trace[0].candidate_count == 1
+    assert done.trace[1].candidate_count == 2
+    assert done.trace[2].candidate_count == 1
 
     assert retrieval.requests == [VectorSearchRequest("如何退款?", pipeline_request.search_scope)]
     assert len(chat.stream_requests) == 1
@@ -204,12 +263,14 @@ async def test_empty_retrieval_short_circuits_without_calling_chat() -> None:
         retrieval,
         BasicRagPromptBuilder(context_top_k=10),
         chat,
+        FakeQueryRewriter(),
         global_timeout_seconds=1,
     )
 
     events = [event async for event in pipeline.stream(request())]
 
     assert [event.stage for event in events if isinstance(event, PipelineStatusEvent)] == [
+        PipelineStage.REWRITING,
         PipelineStage.RETRIEVING,
         PipelineStage.NO_CONTEXT,
     ]
@@ -227,6 +288,7 @@ async def test_global_timeout_closes_the_model_stream() -> None:
         FakeRetrievalUseCase((candidate(1),)),
         BasicRagPromptBuilder(context_top_k=1),
         chat,
+        FakeQueryRewriter(),
         global_timeout_seconds=0.02,
     )
 
@@ -246,10 +308,12 @@ async def test_closing_pipeline_early_closes_the_model_stream() -> None:
         FakeRetrievalUseCase((candidate(1),)),
         BasicRagPromptBuilder(context_top_k=1),
         chat,
+        FakeQueryRewriter(),
         global_timeout_seconds=1,
     )
     stream = pipeline.stream(request())
 
+    assert isinstance(await anext(stream), PipelineStatusEvent)
     assert isinstance(await anext(stream), PipelineStatusEvent)
     assert isinstance(await anext(stream), PipelineStatusEvent)
     assert isinstance(await anext(stream), PipelineStatusEvent)
@@ -267,6 +331,7 @@ async def test_cancelling_pipeline_task_closes_the_model_stream() -> None:
         FakeRetrievalUseCase((candidate(1),)),
         BasicRagPromptBuilder(context_top_k=1),
         chat,
+        FakeQueryRewriter(),
         global_timeout_seconds=1,
     )
 
@@ -288,6 +353,7 @@ async def test_pipeline_rejects_a_stream_without_answer_content() -> None:
         FakeRetrievalUseCase((candidate(1),)),
         BasicRagPromptBuilder(context_top_k=1),
         FakeChatModel("final-chat", "", stream_chunks=()),
+        FakeQueryRewriter(),
         global_timeout_seconds=1,
     )
 
@@ -312,6 +378,7 @@ async def test_pipeline_preserves_retrieval_and_model_failures() -> None:
         retrieval,
         BasicRagPromptBuilder(context_top_k=1),
         chat,
+        FakeQueryRewriter(),
         global_timeout_seconds=1,
     )
 
@@ -329,11 +396,108 @@ async def test_pipeline_preserves_retrieval_and_model_failures() -> None:
         FakeRetrievalUseCase((candidate(1),)),
         BasicRagPromptBuilder(context_top_k=1),
         FakeChatModel("final-chat", "", error=model_failure),
+        FakeQueryRewriter(),
         global_timeout_seconds=1,
     )
     with pytest.raises(ModelError) as model_captured:
         _ = [event async for event in pipeline.stream(request())]
     assert model_captured.value is model_failure
+
+
+@pytest.mark.asyncio
+async def test_pipeline_retrieves_all_sub_questions_concurrently_and_merges_chunks() -> None:
+    first = candidate(1)
+    second = candidate(2)
+    duplicate_first = replace(first, rank=2, cosine_distance=0.3, similarity=0.7)
+    index = EmbeddingIndexConfiguration("embedding", "revision", 8, True)
+    retrieval = QueryAwareRetrievalUseCase(
+        {
+            "退款条件": VectorSearchResult(index, (first, second)),
+            "退款时效": VectorSearchResult(index, (replace(second, rank=1), duplicate_first)),
+            "退款渠道": VectorSearchResult(index, (replace(first, rank=1),)),
+        }
+    )
+    rewriter = FakeQueryRewriter(
+        QueryRewriteResult(
+            "退款条件、时效和渠道分别是什么?",
+            ("退款条件", "退款时效", "退款渠道"),
+            model_id="fast-chat",
+        )
+    )
+    chat = FakeChatModel("final-chat", "答案[1][2]")
+    pipeline = BasicStreamingRagPipeline(
+        retrieval,
+        BasicRagPromptBuilder(context_top_k=10),
+        chat,
+        rewriter,
+        global_timeout_seconds=1,
+    )
+
+    events = [event async for event in pipeline.stream(request())]
+
+    assert [item.query for item in retrieval.requests] == ["退款条件", "退款时效", "退款渠道"]
+    assert retrieval.maximum_active == 3
+    sources = next(event for event in events if isinstance(event, PipelineSourcesEvent)).sources
+    assert [source.chunk_id for source in sources] == [first.chunk_id, second.chunk_id]
+    done = next(event for event in events if isinstance(event, PipelineDoneEvent))
+    assert done.trace[0].candidate_count == 3
+    assert done.trace[1].candidate_count == 2
+    final_prompt = chat.stream_requests[0].messages[1].content
+    assert "退款条件、时效和渠道分别是什么?" in final_prompt
+
+
+@pytest.mark.asyncio
+async def test_pipeline_exposes_query_rewrite_degradation_without_input_content() -> None:
+    pipeline_request = request()
+    rewriter = FakeQueryRewriter(
+        QueryRewriteResult(
+            pipeline_request.question,
+            (pipeline_request.question,),
+            degradation_reason=QueryRewriteDegradationReason.PROTOCOL,
+        )
+    )
+    pipeline = BasicStreamingRagPipeline(
+        FakeRetrievalUseCase(()),
+        BasicRagPromptBuilder(context_top_k=1),
+        FakeChatModel("final-chat", "不应调用"),
+        rewriter,
+        global_timeout_seconds=1,
+    )
+
+    events = [event async for event in pipeline.stream(pipeline_request)]
+
+    done = next(event for event in events if isinstance(event, PipelineDoneEvent))
+    assert done.trace[0].degradation_reason == "query_rewrite_protocol"
+    assert pipeline_request.question not in done.trace[0].degradation_reason
+
+
+@pytest.mark.asyncio
+async def test_multi_question_retrieval_failure_cancels_sibling_tasks() -> None:
+    failure = RetrievalError(
+        RetrievalErrorCode.PERSISTENCE_FAILURE,
+        "向量检索暂时不可用",
+        retryable=True,
+    )
+    retrieval = PartiallyFailingRetrievalUseCase(failure)
+    pipeline = BasicStreamingRagPipeline(
+        retrieval,
+        BasicRagPromptBuilder(context_top_k=1),
+        FakeChatModel("final-chat", "不应调用"),
+        FakeQueryRewriter(
+            QueryRewriteResult(
+                "两个问题",
+                ("慢查询", "失败查询"),
+                model_id="fast-chat",
+            )
+        ),
+        global_timeout_seconds=1,
+    )
+
+    with pytest.raises(RetrievalError) as captured:
+        _ = [event async for event in pipeline.stream(request())]
+
+    assert captured.value is failure
+    assert retrieval.slow_cancelled is True
 
 
 def test_pipeline_request_and_prompt_builder_reject_invalid_input() -> None:

@@ -118,8 +118,8 @@ flowchart TD
 
 M3-A 先落地请求身份与显式检索范围、原问题/当前改写问题、子问题、记忆占位、向量通道结果、
 TopK Chunk、Prompt 消息、编号来源和阶段 Trace。M4-A 已用类型化字段填充可选摘要和最近
-completed 消息；当前仍为 `rewritten_question == original_question`。Intent 和 Guidance 字段在
-对应 M4 后续子阶段加入，不用无约束字典提前占位。
+completed 消息；M4-B 通过 `QueryRewriter` 填充独立问题和 1～3 个实际检索子问题。Intent 和
+Guidance 字段在对应 M4 后续子阶段加入，不用无约束字典提前占位。
 
 M3-B 的 API 适配器只负责把已实现的内部事件映射到 ADR-0005 SSE Schema。它生成请求 ID，
 但不把 FastAPI Request、StreamingResponse 或无类型字典放入 Pipeline 上下文。
@@ -132,6 +132,10 @@ M4-A 的默认组合顺序是
 `Summarizing(Persistent(MemoryAware(Basic)))`：Persistent 先保存当前 user；MemoryAware 只加载
 此前 completed 消息，因此不会重复当前问题；Persistent 在 completed done 前保存回答；最外层
 Summarizing 随后把滑出最近 6 轮窗口的完整轮次增量摘要。摘要失败只记录降级，不改变成功 done。
+Basic 内部在检索前调用复用 fast 模型的 `FastModelQueryRewriter`；严格 JSON 不合规、已知模型
+错误或 20 秒改写超时时退回原问题。子问题在同一全局截止时间和同一作用域内并发检索，退出前
+收拢全部任务；候选按 Chunk UUID 去重，以最好单查询名次和相似度稳定合并。该规则是 M4-B
+临时基线，不是 RRF，M5 再通过评测替换。
 
 ### 5.3 短路语义
 
@@ -145,8 +149,9 @@ Summarizing 随后把滑出最近 6 轮窗口的完整轮次增量摘要。摘�
 
 短路必须产生明确 SSE 事件和 Trace 结局，不能表现为无响应。
 
-M3-A 已实现空检索 `no_context` 短路：只产生内部状态和完成事件，不调用 Chat 模型。检索、
-Prompt 和生成阶段记录不含文档正文的轻量 Trace。单一截止时间覆盖检索和逐个模型流读取；
+M3-A 已实现空检索 `no_context` 短路：只产生内部状态和完成事件，不调用最终 Chat 模型。改写、
+检索、Prompt 和生成阶段记录不含问题或文档正文的轻量 Trace。单一截止时间覆盖改写、并发检索
+和逐个模型流读取；
 超时、任务取消或上游提前关闭时，Pipeline 在 `finally` 中关闭模型异步生成器。
 
 M3-B 已将空检索映射为明确的 no_context status + done。流开始后的 Pipeline、检索或模型失败
@@ -281,7 +286,7 @@ P0 事件类型：
 
 | 事件 | 作用 |
 |---|---|
-| `status` | 当前阶段；现有 retrieving、prompting、generating、completed、no_context |
+| `status` | 当前阶段；现有 rewriting、retrieving、prompting、generating、completed、no_context |
 | `reply_to` | 当前会话、对应 user 消息和 RAG Run ID |
 | `content` | 正文增量 |
 | `sources` | 最终引用来源 |
@@ -290,7 +295,8 @@ P0 事件类型：
 | `done` | 完成结局、阶段 Trace 和可选模型用量 |
 
 M3-B 已在 `POST /api/v1/chat/stream` 实现 status、content、sources、error 和 done，M3-C
-增加 reply_to 和可选 `conversation_id`。每个事件包含请求 UUID 和严格递增序号；HTTP 200
+增加 reply_to 和可选 `conversation_id`，M4-B 增加 rewriting 状态和可选 Trace 降级代码。每个
+事件包含请求 UUID 和严格递增序号；HTTP 200
 只表示流已建立，最终结果以 done.outcome 为准。
 完整 JSON 字段、事件顺序、HTTP 错误边界和断开语义由 [ADR-0005](adr/0005-streaming-rag-api.md)
 与 [ADR-0006](adr/0006-conversation-rag-run-persistence.md) 维护，修改必须更新 ADR 或增加 API
@@ -346,6 +352,7 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 - Embedding 维度和索引维度是否一致。
 - 检索漏斗预算是否合法。
 - 最近记忆为 6 轮，摘要触发轮数 12 必须大于最近窗口，摘要输出与超时必须为正数。
+- Query Rewrite 默认最多 3 个子问题、512 输出 token、20 秒超时，且改写超时必须小于全局截止时间。
 - PostgreSQL、pgvector 和 Redis 是否可连接。
 - 启用 Rerank 时 Workspace ID 是否配置。
 - 启用 VLM/MCP 时相应端点是否配置。
@@ -362,6 +369,8 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 - M3-C 不保存 reasoning、Prompt、完整召回正文或底层异常；failed/cancelled 只保存稳定错误码。
 - M4-A 把历史与摘要放入转义后的 `<conversation_memory>` 不可信数据边界；历史只能解析指代，
   回答事实仍必须由 `<knowledge_context>` 支撑。
+- M4-B 也把摘要、消息和当前问题放入转义后的独立标签；严格输出只用于问题补全和拆分，原始
+  模型输出、问题正文和 Prompt 不进入 Trace。
 - MCP 工具使用 Allowlist；P1 默认只实现只读工具。
 - 错误响应不暴露密钥、数据库 DSN、堆栈和完整文档内容。
 - 日志中的问题和文档片段应支持截断或关闭。
@@ -376,8 +385,9 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 - 降级、超时、取消和错误类型。
 - 引用文档 ID，不默认保存完整上下文。
 
-M3-C 已记录当前实际存在的 Retrieval、Prompting、Generation Trace、最终来源 Chunk、模型结果、
-Token 用量和终局。Rewrite、Intent、Rerank 与降级字段必须等对应阶段实现后再写入，不能伪造。
+M3-C 已记录 Retrieval、Prompting、Generation Trace、最终来源 Chunk、模型结果、Token 用量和
+终局。M4-B 增加 Rewrite 耗时、实际子问题数量和可选稳定降级代码；Intent、Rerank 字段仍必须
+等对应阶段实现后再写入，不能伪造。
 M4-A 摘要失败使用不含消息正文和异常文本的结构化 `conversation_summary_degraded` 告警；摘要
 目前不伪装成公开 Pipeline Trace 阶段。
 

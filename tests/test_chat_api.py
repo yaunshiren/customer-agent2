@@ -207,11 +207,18 @@ def _source(request_id: UUID) -> RagSource:
 
 def _completed_events(request_id: UUID) -> tuple[PipelineEvent, ...]:
     trace = (
+        PipelineTraceEntry(
+            PipelineStage.REWRITING,
+            0.5,
+            candidate_count=1,
+            degradation_reason="query_rewrite_protocol",
+        ),
         PipelineTraceEntry(PipelineStage.RETRIEVING, 1.5, candidate_count=1),
         PipelineTraceEntry(PipelineStage.GENERATING, 2.5, candidate_count=1),
     )
     return (
         PipelineReplyToEvent(request_id, request_id, uuid4(), uuid4()),
+        PipelineStatusEvent(request_id, PipelineStage.REWRITING),
         PipelineStatusEvent(request_id, PipelineStage.RETRIEVING),
         PipelineContentEvent(request_id, "请参考"),
         PipelineContentEvent(request_id, "退款说明 [1]。"),
@@ -261,6 +268,7 @@ async def test_chat_stream_exposes_ordered_sanitized_sse_contract() -> None:
     assert [event[1] for event in events] == [
         "reply_to",
         "status",
+        "status",
         "content",
         "content",
         "sources",
@@ -268,14 +276,17 @@ async def test_chat_stream_exposes_ordered_sanitized_sse_contract() -> None:
         "done",
     ]
     assert [event[0] for event in events] == [
-        f"{request_id}:{sequence}" for sequence in range(1, 8)
+        f"{request_id}:{sequence}" for sequence in range(1, 9)
     ]
     assert all(event[2]["request_id"] == str(request_id) for event in events)
     assert events[-1][2]["outcome"] == "completed"
     assert events[0][2]["conversation_id"] == str(request_id)
-    sources = cast(list[dict[str, object]], events[4][2]["sources"])
+    assert events[1][2]["stage"] == "rewriting"
+    sources = cast(list[dict[str, object]], events[5][2]["sources"])
     assert sources[0]["citation_number"] == 1
     assert "content" not in sources[0]
+    trace = cast(list[dict[str, object]], events[-1][2]["trace"])
+    assert trace[0]["degradation_reason"] == "query_rewrite_protocol"
     assert pipeline.closed is True
     assert len(pipeline.requests) == 1
     captured = pipeline.requests[0]
@@ -294,6 +305,7 @@ async def test_empty_retrieval_returns_no_context_done_without_sources() -> None
     def events(request_id: UUID) -> tuple[PipelineEvent, ...]:
         return (
             PipelineReplyToEvent(request_id, request_id, uuid4(), uuid4()),
+            PipelineStatusEvent(request_id, PipelineStage.REWRITING),
             PipelineStatusEvent(request_id, PipelineStage.RETRIEVING),
             PipelineStatusEvent(request_id, PipelineStage.NO_CONTEXT),
             PipelineDoneEvent(request_id, PipelineOutcome.NO_CONTEXT, ()),
@@ -307,7 +319,13 @@ async def test_empty_retrieval_returns_no_context_done_without_sources() -> None
             response = await client.post("/api/v1/chat/stream", json=_request_body(uuid4()))
 
     parsed = _parse_sse(response.text)
-    assert [event[1] for event in parsed] == ["reply_to", "status", "status", "done"]
+    assert [event[1] for event in parsed] == [
+        "reply_to",
+        "status",
+        "status",
+        "status",
+        "done",
+    ]
     assert parsed[-1][2]["outcome"] == "no_context"
 
 
