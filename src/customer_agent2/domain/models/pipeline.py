@@ -54,6 +54,8 @@ class PipelineStage(StrEnum):
     REWRITING = "rewriting"
     INTENT = "intent"
     RETRIEVING = "retrieving"
+    FUSING = "fusing"
+    RERANKING = "reranking"
     PROMPTING = "prompting"
     GENERATING = "generating"
     COMPLETED = "completed"

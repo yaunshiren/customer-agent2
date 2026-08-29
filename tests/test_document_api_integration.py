@@ -20,6 +20,7 @@ from customer_agent2.application import (
     FastModelQueryRewriter,
     MemoryAwareStreamingRagPipeline,
     PersistentStreamingRagPipeline,
+    RetrievalPostProcessor,
     StructureAwareDocumentChunker,
     SummarizingStreamingRagPipeline,
     VectorRetrievalService,
@@ -38,7 +39,11 @@ from customer_agent2.infrastructure.documents import (
     SafeDocumentIdentifier,
 )
 from customer_agent2.infrastructure.intents import load_default_intent_tree
-from customer_agent2.infrastructure.models import FakeChatModel, FakeEmbeddingModel
+from customer_agent2.infrastructure.models import (
+    FakeChatModel,
+    FakeEmbeddingModel,
+    NoOpRerankModel,
+)
 from customer_agent2.infrastructure.persistence import (
     EMBEDDING_DIMENSION,
     ChunkRecord,
@@ -167,6 +172,14 @@ def fake_model_services(
                         ambiguity_margin=settings.intent_ambiguity_margin,
                         timeout_seconds=settings.intent_timeout_seconds,
                         max_output_tokens=settings.intent_max_output_tokens,
+                    ),
+                    RetrievalPostProcessor(
+                        NoOpRerankModel(),
+                        rrf_k=settings.retrieval_rrf_k,
+                        rerank_candidate_limit=settings.retrieval_rerank_candidate_limit,
+                        context_top_k=settings.retrieval_context_top_k,
+                        max_chunks_per_document=(settings.retrieval_max_chunks_per_document),
+                        rerank_timeout_seconds=settings.rerank_timeout_seconds,
                     ),
                     global_timeout_seconds=settings.rag_global_timeout_seconds,
                 ),

@@ -4,14 +4,14 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M4-C Intent 路由与澄清 Baseline 已完成。项目已有 PostgreSQL/Redis 连接管理、
+> 当前状态：M5-A 检索后处理 OFF Baseline 已完成。项目已有 PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
 > `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT/PDF/DOCX/CSV
 > 解析，以及 400/64 Token 分块、原子版本切换、同步上传/状态/删除 API 和带作用域过滤的
 > active-only Cosine 向量召回。`POST /api/v1/chat/stream` 已将
-> `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → Intent 路由 → 检索或短路 → 安全 Prompt → Chat 流 → 保存回答/Trace`
+> `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → Intent 路由 → 检索 → 加权 RRF/去重 → No-op Rerank/TopK → 安全 Prompt → Chat 流 → 保存回答/Trace`
 > 通过版本化 SSE 契约公开；超过 12 个 completed 轮次后会用 fast 模型增量摘要滑出窗口的旧轮次。
-> 下一步进入 M5 的正式候选融合、Rerank、评测与加固。
+> 下一步进入 M5-B：接入真实专用 Rerank，并在固定融合参数下运行 OFF/ON 单变量实验。
 
 ## 项目目标
 
@@ -63,7 +63,7 @@
 | 最终回答 | `qwen3.7-max-preview` | 配置化，可随额度切换 |
 | 内部快速任务 | `qwen3.7-flash` | 用于改写、意图、摘要等 |
 | Embedding Baseline | `BAAI/bge-base-zh-v1.5` | 本地 CPU，768 维 |
-| Rerank | `qwen3-rerank` | 未配置时允许显式降级 |
+| Rerank | M5-A 为 No-op；M5-B 规划 `qwen3-rerank` | 关闭或已知失败时显式降级 |
 | VLM | `qwen3.7-plus` | 后续阶段启用 |
 
 真实密钥只允许放在本地 `.env`，不得提交到仓库。
@@ -85,7 +85,8 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 在线向量召回连成闭环。M3-A 已接入最终 Chat 流，M3-B 已提供公开 SSE 问答 API，M3-C 已保存
 最小会话消息和 RAG Run 终局；M4-A 已把持久化摘要和最近 completed 消息接入 Prompt，M4-B
 已让上下文改写和最多 3 个子问题实际参与向量召回；M4-C 已实现系统直答、知识库问答、需要
-澄清三类路由和固定 20 条决策 Smoke Test。
+澄清三类路由和固定 20 条决策 Smoke Test；M5-A 已把加权 RRF、重复控制、候选预算和 No-op
+Rerank 接入在线 Pipeline，但尚未调用真实 Rerank 服务或产生效果对比数据。
 
 ## 当前文档解析边界
 
@@ -145,9 +146,9 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 - Cosine HNSW 查询默认召回预算为 20、`ef_search` 为 100；带过滤查询在单次事务内启用
   `strict_order` 迭代扫描，设置不会泄漏到连接池中的后续请求。
 
-该能力已经接入在线 Pipeline，并由 SSE API 在请求提供的显式作用域内调用。M4-B 对最多 3 个
-子问题并发执行同作用域检索，按 Chunk UUID 去重后使用“最好单查询名次、其次相似度”的确定性
-临时规则合并；这不是 RRF，也尚未实现正式检索后处理或 Rerank 编排。
+该能力已经接入在线 Pipeline，并由 SSE API 在请求提供的显式作用域内调用。最多 3 个子问题
+并发执行同作用域检索；M5-A 以等权加权 RRF（`k=60`）按 Chunk UUID 聚合证据，再按内容哈希
+去重、限制每个文档最多 2 个 Chunk，并把最多 40 个候选交给 Rerank 边界，最终保留 TopK 10。
 
 ## 当前 RAG Pipeline、记忆与 SSE API 边界
 
@@ -160,8 +161,8 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 - fast 模型把当前问题改写为可独立理解的问题，并输出 1～3 个不重复检索子问题；输出必须是
   严格 JSON。默认改写超时 20 秒、最多 512 token，模型错误、超时或协议不合规时退回原问题，
   并在日志与 Trace 保留稳定降级代码。
-- 子问题使用结构化并发检索，异常、超时和取消会收拢全部子任务。当前只做 Chunk UUID 最小去重
-  和临时最好名次合并；RRF 与 Rerank 留给 M5。
+- 子问题使用结构化并发检索，异常、超时和取消会收拢全部子任务。检索结果使用等权加权 RRF，
+  再执行内容哈希去重、每文档上限和候选截断；当前 No-op Rerank 显式保留融合顺序并返回 TopK 10。
 - fast 模型按打包的三节点意图树输出三个独立置信分数。最高分至少 `0.75` 且与第二名差值至少
   `0.10` 才执行系统直答或知识库问答；低置信、歧义或显式澄清路由会返回 `guidance`，不检索也
   不调用 final 模型。分类模型失败、超时或协议不合规时，只在请求已授权的知识库作用域内降级检索。
@@ -169,16 +170,17 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 - Prompt 把文档标记为不可信资料，转义文档内容和来源属性，要求回答使用 `[1]` 形式引用；
   模型的 reasoning 增量不会作为答案事件向上游暴露。
 - 空检索以 `no_context` 正常结局短路，不调用 Chat 模型，因此不会在没有资料时生成答案。
-- Pipeline 使用可配置的 `RAG_GLOBAL_TIMEOUT_SECONDS` 单一截止时间约束改写、检索和模型流；模型流
-  协议要求可关闭的异步生成器，超时、取消或调用方提前停止时会逐层执行 `aclose()`。
+- Pipeline 使用可配置的 `RAG_GLOBAL_TIMEOUT_SECONDS` 单一截止时间约束改写、检索、融合、Rerank
+  和模型流；Rerank 另有默认 10 秒独立上限。模型流协议要求可关闭的异步生成器，超时、取消或
+  调用方提前停止时会逐层执行 `aclose()`。
 - `POST /api/v1/chat/stream` 要求非空知识库 ID 列表，返回
   reply_to/status/content/sources/guidance/error/done 事件、严格递增序号和 `X-Request-ID`。首次请求省略
   `conversation_id`，后续请求用 reply_to 返回的 ID 继续会话。
 - 每个已开始请求会保存 user 消息与 RAG Run；completed 会原子保存 assistant 消息、可选来源 Chunk、
   模型用量和轻量 Trace；clarification 会保存 guidance assistant 消息；no_context/failed/cancelled
   不保存伪成功回答。Run 同时保存稳定 `intent_route`。
-- 当前没有认证、正式候选融合、会话管理 API、断线重放或心跳；协议、Run 持久化、记忆、改写和
-  Intent 边界分别见 ADR-0005 至 ADR-0009。
+- 当前没有认证、真实云端 Rerank、会话管理 API、断线重放或心跳；协议、Run 持久化、记忆、
+  改写、Intent 和检索后处理边界分别见 ADR-0005 至 ADR-0010。
 
 ## 当前文档
 
@@ -194,6 +196,7 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 - [会话记忆与 M4 意图基线参数](docs/adr/0007-conversation-memory-baseline.md)
 - [Query Rewrite 与多问题检索基线](docs/adr/0008-query-rewrite-and-multi-question-retrieval.md)
 - [Intent 路由、澄清与降级契约](docs/adr/0009-intent-routing-and-guidance.md)
+- [检索后处理与 No-op Rerank 基线](docs/adr/0010-retrieval-post-processing-baseline.md)
 - [AI 协作规则](AGENTS.md)
 
 ## 本地启动

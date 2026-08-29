@@ -65,6 +65,7 @@ class Settings(BaseSettings):
     rerank_provider: Literal["dashscope"] = "dashscope"
     rerank_model: str = "qwen3-rerank"
     dashscope_workspace_id: str | None = None
+    rerank_timeout_seconds: float = Field(default=10.0, gt=0)
 
     database_url: PostgresDsn = PostgresDsn(
         "postgresql+asyncpg://customer_agent2:change_me@127.0.0.1:5432/customer_agent2"
@@ -95,8 +96,10 @@ class Settings(BaseSettings):
 
     retrieval_recall_budget: int = Field(default=20, ge=1)
     retrieval_hnsw_ef_search: int = Field(default=100, ge=1, le=1000)
+    retrieval_rrf_k: int = Field(default=60, ge=1, le=1000)
     retrieval_rerank_candidate_limit: int = Field(default=40, ge=1)
     retrieval_context_top_k: int = Field(default=10, ge=1)
+    retrieval_max_chunks_per_document: int = Field(default=2, ge=1, le=20)
 
     @field_validator("api_prefix")
     @classmethod
@@ -180,6 +183,8 @@ class Settings(BaseSettings):
             raise ValueError("QUERY_REWRITE_TIMEOUT_SECONDS 必须小于 RAG_GLOBAL_TIMEOUT_SECONDS")
         if self.intent_timeout_seconds >= self.rag_global_timeout_seconds:
             raise ValueError("INTENT_TIMEOUT_SECONDS 必须小于 RAG_GLOBAL_TIMEOUT_SECONDS")
+        if self.rerank_timeout_seconds >= self.rag_global_timeout_seconds:
+            raise ValueError("RERANK_TIMEOUT_SECONDS 必须小于 RAG_GLOBAL_TIMEOUT_SECONDS")
         if self.intent_ambiguity_margin > self.intent_high_confidence_threshold:
             raise ValueError("INTENT_AMBIGUITY_MARGIN 不能大于 INTENT_HIGH_CONFIDENCE_THRESHOLD")
 
@@ -199,6 +204,7 @@ class Settings(BaseSettings):
                 raise ValueError("启用 Rerank 时必须配置 DASHSCOPE_API_KEY")
             if self.dashscope_workspace_id is None:
                 raise ValueError("启用 Rerank 时必须配置 DASHSCOPE_WORKSPACE_ID")
+            raise ValueError("M5-A 尚未接入真实 Rerank, 请保持 RERANK_ENABLED=false")
         return self
 
 

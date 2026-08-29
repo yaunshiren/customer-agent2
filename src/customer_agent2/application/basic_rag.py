@@ -5,9 +5,9 @@ from collections.abc import AsyncGenerator
 from dataclasses import replace
 from html import escape
 from time import perf_counter
-from uuid import UUID
 
 from customer_agent2.application.rag_prompt import BasicRagPromptBuilder
+from customer_agent2.application.retrieval_postprocessing import RetrievalPostProcessor
 from customer_agent2.application.services import VectorRetrievalUseCase
 from customer_agent2.domain.models import (
     ChatMessage,
@@ -35,9 +35,6 @@ from customer_agent2.domain.models import (
     RagPipelineError,
     RagPipelineErrorCode,
     RagPipelineRequest,
-    RetrievalError,
-    RetrievalErrorCode,
-    VectorSearchCandidate,
     VectorSearchRequest,
     VectorSearchResult,
 )
@@ -59,6 +56,7 @@ class BasicStreamingRagPipeline:
         chat_model: ChatModel,
         query_rewriter: QueryRewriter,
         intent_classifier: IntentClassifier,
+        postprocessor: RetrievalPostProcessor,
         *,
         global_timeout_seconds: float,
     ) -> None:
@@ -69,6 +67,7 @@ class BasicStreamingRagPipeline:
         self._chat_model = chat_model
         self._query_rewriter = query_rewriter
         self._intent_classifier = intent_classifier
+        self._postprocessor = postprocessor
         self._global_timeout_seconds = global_timeout_seconds
 
     async def stream(
@@ -172,7 +171,7 @@ class BasicStreamingRagPipeline:
         yield PipelineStatusEvent(request.request_id, PipelineStage.RETRIEVING)
         retrieval_started = perf_counter()
         try:
-            retrieval_result = await asyncio.wait_for(
+            retrieval_results = await asyncio.wait_for(
                 _retrieve_all(
                     self._retrieval,
                     context.sub_questions,
@@ -185,13 +184,25 @@ class BasicStreamingRagPipeline:
         retrieval_trace = PipelineTraceEntry(
             PipelineStage.RETRIEVING,
             _elapsed_ms(retrieval_started),
-            candidate_count=len(retrieval_result.candidates),
+            candidate_count=sum(len(result.candidates) for result in retrieval_results),
+        )
+        yield PipelineStatusEvent(request.request_id, PipelineStage.FUSING)
+        fusing_started = perf_counter()
+        fusion_result = self._postprocessor.fuse(retrieval_results)
+        fusing_trace = PipelineTraceEntry(
+            PipelineStage.FUSING,
+            _elapsed_ms(fusing_started),
+            candidate_count=len(fusion_result.candidates),
+            decision="weighted_rrf",
         )
         context = replace(
             context,
-            retrieval_result=retrieval_result,
-            ranked_chunks=retrieval_result.candidates,
-            trace=(*context.trace, retrieval_trace),
+            retrieval_result=VectorSearchResult(
+                fusion_result.index_configuration,
+                fusion_result.candidates,
+            ),
+            ranked_chunks=fusion_result.candidates,
+            trace=(*context.trace, retrieval_trace, fusing_trace),
         )
 
         if not context.ranked_chunks:
@@ -202,6 +213,36 @@ class BasicStreamingRagPipeline:
                 trace=context.trace,
             )
             return
+
+        yield PipelineStatusEvent(request.request_id, PipelineStage.RERANKING)
+        reranking_started = perf_counter()
+        try:
+            rerank_result = await asyncio.wait_for(
+                self._postprocessor.rerank(
+                    request.request_id,
+                    context.rewritten_question,
+                    context.ranked_chunks,
+                ),
+                timeout=_remaining_seconds(deadline),
+            )
+        except TimeoutError:
+            raise _global_timeout_error() from None
+        reranking_trace = PipelineTraceEntry(
+            PipelineStage.RERANKING,
+            _elapsed_ms(reranking_started),
+            candidate_count=len(rerank_result.candidates),
+            degradation_reason=(
+                rerank_result.degradation_reason.value
+                if rerank_result.degradation_reason is not None
+                else None
+            ),
+            decision=rerank_result.model_id,
+        )
+        context = replace(
+            context,
+            ranked_chunks=rerank_result.candidates,
+            trace=(*context.trace, reranking_trace),
+        )
 
         yield PipelineStatusEvent(request.request_id, PipelineStage.PROMPTING)
         prompting_started = perf_counter()
@@ -402,7 +443,7 @@ async def _retrieve_all(
     retrieval: VectorRetrievalUseCase,
     questions: tuple[str, ...],
     request: RagPipelineRequest,
-) -> VectorSearchResult:
+) -> tuple[VectorSearchResult, ...]:
     tasks = tuple(
         asyncio.create_task(
             retrieval.search(VectorSearchRequest(question, request.search_scope)),
@@ -418,43 +459,4 @@ async def _retrieve_all(
                 task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
         raise
-    return _merge_search_results(tuple(results))
-
-
-def _merge_search_results(results: tuple[VectorSearchResult, ...]) -> VectorSearchResult:
-    first = results[0]
-    if any(result.index_configuration != first.index_configuration for result in results[1:]):
-        raise RetrievalError(
-            RetrievalErrorCode.INDEX_CONFIGURATION_MISMATCH,
-            "多问题检索返回了不一致的索引配置",
-            retryable=False,
-        )
-
-    best_by_chunk: dict[UUID, tuple[int, VectorSearchCandidate]] = {}
-    for query_index, result in enumerate(results):
-        for candidate in result.candidates:
-            previous = best_by_chunk.get(candidate.chunk_id)
-            current = (query_index, candidate)
-            if previous is None or _candidate_merge_key(*current) < _candidate_merge_key(*previous):
-                best_by_chunk[candidate.chunk_id] = current
-
-    ordered = sorted(
-        best_by_chunk.values(),
-        key=lambda item: _candidate_merge_key(*item),
-    )
-    candidates = tuple(
-        replace(candidate, rank=rank) for rank, (_, candidate) in enumerate(ordered, start=1)
-    )
-    return VectorSearchResult(first.index_configuration, candidates)
-
-
-def _candidate_merge_key(
-    query_index: int,
-    candidate: VectorSearchCandidate,
-) -> tuple[int, float, int, str]:
-    return (
-        candidate.rank,
-        -candidate.similarity,
-        query_index,
-        str(candidate.chunk_id),
-    )
+    return tuple(results)

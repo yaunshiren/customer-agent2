@@ -37,7 +37,8 @@ ADR-0007 Baseline：最近 6 轮、累计超过 12 轮后增量摘要、系统�
 摘要、Prompt 安全边界和摘要失败降级。M4-B 已完成严格 JSON Rewrite、最多 3 个问题拆分、
 并发向量检索、Chunk UUID 去重、临时最好名次合并和失败可观察降级。M4-C 已完成固定意图树、
 0.75/0.10 决策、系统直答/知识库/澄清三路编排、失败受控降级、持久化和 20 条固定 Smoke Test；
-下一步进入 M5。
+M5-A 已完成等权加权 RRF、内容去重、文档多样性、40 候选/TopK 10 漏斗和可观察的 No-op Rerank。
+下一步 M5-B 只改变 Rerank OFF/ON 变量，接入真实专用排序模型并运行对比实验。
 
 ## 3. M0：项目地基
 
@@ -161,6 +162,13 @@ ADR-0007 Baseline：最近 6 轮、累计超过 12 轮后增量摘要、系统�
 - 输出 Retrieval、Intent、Latency 和失败样本报告。
 - 补齐 Docker、README、故障排查和发布检查。
 
+### 当前进度
+
+- M5-A：等权加权 RRF（`k=60`）、内容哈希去重、每文档最多 2 个 Chunk、最多 40 个候选和
+  TopK 10 已接入在线 Pipeline；关闭、已知模型失败、10 秒超时与协议异常都有稳定降级原因。
+- M5-B：真实 `qwen3-rerank` 适配器、Workspace 配置和 Rerank OFF/ON 单变量实验待实施。
+- M5-C：固定检索评测集、150 条完整 Evaluation、失败样本报告和发布加固待实施。
+
 ### 验收
 
 - 所有指标定义、样本数量和配置可追溯。
@@ -189,7 +197,7 @@ P0 完成后按以下顺序评估：
 | M1 | final/fast 模型 ID、超时和错误分类 |
 | M2 | Chunk Token、Overlap、文件大小和解析策略 |
 | M4 | 意图树结构、阈值和记忆窗口 |
-| M5 | Workspace ID、Rerank 候选数和最终 TopK |
+| M5 | 候选数 40、最终 TopK 10 已确认；M5-B 启用真实 Rerank 前确认 Workspace ID 与调用预算 |
 | P1 | MCP 工具范围、VLM 成本和 Embedding 是否切换 |
 
 ## 11. 发布前检查

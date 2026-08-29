@@ -18,6 +18,7 @@ class RetrievalErrorCode(StrEnum):
     KNOWLEDGE_BASE_NOT_FOUND = "knowledge_base_not_found"
     INDEX_CONFIGURATION_MISMATCH = "index_configuration_mismatch"
     EMBEDDING_PROTOCOL = "embedding_protocol"
+    RESULT_PROTOCOL = "retrieval_result_protocol"
     PERSISTENCE_FAILURE = "persistence_failure"
 
 

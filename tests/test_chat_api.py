@@ -225,6 +225,20 @@ def _completed_events(request_id: UUID) -> tuple[PipelineEvent, ...]:
             decision="knowledge_base",
         ),
         PipelineTraceEntry(PipelineStage.RETRIEVING, 1.5, candidate_count=1),
+        PipelineTraceEntry(
+            PipelineStage.FUSING,
+            0.2,
+            candidate_count=1,
+            decision="weighted_rrf",
+        ),
+        PipelineTraceEntry(
+            PipelineStage.RERANKING,
+            0.3,
+            candidate_count=1,
+            decision="noop-rerank",
+            degradation_reason="disabled",
+        ),
+        PipelineTraceEntry(PipelineStage.PROMPTING, 0.4, candidate_count=1),
         PipelineTraceEntry(PipelineStage.GENERATING, 2.5, candidate_count=1),
     )
     return (
@@ -232,6 +246,10 @@ def _completed_events(request_id: UUID) -> tuple[PipelineEvent, ...]:
         PipelineStatusEvent(request_id, PipelineStage.REWRITING),
         PipelineStatusEvent(request_id, PipelineStage.INTENT),
         PipelineStatusEvent(request_id, PipelineStage.RETRIEVING),
+        PipelineStatusEvent(request_id, PipelineStage.FUSING),
+        PipelineStatusEvent(request_id, PipelineStage.RERANKING),
+        PipelineStatusEvent(request_id, PipelineStage.PROMPTING),
+        PipelineStatusEvent(request_id, PipelineStage.GENERATING),
         PipelineContentEvent(request_id, "请参考"),
         PipelineContentEvent(request_id, "退款说明 [1]。"),
         PipelineSourcesEvent(request_id, (_source(request_id),)),
@@ -301,6 +319,10 @@ async def test_chat_stream_exposes_ordered_sanitized_sse_contract() -> None:
         "status",
         "status",
         "status",
+        "status",
+        "status",
+        "status",
+        "status",
         "content",
         "content",
         "sources",
@@ -308,19 +330,22 @@ async def test_chat_stream_exposes_ordered_sanitized_sse_contract() -> None:
         "done",
     ]
     assert [event[0] for event in events] == [
-        f"{request_id}:{sequence}" for sequence in range(1, 10)
+        f"{request_id}:{sequence}" for sequence in range(1, 14)
     ]
     assert all(event[2]["request_id"] == str(request_id) for event in events)
     assert events[-1][2]["outcome"] == "completed"
     assert events[0][2]["conversation_id"] == str(request_id)
     assert events[1][2]["stage"] == "rewriting"
     assert events[2][2]["stage"] == "intent"
-    sources = cast(list[dict[str, object]], events[6][2]["sources"])
+    assert events[4][2]["stage"] == "fusing"
+    assert events[5][2]["stage"] == "reranking"
+    sources = cast(list[dict[str, object]], events[10][2]["sources"])
     assert sources[0]["citation_number"] == 1
     assert "content" not in sources[0]
     trace = cast(list[dict[str, object]], events[-1][2]["trace"])
     assert trace[0]["degradation_reason"] == "query_rewrite_protocol"
     assert trace[1]["decision"] == "knowledge_base"
+    assert trace[4]["degradation_reason"] == "disabled"
     assert events[-1][2]["intent_route"] == "knowledge_base"
     assert pipeline.closed is True
     assert len(pipeline.requests) == 1
@@ -343,6 +368,7 @@ async def test_empty_retrieval_returns_no_context_done_without_sources() -> None
             PipelineStatusEvent(request_id, PipelineStage.REWRITING),
             PipelineStatusEvent(request_id, PipelineStage.INTENT),
             PipelineStatusEvent(request_id, PipelineStage.RETRIEVING),
+            PipelineStatusEvent(request_id, PipelineStage.FUSING),
             PipelineStatusEvent(request_id, PipelineStage.NO_CONTEXT),
             PipelineDoneEvent(request_id, PipelineOutcome.NO_CONTEXT, ()),
         )
@@ -357,6 +383,7 @@ async def test_empty_retrieval_returns_no_context_done_without_sources() -> None
     parsed = _parse_sse(response.text)
     assert [event[1] for event in parsed] == [
         "reply_to",
+        "status",
         "status",
         "status",
         "status",

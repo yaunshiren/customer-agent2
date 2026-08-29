@@ -11,6 +11,7 @@ from customer_agent2.application import (
     BasicStreamingRagPipeline,
     FastModelIntentClassifier,
     FastModelQueryRewriter,
+    RetrievalPostProcessor,
     VectorRetrievalService,
 )
 from customer_agent2.config import Settings
@@ -25,7 +26,11 @@ from customer_agent2.domain.models import (
 )
 from customer_agent2.infrastructure.database import DatabaseManager
 from customer_agent2.infrastructure.intents import load_default_intent_tree
-from customer_agent2.infrastructure.models import FakeChatModel, FakeEmbeddingModel
+from customer_agent2.infrastructure.models import (
+    FakeChatModel,
+    FakeEmbeddingModel,
+    NoOpRerankModel,
+)
 from customer_agent2.infrastructure.persistence import (
     EMBEDDING_DIMENSION,
     ChunkRecord,
@@ -106,6 +111,14 @@ async def test_real_pgvector_pipeline_retrieves_prompts_and_streams_with_sources
             ambiguity_margin=0.10,
             timeout_seconds=1,
             max_output_tokens=256,
+        ),
+        RetrievalPostProcessor(
+            NoOpRerankModel(),
+            rrf_k=60,
+            rerank_candidate_limit=40,
+            context_top_k=10,
+            max_chunks_per_document=2,
+            rerank_timeout_seconds=1,
         ),
         global_timeout_seconds=5,
     )

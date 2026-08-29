@@ -11,6 +11,8 @@ class RerankDegradationReason(StrEnum):
 
     DISABLED = "disabled"
     PROVIDER_UNAVAILABLE = "provider_unavailable"
+    PROTOCOL = "protocol"
+    TIMEOUT = "timeout"
 
 
 @dataclass(frozen=True, slots=True)

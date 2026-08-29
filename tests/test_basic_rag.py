@@ -7,7 +7,11 @@ from uuid import uuid4
 
 import pytest
 
-from customer_agent2.application import BasicRagPromptBuilder, BasicStreamingRagPipeline
+from customer_agent2.application import (
+    BasicRagPromptBuilder,
+    BasicStreamingRagPipeline,
+    RetrievalPostProcessor,
+)
 from customer_agent2.domain.models import (
     ChatMessage,
     ChatRequest,
@@ -46,7 +50,7 @@ from customer_agent2.domain.models import (
     VectorSearchResult,
     VectorSearchScope,
 )
-from customer_agent2.infrastructure.models import FakeChatModel
+from customer_agent2.infrastructure.models import FakeChatModel, NoOpRerankModel
 
 
 class FakeRetrievalUseCase:
@@ -97,6 +101,17 @@ class FakeIntentClassifier:
             classifier_model_id="fast-chat",
             classifier_finish_reason="stop",
         )
+
+
+def postprocessor(*, context_top_k: int = 10) -> RetrievalPostProcessor:
+    return RetrievalPostProcessor(
+        NoOpRerankModel(),
+        rrf_k=60,
+        rerank_candidate_limit=40,
+        context_top_k=context_top_k,
+        max_chunks_per_document=2,
+        rerank_timeout_seconds=0.1,
+    )
 
 
 class QueryAwareRetrievalUseCase:
@@ -223,6 +238,7 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
         chat,
         FakeQueryRewriter(),
         FakeIntentClassifier(),
+        postprocessor(),
         global_timeout_seconds=1,
     )
     pipeline_request = request()
@@ -230,6 +246,8 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
     events = [event async for event in pipeline.stream(pipeline_request)]
 
     assert [type(event) for event in events] == [
+        PipelineStatusEvent,
+        PipelineStatusEvent,
         PipelineStatusEvent,
         PipelineStatusEvent,
         PipelineStatusEvent,
@@ -246,6 +264,8 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
         PipelineStage.REWRITING,
         PipelineStage.INTENT,
         PipelineStage.RETRIEVING,
+        PipelineStage.FUSING,
+        PipelineStage.RERANKING,
         PipelineStage.PROMPTING,
         PipelineStage.GENERATING,
         PipelineStage.COMPLETED,
@@ -268,6 +288,8 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
         PipelineStage.REWRITING,
         PipelineStage.INTENT,
         PipelineStage.RETRIEVING,
+        PipelineStage.FUSING,
+        PipelineStage.RERANKING,
         PipelineStage.PROMPTING,
         PipelineStage.GENERATING,
     ]
@@ -275,7 +297,12 @@ async def test_pipeline_streams_top_k_answer_sources_and_trace() -> None:
     assert done.trace[1].candidate_count == 3
     assert done.trace[1].decision == "knowledge_base"
     assert done.trace[2].candidate_count == 2
-    assert done.trace[3].candidate_count == 1
+    assert done.trace[3].candidate_count == 2
+    assert done.trace[3].decision == "weighted_rrf"
+    assert done.trace[4].candidate_count == 2
+    assert done.trace[4].degradation_reason == "disabled"
+    assert done.trace[4].decision == "noop-rerank"
+    assert done.trace[5].candidate_count == 1
 
     assert retrieval.requests == [VectorSearchRequest("如何退款?", pipeline_request.search_scope)]
     assert len(chat.stream_requests) == 1
@@ -298,6 +325,7 @@ async def test_empty_retrieval_short_circuits_without_calling_chat() -> None:
         chat,
         FakeQueryRewriter(),
         FakeIntentClassifier(),
+        postprocessor(),
         global_timeout_seconds=1,
     )
 
@@ -307,6 +335,7 @@ async def test_empty_retrieval_short_circuits_without_calling_chat() -> None:
         PipelineStage.REWRITING,
         PipelineStage.INTENT,
         PipelineStage.RETRIEVING,
+        PipelineStage.FUSING,
         PipelineStage.NO_CONTEXT,
     ]
     done = next(event for event in events if isinstance(event, PipelineDoneEvent))
@@ -325,6 +354,7 @@ async def test_global_timeout_closes_the_model_stream() -> None:
         chat,
         FakeQueryRewriter(),
         FakeIntentClassifier(),
+        postprocessor(),
         global_timeout_seconds=0.02,
     )
 
@@ -346,10 +376,13 @@ async def test_closing_pipeline_early_closes_the_model_stream() -> None:
         chat,
         FakeQueryRewriter(),
         FakeIntentClassifier(),
+        postprocessor(),
         global_timeout_seconds=1,
     )
     stream = pipeline.stream(request())
 
+    assert isinstance(await anext(stream), PipelineStatusEvent)
+    assert isinstance(await anext(stream), PipelineStatusEvent)
     assert isinstance(await anext(stream), PipelineStatusEvent)
     assert isinstance(await anext(stream), PipelineStatusEvent)
     assert isinstance(await anext(stream), PipelineStatusEvent)
@@ -371,6 +404,7 @@ async def test_cancelling_pipeline_task_closes_the_model_stream() -> None:
         chat,
         FakeQueryRewriter(),
         FakeIntentClassifier(),
+        postprocessor(),
         global_timeout_seconds=1,
     )
 
@@ -394,6 +428,7 @@ async def test_pipeline_rejects_a_stream_without_answer_content() -> None:
         FakeChatModel("final-chat", "", stream_chunks=()),
         FakeQueryRewriter(),
         FakeIntentClassifier(),
+        postprocessor(),
         global_timeout_seconds=1,
     )
 
@@ -420,6 +455,7 @@ async def test_pipeline_preserves_retrieval_and_model_failures() -> None:
         chat,
         FakeQueryRewriter(),
         FakeIntentClassifier(),
+        postprocessor(),
         global_timeout_seconds=1,
     )
 
@@ -439,6 +475,7 @@ async def test_pipeline_preserves_retrieval_and_model_failures() -> None:
         FakeChatModel("final-chat", "", error=model_failure),
         FakeQueryRewriter(),
         FakeIntentClassifier(),
+        postprocessor(),
         global_timeout_seconds=1,
     )
     with pytest.raises(ModelError) as model_captured:
@@ -473,6 +510,7 @@ async def test_pipeline_retrieves_all_sub_questions_concurrently_and_merges_chun
         chat,
         rewriter,
         FakeIntentClassifier(),
+        postprocessor(),
         global_timeout_seconds=1,
     )
 
@@ -485,7 +523,10 @@ async def test_pipeline_retrieves_all_sub_questions_concurrently_and_merges_chun
     done = next(event for event in events if isinstance(event, PipelineDoneEvent))
     assert done.trace[0].candidate_count == 3
     assert done.trace[1].candidate_count == 3
-    assert done.trace[2].candidate_count == 2
+    assert done.trace[2].candidate_count == 5
+    assert done.trace[3].candidate_count == 2
+    assert done.trace[3].decision == "weighted_rrf"
+    assert done.trace[4].candidate_count == 2
     final_prompt = chat.stream_requests[0].messages[1].content
     assert "退款条件、时效和渠道分别是什么?" in final_prompt
 
@@ -513,6 +554,7 @@ async def test_system_direct_route_skips_retrieval_and_streams_without_sources()
         chat,
         FakeQueryRewriter(),
         classifier,
+        postprocessor(),
         global_timeout_seconds=1,
     )
 
@@ -559,6 +601,7 @@ async def test_clarification_route_emits_guidance_without_retrieval_or_final_cha
         chat,
         FakeQueryRewriter(),
         classifier,
+        postprocessor(),
         global_timeout_seconds=1,
     )
 
@@ -591,6 +634,7 @@ async def test_pipeline_exposes_query_rewrite_degradation_without_input_content(
         FakeChatModel("final-chat", "不应调用"),
         rewriter,
         FakeIntentClassifier(),
+        postprocessor(),
         global_timeout_seconds=1,
     )
 
@@ -621,6 +665,7 @@ async def test_multi_question_retrieval_failure_cancels_sibling_tasks() -> None:
             )
         ),
         FakeIntentClassifier(),
+        postprocessor(),
         global_timeout_seconds=1,
     )
 

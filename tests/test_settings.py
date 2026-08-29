@@ -128,6 +128,19 @@ def test_settings_expose_confirmed_intent_baseline() -> None:
         Settings(intent_high_confidence_threshold=0.2, intent_ambiguity_margin=0.3)
 
 
+def test_settings_expose_m5a_postprocessing_baseline() -> None:
+    settings = Settings()
+
+    assert settings.retrieval_rrf_k == 60
+    assert settings.retrieval_rerank_candidate_limit == 40
+    assert settings.retrieval_context_top_k == 10
+    assert settings.retrieval_max_chunks_per_document == 2
+    assert settings.rerank_timeout_seconds == 10
+
+    with pytest.raises(ValidationError, match="RERANK_TIMEOUT_SECONDS"):
+        Settings(rerank_timeout_seconds=120)
+
+
 def test_settings_protect_fixed_embedding_baseline_capabilities() -> None:
     with pytest.raises(ValidationError, match="DIMENSION"):
         Settings(local_embedding_dimension=1024)
@@ -182,6 +195,15 @@ def test_settings_require_credentials_when_rerank_is_enabled() -> None:
             {
                 "rerank_enabled": True,
                 "dashscope_api_key": "",
+                "dashscope_workspace_id": "workspace",
+            }
+        )
+
+    with pytest.raises(ValidationError, match="M5-A"):
+        Settings.model_validate(
+            {
+                "rerank_enabled": True,
+                "dashscope_api_key": "test-key",
                 "dashscope_workspace_id": "workspace",
             }
         )

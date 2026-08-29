@@ -4,7 +4,8 @@
 - 日期：2026-08-26
 - 修订：[ADR-0006](0006-conversation-rag-run-persistence.md) 增加可选会话 ID 与 `reply_to` 事件；
   [ADR-0008](0008-query-rewrite-and-multi-question-retrieval.md) 增加 `rewriting` 状态及 Trace 降级字段；
-  [ADR-0009](0009-intent-routing-and-guidance.md) 增加 Intent、`guidance` 和澄清终局
+  [ADR-0009](0009-intent-routing-and-guidance.md) 增加 Intent、`guidance` 和澄清终局；
+  [ADR-0010](0010-retrieval-post-processing-baseline.md) 增加 `fusing`、`reranking` 状态和 Trace 决策字段
 
 ## 背景
 
@@ -68,8 +69,8 @@ data: {"request_id":"...","sequence":1,...}
 
 1. `reply_to`：成功开始持久化 Run 后首先返回 `conversation_id`、`user_message_id` 和
    `rag_run_id`，字段语义由 ADR-0006 定义。
-2. `status`：增加 `stage`，当前可能为 `rewriting`、`intent`、`retrieving`、`prompting`、
-   `generating`、`clarification`、`completed` 或 `no_context`。
+2. `status`：增加 `stage`，当前可能为 `rewriting`、`intent`、`retrieving`、`fusing`、
+   `reranking`、`prompting`、`generating`、`clarification`、`completed` 或 `no_context`。
 3. `content`：增加非空 `delta`，只包含答案正文，不包含模型 reasoning。
 4. `sources`：增加非空 `sources` 数组；每项包含连续 `citation_number`、Chunk/知识库/
    文档/版本 UUID、`source_key`、`display_name`、文档格式、可选章节和页码、内容哈希与
@@ -79,12 +80,13 @@ data: {"request_id":"...","sequence":1,...}
 7. `done`：增加 `outcome`，取值为 `completed`、`no_context`、`clarification` 或 `error`；
    非错误终局包含 `intent_route`，成功时可包含
    `model_id`、`finish_reason` 和 Token 用量。正常或空检索结局包含 Pipeline 返回的轻量
-   `trace`；每项包含阶段耗时、可选候选数，并可包含不泄露输入内容的
+   `trace`；每项包含阶段耗时、可选候选数，并可包含不泄露输入内容的 `decision` 和
    `degradation_reason`。当前异常对象不携带部分上下文，因此 error 结局的 `trace` 为空。
 
-知识库回答的事件顺序为 reply_to、rewriting status、intent status、retrieving status、prompting status、
-generating status、零到多个 content、sources、completed status、done。空检索为 reply_to、
-rewriting status、intent status、retrieving status、no_context status、done，且不调用最终 Chat 模型。
+知识库回答的事件顺序为 reply_to、rewriting status、intent status、retrieving status、fusing status、
+reranking status、prompting status、generating status、零到多个 content、sources、completed status、done。
+空检索为 reply_to、rewriting status、intent status、retrieving status、fusing status、no_context status、done，
+且不调用 Rerank 或最终 Chat 模型。
 系统直答不检索，顺序为 reply_to、rewriting status、intent status、generating status、零到多个
 content、completed status、done，不产生 sources。澄清顺序为 reply_to、rewriting status、
 intent status、clarification status、guidance、done，不产生 content 或 sources。
@@ -100,8 +102,9 @@ intent status、clarification status、guidance、done，不产生 content 或 s
 上述 error + done 事件；未知错误只返回通用 `internal_error`，不得公开异常文本、堆栈、
 连接串、Prompt 或文档内容。
 
-单一 `RAG_GLOBAL_TIMEOUT_SECONDS` 覆盖检索、Prompt 组装和模型流，默认 120 秒，并且不得小于
-模型请求总超时。超时使用可重试的 `global_timeout` 流事件。
+单一 `RAG_GLOBAL_TIMEOUT_SECONDS` 覆盖改写、意图、检索、融合、Rerank、Prompt 组装和模型流，
+默认 120 秒，并且不得小于模型请求总超时。Rerank 另受独立 10 秒上限约束；全局超时使用可重试的
+`global_timeout` 流事件。
 
 客户端断开或调用方提前关闭流时，取消继续向下传播，不伪造无法送达的 done 事件。API 必须
 在 `finally` 中关闭 Pipeline 异步生成器；Pipeline 继续负责关闭模型流，供应商适配器继续
@@ -111,8 +114,8 @@ intent status、clarification status、guidance、done，不产生 content 或 s
 
 默认 lifespan 在数据库和 Redis 打开后构建一个共享的最终 Chat 模型与 RAG Pipeline。
 Chat HTTP 连接池由应用服务图拥有，并在数据库和 Redis 之前关闭。若 Chat 配置无效，启动
-快速失败且已经打开的基础设施仍必须释放。M3-C 在基础 Pipeline 外组合持久化装饰器，但仍不
-提前实例化 fast、Rerank 或后台任务能力。
+快速失败且已经打开的基础设施仍必须释放。当前服务图共享 final/fast 模型，并为 M5-A 注入
+No-op Rerank；真实 Rerank 供应商资源和后台任务能力仍未实例化。
 
 ## 备选方案
 

@@ -3,6 +3,8 @@
 - 状态：Accepted
 - 日期：2026-08-27
 - 修订：[ADR-0005](0005-streaming-rag-api.md) 的阶段与 Trace 契约
+- 后续修订：[ADR-0010](0010-retrieval-post-processing-baseline.md) 已用加权 RRF 和有界去重
+  替换本 ADR 的临时候选合并规则。
 
 ## 背景
 
