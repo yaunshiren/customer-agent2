@@ -1,0 +1,3786 @@
+{
+  "dataset_id": "ragenteval-v1-all",
+  "rerank_enabled": false,
+  "sample_count": 132,
+  "retrieval_successes": 132,
+  "retrieval_failures": 0,
+  "rerank_live_calls": 0,
+  "rerank_successes": 0,
+  "rerank_failures": 0,
+  "rerank_total_tokens": 0,
+  "off_metrics": {
+    "hit_at_1": 0.7045454545454546,
+    "hit_at_3": 0.8939393939393939,
+    "hit_at_5": 0.9545454545454546,
+    "hit_at_10": 0.9848484848484849,
+    "recall_at_3": 0.6723484848484849,
+    "recall_at_5": 0.7683080808080809,
+    "recall_at_10": 0.859848484848485,
+    "mrr_at_10": 0.8075306637806637
+  },
+  "on_metrics": null,
+  "wins": null,
+  "ties": null,
+  "losses": null,
+  "retrieval_latency_ms_p50": 76.43139999709092,
+  "retrieval_latency_ms_p95": 86.38737500004936,
+  "rerank_latency_ms_p50": null,
+  "rerank_latency_ms_p95": null,
+  "cases": [
+    {
+      "query_id": "S1-01",
+      "required_document_ids": [
+        "GUIDE_PHONE_002",
+        "GUIDE_PHONE_003"
+      ],
+      "off_document_ids": [
+        "GUIDE_PHONE_002",
+        "GUIDE_PHONE_003",
+        "GUIDE_PHONE_001",
+        "PROD_PHONE_001",
+        "PROD_PHONE_003",
+        "PROD_PHONE_002",
+        "GUIDE_GIFT_002",
+        "PROD_PHONE_005",
+        "GUIDE_PHONE_004",
+        "PROD_PHONE_006"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 11644.794599997113,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S1-02",
+      "required_document_ids": [
+        "GUIDE_GIFT_001",
+        "GUIDE_PHONE_004"
+      ],
+      "off_document_ids": [
+        "GUIDE_GIFT_001",
+        "GUIDE_PHONE_004",
+        "GUIDE_GIFT_002",
+        "GUIDE_HOME_001",
+        "GUIDE_HOME_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 81.47710000048392,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S1-03",
+      "required_document_ids": [
+        "GUIDE_PHONE_001"
+      ],
+      "off_document_ids": [
+        "GUIDE_PHONE_001",
+        "PROD_PHONE_005",
+        "GUIDE_PHONE_003",
+        "PROD_PHONE_004",
+        "PROD_PHONE_006",
+        "GUIDE_PHONE_002",
+        "PROD_PHONE_003",
+        "PROD_PHONE_002",
+        "GUIDE_PHONE_004",
+        "PROD_PHONE_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 85.03420000488404,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S1-04",
+      "required_document_ids": [
+        "GUIDE_VAC_001"
+      ],
+      "off_document_ids": [
+        "GUIDE_VAC_001",
+        "GUIDE_VAC_003",
+        "PROD_VAC_003",
+        "GUIDE_VAC_002",
+        "PROD_VAC_005",
+        "PROD_VAC_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 76.84300000255462,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S1-05",
+      "required_document_ids": [
+        "GUIDE_GIFT_002"
+      ],
+      "off_document_ids": [
+        "GUIDE_GIFT_002",
+        "GUIDE_HOME_001",
+        "GUIDE_GIFT_001",
+        "GUIDE_PHONE_002",
+        "GUIDE_WATCH_001",
+        "GUIDE_PHONE_001",
+        "PROD_WATCH_003",
+        "GUIDE_PHONE_004",
+        "PROD_WATCH_005",
+        "PROD_WATCH_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.1315999958897,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S1-06",
+      "required_document_ids": [
+        "GUIDE_HOME_001",
+        "AUTO_GUIDE_001"
+      ],
+      "off_document_ids": [
+        "GUIDE_HOME_001",
+        "GUIDE_GIFT_001",
+        "GUIDE_HOME_002",
+        "PRODUCT_MAPPING",
+        "PROD_LOCK_001",
+        "PROD_LIGHT_001",
+        "GUIDE_VAC_002",
+        "PROD_SOCKET_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 83.35040000383742,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "AUTO_GUIDE_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S1-07",
+      "required_document_ids": [
+        "GUIDE_BUDS_001",
+        "PROD_BUDS_004"
+      ],
+      "off_document_ids": [
+        "GUIDE_BUDS_001",
+        "PROD_BUDS_003",
+        "PROD_BUDS_002",
+        "MANUAL_BUDS_001",
+        "PROD_BUDS_001",
+        "GUIDE_WATCH_001",
+        "PROD_WATCH_004",
+        "PROD_BUDS_005"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 81.06549999502022,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "PROD_BUDS_004"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S1-08",
+      "required_document_ids": [
+        "GUIDE_AIR_001"
+      ],
+      "off_document_ids": [
+        "GUIDE_AIR_001",
+        "GUIDE_AIR_002",
+        "PROD_AIR_002",
+        "PROD_AIR_001",
+        "PRODUCT_MAPPING",
+        "PROD_AIR_003",
+        "GUIDE_GIFT_001",
+        "MANUAL_AIR_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 76.10690000001341,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S2-01",
+      "required_document_ids": [
+        "PROD_PHONE_004"
+      ],
+      "off_document_ids": [
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "GUIDE_PHONE_001",
+        "PROD_PHONE_002",
+        "PROD_WATCH_002",
+        "PROD_PHONE_001",
+        "PROD_BOOK_001",
+        "PROD_PAD_001",
+        "PROD_PAD_002",
+        "PROD_PAD_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 71.34520000545308,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S2-02",
+      "required_document_ids": [
+        "PROD_PHONE_006"
+      ],
+      "off_document_ids": [
+        "PROD_PHONE_006",
+        "CODE_PHONE_001",
+        "PROD_PHONE_002",
+        "GUIDE_PHONE_002",
+        "PROD_LIFE_005",
+        "PROD_VAC_004",
+        "PROD_PHONE_005",
+        "PROD_WATCH_002",
+        "PROD_PHONE_001",
+        "PROD_VAC_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 76.61689999804366,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S2-03",
+      "required_document_ids": [
+        "PROD_AIR_003"
+      ],
+      "off_document_ids": [
+        "PROD_AIR_003",
+        "GUIDE_AIR_001",
+        "PROD_AIR_002",
+        "PROD_AIR_001",
+        "MANUAL_AIR_002",
+        "GUIDE_AIR_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 76.17349999782164,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S2-04",
+      "required_document_ids": [
+        "PROD_PAD_002",
+        "MANUAL_PAD_001"
+      ],
+      "off_document_ids": [
+        "PROD_PAD_002",
+        "PROD_PAD_003",
+        "PROD_PAD_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 81.5986000088742,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "MANUAL_PAD_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S2-05",
+      "required_document_ids": [
+        "PROD_LOCK_001",
+        "MANUAL_LOCK_001"
+      ],
+      "off_document_ids": [
+        "PROD_LOCK_001",
+        "PROD_LOCK_002",
+        "MANUAL_LOCK_002",
+        "CODE_LOCK_001",
+        "AUTO_GUIDE_001",
+        "PRODUCT_MAPPING",
+        "MANUAL_LOCK_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 87.89680000336375,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S2-06",
+      "required_document_ids": [
+        "PROD_WATCH_002",
+        "MANUAL_WATCH_001"
+      ],
+      "off_document_ids": [
+        "PROD_WATCH_002",
+        "PROD_WATCH_001",
+        "GUIDE_WATCH_001",
+        "PROD_WATCH_003",
+        "PROD_WATCH_005",
+        "MANUAL_WATCH_001",
+        "PROD_WATCH_004"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 80.2337999921292,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S2-07",
+      "required_document_ids": [
+        "PROD_PHONE_003",
+        "CODE_PHONE_001"
+      ],
+      "off_document_ids": [
+        "CODE_PHONE_001",
+        "PROD_LIFE_005",
+        "PROD_BUDS_003",
+        "PROD_BUDS_004",
+        "PROD_PHONE_003",
+        "MANUAL_PHONE_001",
+        "PROD_PHONE_004",
+        "PROD_WATCH_001",
+        "PROD_WATCH_002",
+        "PROD_VAC_004"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 71.450300005381,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S2-08",
+      "required_document_ids": [
+        "PROD_VAC_003"
+      ],
+      "off_document_ids": [
+        "GUIDE_VAC_002",
+        "PROD_VAC_003",
+        "PROD_VAC_004",
+        "PROD_VAC_002",
+        "PROD_VAC_005",
+        "FAQ_VAC_001",
+        "MANUAL_VAC_003",
+        "MANUAL_VAC_002",
+        "GUIDE_VAC_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.354700006661,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S2-09",
+      "required_document_ids": [
+        "PROD_PAD_002"
+      ],
+      "off_document_ids": [
+        "PROD_PAD_001",
+        "PROD_PAD_002",
+        "PROD_PAD_003",
+        "MANUAL_PAD_001",
+        "PROD_BUDS_003",
+        "PROD_BUDS_004"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 75.67990000825375,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S2-10",
+      "required_document_ids": [
+        "PROD_BUDS_003",
+        "MANUAL_BUDS_001"
+      ],
+      "off_document_ids": [
+        "PROD_BUDS_003",
+        "PROD_BUDS_004",
+        "PROD_BUDS_002",
+        "PROD_VAC_001",
+        "PROD_WATCH_001",
+        "PROD_BUDS_001",
+        "PROD_LIFE_005",
+        "PROD_PAD_003",
+        "PROD_WATCH_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 81.63909999711905,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "MANUAL_BUDS_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S3-01",
+      "required_document_ids": [
+        "PROD_PHONE_003",
+        "PROD_PHONE_004"
+      ],
+      "off_document_ids": [
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "GUIDE_PHONE_001",
+        "PROD_PHONE_002",
+        "GUIDE_PHONE_003",
+        "PROD_PHONE_001",
+        "PROD_PHONE_005",
+        "PROD_BOOK_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 77.46110000880435,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S3-02",
+      "required_document_ids": [
+        "PROD_VAC_001",
+        "PROD_VAC_002"
+      ],
+      "off_document_ids": [
+        "PROD_VAC_002",
+        "PROD_VAC_001",
+        "MANUAL_VAC_003",
+        "GUIDE_VAC_003",
+        "MANUAL_VAC_002",
+        "GUIDE_VAC_002",
+        "PROD_VAC_004",
+        "CODE_VAC_001",
+        "PROD_VAC_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 67.57259998994414,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S3-03",
+      "required_document_ids": [
+        "PROD_PHONE_001",
+        "PROD_PHONE_003"
+      ],
+      "off_document_ids": [
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "GUIDE_PHONE_001",
+        "GUIDE_PHONE_003",
+        "PROD_PHONE_001",
+        "PROD_PHONE_005",
+        "GUIDE_PHONE_004",
+        "PROD_PHONE_006",
+        "PROD_PHONE_002",
+        "GUIDE_GIFT_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.69620000221767,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S3-04",
+      "required_document_ids": [
+        "PROD_BUDS_002",
+        "PROD_BUDS_003"
+      ],
+      "off_document_ids": [
+        "PROD_BUDS_004",
+        "GUIDE_BUDS_001",
+        "PROD_BUDS_002",
+        "PROD_BUDS_003",
+        "PROD_BUDS_001",
+        "PRODUCT_MAPPING"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 83.38609999918845,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 3,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S3-05",
+      "required_document_ids": [
+        "PROD_AIR_002",
+        "PROD_AIR_003",
+        "MANUAL_AIR_002"
+      ],
+      "off_document_ids": [
+        "MANUAL_AIR_002",
+        "PROD_AIR_003",
+        "PROD_AIR_002",
+        "PROD_AIR_001",
+        "CODE_AIR_001",
+        "GUIDE_AIR_002",
+        "GUIDE_AIR_001",
+        "MANUAL_AIR_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 74.4808000017656,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S3-06",
+      "required_document_ids": [
+        "PROD_PHONE_003",
+        "PROD_PHONE_004",
+        "PRODUCT_MAPPING"
+      ],
+      "off_document_ids": [
+        "PROD_PHONE_004",
+        "GUIDE_PHONE_001",
+        "PROD_PHONE_003",
+        "GUIDE_GIFT_002",
+        "GUIDE_PHONE_003",
+        "PROD_PHONE_005",
+        "PROD_PHONE_001",
+        "GUIDE_PHONE_002",
+        "PROD_PHONE_002",
+        "GUIDE_PHONE_004"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 80.10690000082832,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "PRODUCT_MAPPING"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S3-07",
+      "required_document_ids": [
+        "PROD_VAC_001",
+        "PROD_VAC_002",
+        "PROD_VAC_004",
+        "GUIDE_VAC_002"
+      ],
+      "off_document_ids": [
+        "PROD_VAC_002",
+        "GUIDE_VAC_003",
+        "PROD_VAC_004",
+        "MANUAL_VAC_003",
+        "PROD_VAC_003",
+        "PROD_VAC_001",
+        "MANUAL_VAC_002",
+        "GUIDE_VAC_001",
+        "CODE_VAC_001",
+        "GUIDE_VAC_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.97390000673477,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S3-08",
+      "required_document_ids": [
+        "PROD_WATCH_002",
+        "GUIDE_WATCH_001"
+      ],
+      "off_document_ids": [
+        "PROD_WATCH_002",
+        "GUIDE_WATCH_001",
+        "PROD_WATCH_003",
+        "PROD_WATCH_001",
+        "PRODUCT_MAPPING",
+        "GUIDE_GIFT_002",
+        "PROD_WATCH_004",
+        "PROD_WATCH_005"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.99519999430049,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S4-01",
+      "required_document_ids": [
+        "POLICY_RET_004"
+      ],
+      "off_document_ids": [
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "PROD_PHONE_002",
+        "GUIDE_PHONE_001",
+        "GUIDE_GIFT_002",
+        "PROD_BOOK_001",
+        "PROD_PHONE_001",
+        "GUIDE_PHONE_004",
+        "PROD_PHONE_005",
+        "PROD_BUDS_004"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 78.67889999761246,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": null,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "POLICY_RET_004"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S4-02",
+      "required_document_ids": [
+        "PROD_PHONE_004",
+        "PRODUCT_MAPPING"
+      ],
+      "off_document_ids": [
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "GUIDE_PHONE_001",
+        "PROD_PHONE_002",
+        "PROD_PHONE_001",
+        "GUIDE_GIFT_002",
+        "PROD_BOOK_001",
+        "PROD_PHONE_005",
+        "PRODUCT_MAPPING",
+        "GUIDE_PHONE_004"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 80.34899999620393,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S4-03",
+      "required_document_ids": [
+        "POLICY_RET_004",
+        "GUIDE_PHONE_001"
+      ],
+      "off_document_ids": [
+        "POLICY_VIP_002",
+        "POLICY_VIP_001",
+        "POLICY_WAR_003",
+        "POLICY_RET_004",
+        "POLICY_RET_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 80.60000000114087,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 4,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "GUIDE_PHONE_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S4-04",
+      "required_document_ids": [
+        "POLICY_RET_004",
+        "POLICY_LOG_001"
+      ],
+      "off_document_ids": [
+        "GUIDE_VAC_002",
+        "POLICY_RET_003",
+        "GUIDE_VAC_003",
+        "PRODUCT_MAPPING",
+        "POLICY_RET_004",
+        "POLICY_VIP_002",
+        "PROD_VAC_005",
+        "GUIDE_VAC_001",
+        "PROD_VAC_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 82.5267000036547,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 5,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "POLICY_LOG_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S4-05",
+      "required_document_ids": [
+        "POLICY_RET_004"
+      ],
+      "off_document_ids": [
+        "POLICY_RET_004",
+        "GUIDE_PHONE_002",
+        "GUIDE_GIFT_002",
+        "GUIDE_PHONE_001",
+        "POLICY_VIP_002",
+        "PROD_PHONE_005",
+        "POLICY_LOG_001",
+        "PROD_PHONE_002",
+        "PROD_PHONE_003",
+        "GUIDE_PHONE_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.72559999325313,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S4-06",
+      "required_document_ids": [
+        "POLICY_RET_004"
+      ],
+      "off_document_ids": [
+        "POLICY_RET_004",
+        "POLICY_VIP_001",
+        "POLICY_RET_001",
+        "POLICY_INV_001",
+        "POLICY_WAR_004",
+        "POLICY_VIP_002",
+        "POLICY_RET_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.99310000741389,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S5-01",
+      "required_document_ids": [
+        "POLICY_LOG_001"
+      ],
+      "off_document_ids": [
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "PROD_PHONE_002",
+        "GUIDE_PHONE_001",
+        "PROD_BOOK_001",
+        "PROD_PHONE_001",
+        "GUIDE_GIFT_002",
+        "PROD_BUDS_003",
+        "PROD_BUDS_004",
+        "PROD_PHONE_005"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 82.12380000622943,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": null,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "POLICY_LOG_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S5-02",
+      "required_document_ids": [
+        "POLICY_LOG_001"
+      ],
+      "off_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_LOG_003",
+        "POLICY_VIP_002",
+        "POLICY_RET_001",
+        "POLICY_RET_002",
+        "POLICY_INV_001",
+        "POLICY_VIP_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 72.69859999360051,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S5-03",
+      "required_document_ids": [
+        "PROD_PHONE_004",
+        "POLICY_LOG_001"
+      ],
+      "off_document_ids": [
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "PROD_BOOK_001",
+        "PROD_PHONE_002",
+        "PROD_PHONE_001",
+        "GUIDE_PHONE_001",
+        "PROD_PHONE_005",
+        "PROD_BOOK_002",
+        "PROD_BOOK_003",
+        "GUIDE_GIFT_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 75.95470000524074,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "POLICY_LOG_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S5-04",
+      "required_document_ids": [
+        "GUIDE_WATCH_001",
+        "POLICY_LOG_001"
+      ],
+      "off_document_ids": [
+        "PROD_WATCH_003",
+        "PROD_WATCH_001",
+        "PROD_WATCH_002",
+        "MANUAL_WATCH_001",
+        "PRODUCT_MAPPING",
+        "CODE_FW_001",
+        "GUIDE_WATCH_001",
+        "PROD_WATCH_005"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 70.43419999536127,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 7,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "POLICY_LOG_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S5-05",
+      "required_document_ids": [
+        "POLICY_LOG_001"
+      ],
+      "off_document_ids": [
+        "POLICY_RET_003",
+        "POLICY_LOG_001",
+        "POLICY_RET_001",
+        "CODE_FW_002",
+        "POLICY_WAR_004",
+        "POLICY_RET_004",
+        "CODE_FW_001",
+        "CODE_PHONE_001",
+        "POLICY_WAR_005",
+        "CODE_LOCK_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.81130000553094,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S6-01",
+      "required_document_ids": [
+        "PROD_PHONE_004",
+        "MANUAL_PHONE_001"
+      ],
+      "off_document_ids": [
+        "PROD_PHONE_003",
+        "PROD_PHONE_004",
+        "CODE_PHONE_001",
+        "PROD_LIFE_005",
+        "PROD_BUDS_002",
+        "PROD_PHONE_002",
+        "PROD_PHONE_001",
+        "PROD_BUDS_005",
+        "PROD_PHONE_006",
+        "PROD_BOOK_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 72.85759999649599,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "MANUAL_PHONE_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S6-02",
+      "required_document_ids": [
+        "PROD_VAC_001",
+        "MANUAL_VAC_003"
+      ],
+      "off_document_ids": [
+        "PROD_VAC_001",
+        "PROD_VAC_002",
+        "MANUAL_VAC_003",
+        "GUIDE_VAC_003",
+        "PROD_VAC_003",
+        "CODE_AIR_001",
+        "PROD_VAC_004",
+        "GUIDE_AIR_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 77.32820000092033,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S6-03",
+      "required_document_ids": [
+        "PROD_PHONE_003",
+        "MANUAL_PHONE_001"
+      ],
+      "off_document_ids": [
+        "PROD_PHONE_003",
+        "PROD_LIFE_005",
+        "CODE_PHONE_001",
+        "PROD_PHONE_004",
+        "PROD_PHONE_001",
+        "PROD_BUDS_005",
+        "PROD_PHONE_002",
+        "PROD_BUDS_002",
+        "PROD_PHONE_006",
+        "PROD_PHONE_005"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 77.11349999590311,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "MANUAL_PHONE_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S6-04",
+      "required_document_ids": [
+        "PROD_VAC_001",
+        "PROD_VAC_004",
+        "MANUAL_VAC_003"
+      ],
+      "off_document_ids": [
+        "PROD_VAC_004",
+        "PROD_VAC_002",
+        "MANUAL_VAC_003",
+        "PROD_VAC_001",
+        "GUIDE_VAC_001",
+        "MANUAL_VAC_001",
+        "GUIDE_VAC_002",
+        "CODE_AIR_001",
+        "PROD_VAC_003",
+        "FAQ_VAC_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 86.32459999353159,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S6-05",
+      "required_document_ids": [
+        "PROD_PHONE_001",
+        "PROD_PHONE_004",
+        "MANUAL_PHONE_001"
+      ],
+      "off_document_ids": [
+        "CODE_PHONE_001",
+        "PROD_PHONE_001",
+        "PROD_PHONE_004",
+        "PROD_PHONE_002",
+        "PROD_LIFE_005",
+        "PROD_PHONE_003",
+        "MANUAL_PHONE_001",
+        "PROD_PHONE_005",
+        "PROD_PHONE_006",
+        "PROD_CAM_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 83.35669999360107,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S6-06",
+      "required_document_ids": [
+        "PROD_BUDS_002",
+        "PROD_BUDS_003",
+        "MANUAL_BUDS_001"
+      ],
+      "off_document_ids": [
+        "PROD_BUDS_002",
+        "PROD_BUDS_004",
+        "PROD_BUDS_003",
+        "PROD_BUDS_001",
+        "GUIDE_BUDS_001",
+        "PROD_BUDS_005",
+        "MANUAL_BUDS_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 77.10290000250097,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S6-07",
+      "required_document_ids": [
+        "MANUAL_VAC_003",
+        "PROD_VAC_001",
+        "PROD_VAC_002",
+        "PROD_VAC_004"
+      ],
+      "off_document_ids": [
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_003",
+        "PROD_VAC_001",
+        "GUIDE_VAC_001",
+        "PRODUCT_MAPPING",
+        "PROD_VAC_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 71.13450000179,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 3,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "MANUAL_VAC_003",
+        "PROD_VAC_004"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S7-01",
+      "required_document_ids": [
+        "GUIDE_VAC_002",
+        "MANUAL_VAC_002"
+      ],
+      "off_document_ids": [
+        "GUIDE_VAC_003",
+        "GUIDE_VAC_002",
+        "MANUAL_VAC_002",
+        "MANUAL_VAC_001",
+        "PROD_VAC_005",
+        "PRODUCT_MAPPING",
+        "GUIDE_VAC_001",
+        "PROD_VAC_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 72.36320000083651,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S7-02",
+      "required_document_ids": [
+        "PROD_LOCK_001",
+        "MANUAL_LOCK_001"
+      ],
+      "off_document_ids": [
+        "FAQ_LOCK_001",
+        "CODE_LOCK_001",
+        "MANUAL_LOCK_001",
+        "AUTO_GUIDE_001",
+        "PROD_LOCK_001",
+        "PROD_LOCK_002",
+        "GUIDE_HOME_002",
+        "POLICY_WAR_004"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 73.20800000161398,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 3,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S7-03",
+      "required_document_ids": [
+        "GUIDE_VAC_001",
+        "PROD_VAC_002",
+        "PROD_VAC_004"
+      ],
+      "off_document_ids": [
+        "GUIDE_VAC_001",
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_003",
+        "PROD_VAC_001",
+        "PROD_VAC_005"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 73.31799999519717,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "PROD_VAC_002",
+        "PROD_VAC_004"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S7-04",
+      "required_document_ids": [
+        "GUIDE_AIR_001",
+        "PROD_AIR_003"
+      ],
+      "off_document_ids": [
+        "GUIDE_AIR_001",
+        "PROD_AIR_002",
+        "GUIDE_AIR_002",
+        "PROD_AIR_001",
+        "PROD_AIR_003",
+        "PRODUCT_MAPPING",
+        "GUIDE_GIFT_001",
+        "MANUAL_AIR_001",
+        "GUIDE_HOME_002",
+        "GUIDE_VAC_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 78.42119999986608,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S7-05",
+      "required_document_ids": [
+        "GUIDE_VAC_002",
+        "MANUAL_VAC_002"
+      ],
+      "off_document_ids": [
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_003",
+        "GUIDE_VAC_001",
+        "CODE_VAC_001",
+        "PRODUCT_MAPPING",
+        "CODE_FW_001",
+        "MANUAL_VAC_002",
+        "PROD_VAC_005"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 85.67930001299828,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S7-06",
+      "required_document_ids": [
+        "GUIDE_HOME_002",
+        "PROD_LOCK_001",
+        "POLICY_RET_001"
+      ],
+      "off_document_ids": [
+        "GUIDE_HOME_002",
+        "PROD_CAM_002",
+        "AUTO_GUIDE_001",
+        "PROD_LOCK_002",
+        "POLICY_LOG_002",
+        "POLICY_WAR_004",
+        "MANUAL_LOCK_001",
+        "PROD_LOCK_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.45239999389742,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "POLICY_RET_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S1-09",
+      "required_document_ids": [
+        "GUIDE_BUDS_001",
+        "PROD_BUDS_003",
+        "PROD_SPK_002"
+      ],
+      "off_document_ids": [
+        "GUIDE_GIFT_002",
+        "PROD_SPK_001",
+        "PROD_BUDS_005",
+        "PROD_BUDS_001",
+        "GUIDE_HOME_002",
+        "GUIDE_BUDS_001",
+        "MANUAL_BUDS_001",
+        "GUIDE_HOME_001",
+        "PROD_SPK_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 81.31749999301974,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 6,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "PROD_BUDS_003",
+        "PROD_SPK_002"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S2-11",
+      "required_document_ids": [
+        "PROD_BOOK_001",
+        "PROD_BOOK_003"
+      ],
+      "off_document_ids": [
+        "PROD_BOOK_001",
+        "PROD_BOOK_003",
+        "PROD_BOOK_002",
+        "PRODUCT_MAPPING",
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "GUIDE_PHONE_003",
+        "MANUAL_BOOK_001",
+        "GUIDE_PHONE_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 76.42319999285974,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S3-09",
+      "required_document_ids": [
+        "PROD_PAD_002",
+        "PROD_PAD_003"
+      ],
+      "off_document_ids": [
+        "PROD_PAD_003",
+        "PROD_PAD_002",
+        "PROD_PAD_001",
+        "PRODUCT_MAPPING"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 76.23809999495279,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S4-07",
+      "required_document_ids": [
+        "PROD_PAD_003",
+        "PRODUCT_MAPPING",
+        "POLICY_RET_004"
+      ],
+      "off_document_ids": [
+        "PROD_PAD_003",
+        "PROD_PAD_002",
+        "PROD_PAD_001",
+        "PRODUCT_MAPPING",
+        "POLICY_WAR_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.6929999924032,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "POLICY_RET_004"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S5-06",
+      "required_document_ids": [
+        "POLICY_LOG_001"
+      ],
+      "off_document_ids": [
+        "POLICY_LOG_001",
+        "PROD_SPK_002",
+        "MANUAL_SPK_001",
+        "PROD_SPK_001",
+        "POLICY_RET_001",
+        "NET_GUIDE_001",
+        "POLICY_VIP_002",
+        "PROD_SPK_003",
+        "POLICY_LOG_002",
+        "POLICY_RET_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 86.46410000801552,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S7-07",
+      "required_document_ids": [
+        "GUIDE_HOME_002",
+        "PROD_SPK_001",
+        "PROD_SOCKET_001",
+        "PROD_LIGHT_002"
+      ],
+      "off_document_ids": [
+        "GUIDE_HOME_002",
+        "GUIDE_HOME_001",
+        "GUIDE_GIFT_001",
+        "PRODUCT_MAPPING",
+        "GUIDE_VAC_002",
+        "MANUAL_SPK_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 83.09270000609104,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "PROD_SPK_001",
+        "PROD_SOCKET_001",
+        "PROD_LIGHT_002"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S8-01",
+      "required_document_ids": [
+        "MANUAL_VAC_001"
+      ],
+      "off_document_ids": [
+        "CODE_FW_001",
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_003",
+        "GUIDE_VAC_001",
+        "MANUAL_VAC_002",
+        "PROD_VAC_005",
+        "MANUAL_VAC_001",
+        "FAQ_VAC_001",
+        "MANUAL_VAC_003",
+        "MANUAL_AIR_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 72.68639998801518,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 7,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S8-02",
+      "required_document_ids": [
+        "MANUAL_SPK_001"
+      ],
+      "off_document_ids": [
+        "PROD_SPK_003",
+        "PROD_SPK_001",
+        "PROD_SPK_002",
+        "MANUAL_SPK_001",
+        "NET_GUIDE_001",
+        "PRODUCT_MAPPING"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 78.94940000551287,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 4,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S8-03",
+      "required_document_ids": [
+        "MANUAL_VAC_002",
+        "APP_GUIDE_002"
+      ],
+      "off_document_ids": [
+        "MANUAL_VAC_002",
+        "MANUAL_VAC_001",
+        "CODE_FW_001",
+        "PROD_VAC_005",
+        "GUIDE_VAC_003",
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_001",
+        "MANUAL_AIR_001",
+        "CODE_VAC_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 78.46309999877121,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "APP_GUIDE_002"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S8-04",
+      "required_document_ids": [
+        "MANUAL_LOCK_001",
+        "MANUAL_LOCK_002"
+      ],
+      "off_document_ids": [
+        "MANUAL_LOCK_001",
+        "MANUAL_LOCK_002",
+        "MANUAL_PHONE_001",
+        "FAQ_LOCK_001",
+        "POLICY_WAR_004",
+        "CODE_LOCK_001",
+        "PROD_LOCK_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 72.809800010873,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S8-05",
+      "required_document_ids": [
+        "MANUAL_AIR_001"
+      ],
+      "off_document_ids": [
+        "MANUAL_AIR_001",
+        "AUTO_GUIDE_002",
+        "AUTO_GUIDE_001",
+        "PROD_AIR_003",
+        "MANUAL_BOOK_001",
+        "MANUAL_WATCH_001",
+        "MANUAL_AIR_002",
+        "CODE_AIR_001",
+        "GUIDE_AIR_001",
+        "GUIDE_AIR_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 70.9013000014238,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S8-06",
+      "required_document_ids": [
+        "MANUAL_VAC_002",
+        "APP_GUIDE_002"
+      ],
+      "off_document_ids": [
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_003",
+        "MANUAL_VAC_002",
+        "MANUAL_SPK_001",
+        "PROD_VAC_005",
+        "AUTO_GUIDE_001",
+        "CODE_FW_001",
+        "MANUAL_VAC_001",
+        "MANUAL_AIR_001",
+        "AUTO_GUIDE_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 70.95139999000821,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 3,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "APP_GUIDE_002"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S8-07",
+      "required_document_ids": [
+        "MANUAL_LOCK_002",
+        "APP_GUIDE_002"
+      ],
+      "off_document_ids": [
+        "MANUAL_LOCK_002",
+        "MANUAL_LOCK_001",
+        "FAQ_LOCK_001",
+        "AUTO_GUIDE_001",
+        "PROD_LOCK_001",
+        "POLICY_WAR_004",
+        "PROD_LOCK_002",
+        "CODE_LOCK_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 77.21900001342874,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "APP_GUIDE_002"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S8-08",
+      "required_document_ids": [
+        "MANUAL_WATCH_001",
+        "PROD_WATCH_002"
+      ],
+      "off_document_ids": [
+        "MANUAL_WATCH_001",
+        "PROD_WATCH_002",
+        "PROD_WATCH_003",
+        "CODE_FW_001",
+        "PROD_WATCH_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 70.69310000224505,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S9-01",
+      "required_document_ids": [
+        "NET_GUIDE_001",
+        "MANUAL_VAC_001"
+      ],
+      "off_document_ids": [
+        "NET_GUIDE_003",
+        "NET_GUIDE_001",
+        "CODE_FW_001",
+        "CODE_AIR_001",
+        "MANUAL_AIR_001",
+        "MANUAL_VAC_001",
+        "MANUAL_PHONE_001",
+        "FAQ_NET_001",
+        "NET_GUIDE_002",
+        "FAQ_AIR_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 71.93440000992268,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S9-02",
+      "required_document_ids": [
+        "NET_GUIDE_001",
+        "FAQ_LOCK_001",
+        "MANUAL_LOCK_001"
+      ],
+      "off_document_ids": [
+        "FAQ_LOCK_001",
+        "CODE_LOCK_001",
+        "CODE_FW_001",
+        "APP_GUIDE_002",
+        "FAQ_NET_001",
+        "FAQ_AIR_001",
+        "NET_GUIDE_001",
+        "MANUAL_LOCK_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 74.20129999809433,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S9-03",
+      "required_document_ids": [
+        "NET_GUIDE_002",
+        "FAQ_NET_001"
+      ],
+      "off_document_ids": [
+        "CODE_AIR_001",
+        "FAQ_AIR_001",
+        "FAQ_NET_001",
+        "NET_GUIDE_001",
+        "CODE_FW_001",
+        "MANUAL_VAC_001",
+        "NET_GUIDE_002",
+        "CODE_LOCK_001",
+        "NET_GUIDE_003",
+        "MANUAL_AIR_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 78.78860000346322,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 3,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S9-04",
+      "required_document_ids": [
+        "NET_GUIDE_003",
+        "APP_GUIDE_002"
+      ],
+      "off_document_ids": [
+        "NET_GUIDE_003",
+        "FAQ_NET_001",
+        "NET_GUIDE_001",
+        "APP_GUIDE_002",
+        "NET_GUIDE_002",
+        "APP_GUIDE_004",
+        "PROD_SOCKET_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 81.68469999509398,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S9-05",
+      "required_document_ids": [
+        "NET_GUIDE_001",
+        "NET_GUIDE_003",
+        "FAQ_LOCK_001"
+      ],
+      "off_document_ids": [
+        "CODE_LOCK_001",
+        "FAQ_LOCK_001",
+        "FAQ_NET_001",
+        "APP_GUIDE_002",
+        "PROD_SOCKET_001",
+        "POLICY_WAR_004",
+        "AUTO_GUIDE_001",
+        "MANUAL_LOCK_001",
+        "NET_GUIDE_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 81.76070000627078,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "NET_GUIDE_001",
+        "NET_GUIDE_003"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S9-06",
+      "required_document_ids": [
+        "NET_GUIDE_001",
+        "NET_GUIDE_002",
+        "FAQ_NET_001",
+        "FAQ_VAC_001"
+      ],
+      "off_document_ids": [
+        "CODE_FW_001",
+        "FAQ_NET_001",
+        "FAQ_AIR_001",
+        "CODE_AIR_001",
+        "NET_GUIDE_003",
+        "NET_GUIDE_001",
+        "NET_GUIDE_002",
+        "MANUAL_VAC_002",
+        "CODE_FW_002",
+        "CODE_VAC_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 73.23059999907855,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "FAQ_VAC_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S9-07",
+      "required_document_ids": [
+        "NET_GUIDE_001",
+        "FAQ_NET_001",
+        "APP_GUIDE_002"
+      ],
+      "off_document_ids": [
+        "FAQ_LOCK_001",
+        "FAQ_AIR_001",
+        "CODE_AIR_001",
+        "FAQ_NET_001",
+        "CODE_LOCK_001",
+        "NET_GUIDE_002",
+        "NET_GUIDE_001",
+        "MANUAL_SPK_001",
+        "NET_GUIDE_003",
+        "CODE_FW_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 76.4396000013221,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 4,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "APP_GUIDE_002"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S10-01",
+      "required_document_ids": [
+        "APP_GUIDE_001"
+      ],
+      "off_document_ids": [
+        "APP_GUIDE_001",
+        "APP_GUIDE_003",
+        "POLICY_LOG_003",
+        "POLICY_RET_002",
+        "APP_GUIDE_005",
+        "APP_GUIDE_002",
+        "POLICY_VIP_001",
+        "POLICY_LOG_001",
+        "APP_GUIDE_004"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 83.13800000178162,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S10-02",
+      "required_document_ids": [
+        "APP_GUIDE_001"
+      ],
+      "off_document_ids": [
+        "APP_GUIDE_001",
+        "POLICY_LOG_003",
+        "POLICY_RET_002",
+        "POLICY_LOG_001",
+        "POLICY_RET_001",
+        "POLICY_INV_001",
+        "POLICY_VIP_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 83.9587000082247,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S10-03",
+      "required_document_ids": [
+        "APP_GUIDE_003",
+        "MANUAL_VAC_002"
+      ],
+      "off_document_ids": [
+        "MANUAL_VAC_001",
+        "APP_GUIDE_003",
+        "MANUAL_HEALTH_001",
+        "CODE_FW_002",
+        "CODE_FW_001",
+        "MANUAL_VAC_002",
+        "GUIDE_VAC_001",
+        "GUIDE_VAC_002",
+        "MANUAL_SPK_001",
+        "FAQ_VAC_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 80.79740000539459,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S10-04",
+      "required_document_ids": [
+        "APP_GUIDE_002"
+      ],
+      "off_document_ids": [
+        "APP_GUIDE_004",
+        "POLICY_VIP_001",
+        "APP_GUIDE_002",
+        "MANUAL_LOCK_001",
+        "MANUAL_LOCK_002",
+        "APP_GUIDE_005",
+        "AUTO_GUIDE_001",
+        "FAQ_LOCK_001",
+        "MANUAL_BOOK_001",
+        "NET_GUIDE_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 73.41679999080952,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 3,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S10-05",
+      "required_document_ids": [
+        "APP_GUIDE_005"
+      ],
+      "off_document_ids": [
+        "CODE_AIR_001",
+        "MANUAL_PHONE_002",
+        "FAQ_LOCK_001",
+        "APP_GUIDE_005",
+        "MANUAL_PHONE_001",
+        "MANUAL_WATCH_001",
+        "CODE_FW_001",
+        "MANUAL_PAD_001",
+        "FAQ_NET_001",
+        "MANUAL_BOOK_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 89.02909999596886,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 4,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S10-06",
+      "required_document_ids": [
+        "APP_GUIDE_003",
+        "MANUAL_AIR_001"
+      ],
+      "off_document_ids": [
+        "APP_GUIDE_003",
+        "CODE_AIR_001",
+        "MANUAL_AIR_002",
+        "GUIDE_AIR_001",
+        "MANUAL_AIR_001",
+        "PROD_AIR_003",
+        "FAQ_AIR_001",
+        "AUTO_GUIDE_002",
+        "CODE_VAC_001",
+        "AUTO_GUIDE_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 86.9070000044303,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S10-07",
+      "required_document_ids": [
+        "APP_GUIDE_004",
+        "APP_GUIDE_002"
+      ],
+      "off_document_ids": [
+        "APP_GUIDE_004",
+        "MANUAL_PHONE_001",
+        "APP_GUIDE_002",
+        "FAQ_NET_001",
+        "NET_GUIDE_003",
+        "NET_GUIDE_001",
+        "MANUAL_PAD_001",
+        "APP_GUIDE_003",
+        "CODE_FW_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 90.10119999584276,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S11-01",
+      "required_document_ids": [
+        "CODE_FW_001"
+      ],
+      "off_document_ids": [
+        "CODE_FW_001",
+        "PROD_WATCH_003",
+        "MANUAL_WATCH_001",
+        "PROD_WATCH_001",
+        "PROD_WATCH_002",
+        "MANUAL_PHONE_001",
+        "MANUAL_PHONE_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 75.29839999915566,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S11-02",
+      "required_document_ids": [
+        "CODE_FW_001",
+        "MANUAL_VAC_001"
+      ],
+      "off_document_ids": [
+        "CODE_FW_001",
+        "CODE_FW_002",
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_001",
+        "MANUAL_VAC_002",
+        "FAQ_VAC_001",
+        "CODE_VAC_001",
+        "GUIDE_VAC_003",
+        "PROD_VAC_005",
+        "PRODUCT_MAPPING"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 72.2306999959983,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "MANUAL_VAC_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S11-03",
+      "required_document_ids": [
+        "CODE_FW_002",
+        "CODE_FW_001"
+      ],
+      "off_document_ids": [
+        "CODE_FW_001",
+        "CODE_FW_002",
+        "FAQ_NET_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 69.42259999050293,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S11-04",
+      "required_document_ids": [
+        "CODE_FW_002",
+        "CODE_PHONE_001",
+        "CODE_FW_001"
+      ],
+      "off_document_ids": [
+        "CODE_FW_001",
+        "FAQ_LOCK_001",
+        "CODE_LOCK_001",
+        "CODE_FW_002",
+        "POLICY_WAR_002",
+        "CODE_VAC_001",
+        "CODE_PHONE_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 73.50379999843426,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S11-05",
+      "required_document_ids": [
+        "CODE_FW_001",
+        "CODE_FW_002"
+      ],
+      "off_document_ids": [
+        "CODE_FW_002",
+        "CODE_FW_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 72.33049999922514,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S12-01",
+      "required_document_ids": [
+        "AUTO_GUIDE_002",
+        "MANUAL_SPK_001",
+        "MANUAL_VAC_001"
+      ],
+      "off_document_ids": [
+        "MANUAL_SPK_001",
+        "AUTO_GUIDE_002",
+        "PROD_SPK_001",
+        "PROD_SPK_002",
+        "GUIDE_VAC_003",
+        "PROD_SPK_003",
+        "AUTO_GUIDE_001",
+        "CODE_FW_001",
+        "NET_GUIDE_003",
+        "NET_GUIDE_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 81.68149999983143,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "MANUAL_VAC_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S12-02",
+      "required_document_ids": [
+        "AUTO_GUIDE_001",
+        "AUTO_GUIDE_002",
+        "PROD_LIGHT_001",
+        "PROD_LOCK_001"
+      ],
+      "off_document_ids": [
+        "MANUAL_LOCK_001",
+        "MANUAL_SPK_001",
+        "CODE_LOCK_001",
+        "FAQ_LOCK_001",
+        "AUTO_GUIDE_001",
+        "PROD_LOCK_001",
+        "AUTO_GUIDE_002",
+        "PROD_LOCK_002",
+        "POLICY_WAR_004"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 78.33909998589661,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 5,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "PROD_LIGHT_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S12-03",
+      "required_document_ids": [
+        "AUTO_GUIDE_001",
+        "APP_GUIDE_002"
+      ],
+      "off_document_ids": [
+        "AUTO_GUIDE_001",
+        "MANUAL_LOCK_001",
+        "MANUAL_SPK_001",
+        "AUTO_GUIDE_002",
+        "MANUAL_AIR_001",
+        "PROD_LIGHT_001",
+        "PROD_SPK_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 73.86179998866282,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "APP_GUIDE_002"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S12-04",
+      "required_document_ids": [
+        "AUTO_GUIDE_001",
+        "AUTO_GUIDE_002",
+        "PROD_LOCK_001",
+        "MANUAL_VAC_002"
+      ],
+      "off_document_ids": [
+        "CODE_LOCK_001",
+        "FAQ_LOCK_001",
+        "MANUAL_LOCK_001",
+        "AUTO_GUIDE_001",
+        "MANUAL_SPK_001",
+        "PROD_LOCK_001",
+        "CODE_FW_001",
+        "AUTO_GUIDE_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 73.21830000728369,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 4,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "MANUAL_VAC_002"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S12-05",
+      "required_document_ids": [
+        "AUTO_GUIDE_001",
+        "AUTO_GUIDE_002",
+        "MANUAL_VAC_002"
+      ],
+      "off_document_ids": [
+        "AUTO_GUIDE_001",
+        "MANUAL_LOCK_001",
+        "AUTO_GUIDE_002",
+        "MANUAL_AIR_001",
+        "MANUAL_SPK_001",
+        "CODE_FW_001",
+        "PROD_VAC_005",
+        "GUIDE_VAC_001",
+        "GUIDE_HOME_002",
+        "GUIDE_VAC_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 74.55900000059046,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "MANUAL_VAC_002"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S12-06",
+      "required_document_ids": [
+        "AUTO_GUIDE_002",
+        "APP_GUIDE_002"
+      ],
+      "off_document_ids": [
+        "APP_GUIDE_002",
+        "APP_GUIDE_005",
+        "APP_GUIDE_004",
+        "AUTO_GUIDE_002",
+        "POLICY_WAR_001",
+        "APP_GUIDE_001",
+        "APP_GUIDE_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 74.37639999261592,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S13-01",
+      "required_document_ids": [
+        "MANUAL_AIR_002",
+        "FAQ_AIR_001"
+      ],
+      "off_document_ids": [
+        "MANUAL_AIR_002",
+        "CODE_AIR_001",
+        "MANUAL_AIR_001",
+        "PROD_AIR_003",
+        "FAQ_AIR_001",
+        "PROD_AIR_001",
+        "GUIDE_AIR_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 75.57380000071134,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S13-02",
+      "required_document_ids": [
+        "MANUAL_VAC_003"
+      ],
+      "off_document_ids": [
+        "CODE_VAC_001",
+        "MANUAL_VAC_003",
+        "GUIDE_VAC_001",
+        "PROD_VAC_005",
+        "FAQ_VAC_001",
+        "MANUAL_HEALTH_001",
+        "MANUAL_VAC_002",
+        "MANUAL_VAC_001",
+        "GUIDE_VAC_003",
+        "MANUAL_AIR_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 74.14729999436531,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S13-03",
+      "required_document_ids": [
+        "MANUAL_HEALTH_001",
+        "PROD_HEALTH_001"
+      ],
+      "off_document_ids": [
+        "PROD_HEALTH_001",
+        "MANUAL_HEALTH_001",
+        "MANUAL_VAC_003",
+        "POLICY_RET_003",
+        "POLICY_RET_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 73.02630000049248,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S13-04",
+      "required_document_ids": [
+        "MANUAL_AIR_002"
+      ],
+      "off_document_ids": [
+        "MANUAL_AIR_002",
+        "CODE_AIR_001",
+        "PROD_AIR_003",
+        "MANUAL_AIR_001",
+        "FAQ_AIR_001",
+        "CODE_VAC_001",
+        "PROD_AIR_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 73.63070000428706,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S13-05",
+      "required_document_ids": [
+        "MANUAL_VAC_003",
+        "MANUAL_VAC_001"
+      ],
+      "off_document_ids": [
+        "MANUAL_AIR_002",
+        "CODE_VAC_001",
+        "GUIDE_VAC_001",
+        "POLICY_RET_003",
+        "GUIDE_VAC_002",
+        "PROD_VAC_005",
+        "GUIDE_VAC_003",
+        "MANUAL_VAC_003",
+        "FAQ_VAC_001",
+        "PROD_VAC_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 90.90830000059213,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 8,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "MANUAL_VAC_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S13-06",
+      "required_document_ids": [
+        "MANUAL_WATCH_001"
+      ],
+      "off_document_ids": [
+        "MANUAL_WATCH_001",
+        "GUIDE_WATCH_001",
+        "FAQ_VAC_001",
+        "CODE_FW_001",
+        "MANUAL_HEALTH_001",
+        "MANUAL_VAC_003",
+        "PROD_WATCH_003",
+        "MANUAL_AIR_002",
+        "CODE_VAC_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 80.28399999602698,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S13-07",
+      "required_document_ids": [
+        "MANUAL_VAC_003",
+        "FAQ_VAC_001",
+        "CODE_VAC_001"
+      ],
+      "off_document_ids": [
+        "FAQ_VAC_001",
+        "GUIDE_VAC_002",
+        "CODE_VAC_001",
+        "GUIDE_VAC_003",
+        "FAQ_AIR_001",
+        "CODE_FW_001",
+        "MANUAL_AIR_002",
+        "PROD_VAC_005",
+        "MANUAL_VAC_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 85.71620000293478,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S13-08",
+      "required_document_ids": [
+        "FAQ_AIR_001",
+        "MANUAL_AIR_002",
+        "CODE_AIR_001"
+      ],
+      "off_document_ids": [
+        "CODE_AIR_001",
+        "FAQ_AIR_001",
+        "MANUAL_AIR_002",
+        "MANUAL_AIR_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 85.37129999604076,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S13-09",
+      "required_document_ids": [
+        "MANUAL_VAC_003",
+        "FAQ_VAC_001"
+      ],
+      "off_document_ids": [
+        "CODE_VAC_001",
+        "FAQ_VAC_001",
+        "POLICY_RET_003",
+        "GUIDE_VAC_001",
+        "PROD_VAC_005",
+        "MANUAL_AIR_002",
+        "MANUAL_VAC_003",
+        "MANUAL_HEALTH_001",
+        "GUIDE_VAC_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 75.1888999948278,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S14-01",
+      "required_document_ids": [
+        "POLICY_WAR_001",
+        "POLICY_WAR_002"
+      ],
+      "off_document_ids": [
+        "POLICY_WAR_002",
+        "PROD_PHONE_004",
+        "POLICY_WAR_004",
+        "PROD_PHONE_003",
+        "POLICY_WAR_001",
+        "MANUAL_PHONE_001",
+        "POLICY_RET_001",
+        "POLICY_WAR_003",
+        "PROD_PHONE_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 71.96030000341125,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S14-02",
+      "required_document_ids": [
+        "POLICY_WAR_002",
+        "POLICY_WAR_003"
+      ],
+      "off_document_ids": [
+        "POLICY_WAR_002",
+        "POLICY_WAR_004",
+        "POLICY_WAR_003",
+        "POLICY_WAR_001",
+        "CODE_FW_002",
+        "MANUAL_PAD_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 68.60139999480452,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S14-03",
+      "required_document_ids": [
+        "POLICY_WAR_002",
+        "POLICY_WAR_004"
+      ],
+      "off_document_ids": [
+        "FAQ_VAC_001",
+        "POLICY_WAR_002",
+        "CODE_PHONE_001",
+        "POLICY_WAR_004",
+        "CODE_AIR_001",
+        "POLICY_WAR_001",
+        "CODE_FW_002",
+        "CODE_VAC_001",
+        "CODE_FW_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 67.400899992208,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S14-04",
+      "required_document_ids": [
+        "POLICY_WAR_003"
+      ],
+      "off_document_ids": [
+        "POLICY_WAR_003",
+        "POLICY_WAR_004",
+        "POLICY_WAR_002",
+        "POLICY_WAR_001",
+        "MANUAL_PHONE_001",
+        "POLICY_RET_003",
+        "MANUAL_PAD_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 72.42929999483749,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S14-05",
+      "required_document_ids": [
+        "POLICY_WAR_002",
+        "POLICY_WAR_001"
+      ],
+      "off_document_ids": [
+        "POLICY_WAR_002",
+        "POLICY_WAR_004",
+        "CODE_LOCK_001",
+        "POLICY_WAR_001",
+        "POLICY_WAR_003",
+        "FAQ_LOCK_001",
+        "CODE_PHONE_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 76.2210000102641,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S14-06",
+      "required_document_ids": [
+        "POLICY_WAR_004",
+        "POLICY_WAR_003"
+      ],
+      "off_document_ids": [
+        "POLICY_WAR_004",
+        "POLICY_WAR_003",
+        "POLICY_WAR_002",
+        "POLICY_WAR_001",
+        "CODE_FW_002",
+        "POLICY_WAR_005"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 74.55040000786539,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S14-07",
+      "required_document_ids": [
+        "POLICY_WAR_005",
+        "POLICY_WAR_001"
+      ],
+      "off_document_ids": [
+        "POLICY_WAR_005",
+        "POLICY_INV_001",
+        "POLICY_WAR_004",
+        "POLICY_RET_003",
+        "POLICY_WAR_002",
+        "POLICY_WAR_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 71.1072999984026,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S14-08",
+      "required_document_ids": [
+        "POLICY_WAR_005",
+        "POLICY_WAR_001"
+      ],
+      "off_document_ids": [
+        "POLICY_WAR_005",
+        "POLICY_WAR_004",
+        "POLICY_WAR_002",
+        "POLICY_WAR_001",
+        "POLICY_WAR_003",
+        "POLICY_RET_003",
+        "POLICY_RET_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.33989999582991,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S15-01",
+      "required_document_ids": [
+        "POLICY_RET_001"
+      ],
+      "off_document_ids": [
+        "POLICY_RET_001",
+        "POLICY_RET_002",
+        "POLICY_RET_003",
+        "POLICY_VIP_002",
+        "POLICY_LOG_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 74.7541999880923,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S15-02",
+      "required_document_ids": [
+        "POLICY_RET_002"
+      ],
+      "off_document_ids": [
+        "POLICY_RET_002",
+        "POLICY_RET_003",
+        "POLICY_VIP_002",
+        "CODE_FW_002",
+        "POLICY_RET_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 69.3230000033509,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S15-03",
+      "required_document_ids": [
+        "POLICY_RET_003",
+        "POLICY_RET_001"
+      ],
+      "off_document_ids": [
+        "POLICY_RET_003",
+        "CODE_FW_002",
+        "POLICY_RET_002",
+        "POLICY_INV_001",
+        "POLICY_RET_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 72.21749999735039,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S15-04",
+      "required_document_ids": [
+        "POLICY_RET_001",
+        "POLICY_RET_003"
+      ],
+      "off_document_ids": [
+        "POLICY_RET_001",
+        "POLICY_RET_003",
+        "CODE_FW_002",
+        "POLICY_RET_002",
+        "CODE_PHONE_001",
+        "CODE_AIR_001",
+        "POLICY_VIP_002",
+        "CODE_VAC_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 69.973800011212,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S15-05",
+      "required_document_ids": [
+        "POLICY_RET_003",
+        "POLICY_RET_002"
+      ],
+      "off_document_ids": [
+        "POLICY_RET_003",
+        "POLICY_RET_002",
+        "POLICY_LOG_003",
+        "POLICY_WAR_003",
+        "POLICY_RET_001",
+        "POLICY_VIP_002",
+        "POLICY_INV_001",
+        "POLICY_WAR_004",
+        "POLICY_WAR_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 72.86860000749584,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S15-06",
+      "required_document_ids": [
+        "POLICY_RET_004",
+        "POLICY_RET_001"
+      ],
+      "off_document_ids": [
+        "POLICY_RET_004",
+        "POLICY_RET_001",
+        "CODE_FW_002",
+        "POLICY_VIP_001",
+        "POLICY_WAR_004",
+        "POLICY_INV_001",
+        "POLICY_VIP_002",
+        "POLICY_RET_002",
+        "POLICY_RET_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 75.41420000779908,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S15-07",
+      "required_document_ids": [
+        "POLICY_RET_003",
+        "POLICY_RET_002"
+      ],
+      "off_document_ids": [
+        "POLICY_WAR_005",
+        "POLICY_RET_003",
+        "POLICY_RET_001",
+        "POLICY_RET_002",
+        "POLICY_RET_004",
+        "CODE_FW_002",
+        "POLICY_LOG_003",
+        "POLICY_VIP_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 76.21859999198932,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S16-01",
+      "required_document_ids": [
+        "POLICY_LOG_001"
+      ],
+      "off_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_RET_003",
+        "POLICY_RET_002",
+        "POLICY_LOG_002",
+        "POLICY_WAR_005",
+        "POLICY_RET_001",
+        "POLICY_WAR_001",
+        "POLICY_LOG_003"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.4457999872975,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S16-02",
+      "required_document_ids": [
+        "POLICY_LOG_002"
+      ],
+      "off_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_LOG_002",
+        "POLICY_WAR_004",
+        "POLICY_RET_002",
+        "POLICY_WAR_001",
+        "GUIDE_HOME_001",
+        "APP_GUIDE_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 69.1752999991877,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S16-03",
+      "required_document_ids": [
+        "POLICY_LOG_002"
+      ],
+      "off_document_ids": [
+        "POLICY_LOG_002",
+        "POLICY_LOG_001",
+        "POLICY_LOG_003",
+        "POLICY_RET_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 71.75449999340344,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S16-04",
+      "required_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_LOG_003"
+      ],
+      "off_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_LOG_003",
+        "POLICY_VIP_002",
+        "POLICY_RET_002",
+        "POLICY_VIP_001",
+        "POLICY_RET_001",
+        "APP_GUIDE_001",
+        "CODE_FW_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 74.08489999943413,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S16-05",
+      "required_document_ids": [
+        "POLICY_LOG_003"
+      ],
+      "off_document_ids": [
+        "POLICY_LOG_003",
+        "APP_GUIDE_001",
+        "POLICY_RET_002",
+        "POLICY_INV_001",
+        "POLICY_LOG_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.61259999137837,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S16-06",
+      "required_document_ids": [
+        "POLICY_LOG_003"
+      ],
+      "off_document_ids": [
+        "POLICY_LOG_003",
+        "POLICY_RET_002",
+        "POLICY_RET_003",
+        "CODE_AIR_001",
+        "CODE_PHONE_001",
+        "CODE_VAC_001",
+        "POLICY_VIP_002",
+        "POLICY_WAR_002",
+        "POLICY_WAR_005"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 76.56190000125207,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S17-01",
+      "required_document_ids": [
+        "POLICY_INV_001"
+      ],
+      "off_document_ids": [
+        "POLICY_INV_001",
+        "POLICY_WAR_005",
+        "POLICY_RET_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 73.92029999755323,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S17-02",
+      "required_document_ids": [
+        "POLICY_VIP_001"
+      ],
+      "off_document_ids": [
+        "POLICY_VIP_001",
+        "POLICY_VIP_002",
+        "APP_GUIDE_005",
+        "APP_GUIDE_001",
+        "POLICY_WAR_001",
+        "POLICY_WAR_004",
+        "POLICY_RET_003",
+        "POLICY_WAR_005",
+        "APP_GUIDE_004"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 78.88420000381302,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S17-03",
+      "required_document_ids": [
+        "POLICY_INV_001"
+      ],
+      "off_document_ids": [
+        "POLICY_INV_001",
+        "POLICY_WAR_005",
+        "POLICY_VIP_002",
+        "POLICY_RET_003",
+        "POLICY_RET_004"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 71.69070000236388,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S17-04",
+      "required_document_ids": [
+        "POLICY_VIP_002",
+        "POLICY_VIP_001"
+      ],
+      "off_document_ids": [
+        "POLICY_VIP_002",
+        "APP_GUIDE_001",
+        "MANUAL_BUDS_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 69.56429999263491,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "POLICY_VIP_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S17-05",
+      "required_document_ids": [
+        "POLICY_INV_001"
+      ],
+      "off_document_ids": [
+        "POLICY_INV_001",
+        "CODE_VAC_001",
+        "FAQ_LOCK_001",
+        "CODE_LOCK_001",
+        "FAQ_VAC_001",
+        "PROD_LOCK_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 69.47489999583922,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "S17-06",
+      "required_document_ids": [
+        "POLICY_VIP_002",
+        "POLICY_VIP_001"
+      ],
+      "off_document_ids": [
+        "POLICY_VIP_002",
+        "POLICY_VIP_001",
+        "POLICY_RET_002",
+        "POLICY_LOG_001",
+        "FAQ_LOCK_001",
+        "POLICY_LOG_003",
+        "POLICY_LOG_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 79.99689999269322,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "F1-01",
+      "required_document_ids": [
+        "FAQ_VAC_001",
+        "CODE_VAC_001",
+        "MANUAL_VAC_001"
+      ],
+      "off_document_ids": [
+        "CODE_FW_001",
+        "CODE_PHONE_001",
+        "CODE_LOCK_001",
+        "FAQ_LOCK_001",
+        "MANUAL_VAC_001",
+        "MANUAL_VAC_003",
+        "FAQ_VAC_001",
+        "FAQ_AIR_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 78.19310000922997,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 5,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "CODE_VAC_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "F1-02",
+      "required_document_ids": [
+        "FAQ_AIR_001",
+        "CODE_AIR_001",
+        "MANUAL_AIR_001"
+      ],
+      "off_document_ids": [
+        "FAQ_AIR_001",
+        "CODE_AIR_001",
+        "MANUAL_AIR_002",
+        "FAQ_VAC_001",
+        "AUTO_GUIDE_002",
+        "CODE_VAC_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 74.84820000536274,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "MANUAL_AIR_001"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "F1-03",
+      "required_document_ids": [
+        "FAQ_LOCK_001",
+        "CODE_LOCK_001",
+        "MANUAL_LOCK_001"
+      ],
+      "off_document_ids": [
+        "MANUAL_LOCK_001",
+        "FAQ_LOCK_001",
+        "CODE_LOCK_001",
+        "MANUAL_LOCK_002"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 72.42219999898225,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "F1-04",
+      "required_document_ids": [
+        "CODE_VAC_001",
+        "FAQ_VAC_001"
+      ],
+      "off_document_ids": [
+        "CODE_FW_001",
+        "FAQ_VAC_001",
+        "CODE_VAC_001",
+        "FAQ_AIR_001",
+        "MANUAL_VAC_002",
+        "FAQ_NET_001",
+        "CODE_AIR_001",
+        "CODE_FW_002",
+        "CODE_LOCK_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 76.655099997879,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "F1-05",
+      "required_document_ids": [
+        "MANUAL_WATCH_001",
+        "POLICY_WAR_001",
+        "POLICY_WAR_002"
+      ],
+      "off_document_ids": [
+        "CODE_PHONE_001",
+        "CODE_FW_001",
+        "MANUAL_WATCH_001",
+        "CODE_VAC_001",
+        "PROD_LIFE_005"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 75.18059998983517,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 3,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "POLICY_WAR_001",
+        "POLICY_WAR_002"
+      ],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "F3-02",
+      "required_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_LOG_003"
+      ],
+      "off_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_LOG_003",
+        "POLICY_VIP_002",
+        "POLICY_RET_002",
+        "FAQ_NET_001",
+        "CODE_FW_002",
+        "POLICY_VIP_001",
+        "CODE_FW_001",
+        "CODE_PHONE_001"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 74.18179999513086,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [],
+      "on_missing_required_document_ids": null
+    },
+    {
+      "query_id": "F3-03",
+      "required_document_ids": [
+        "CODE_PHONE_001",
+        "POLICY_WAR_001",
+        "POLICY_WAR_002"
+      ],
+      "off_document_ids": [
+        "MANUAL_PHONE_001",
+        "CODE_FW_002",
+        "CODE_PHONE_001",
+        "MANUAL_PHONE_002",
+        "GUIDE_PHONE_002",
+        "FAQ_NET_001",
+        "CODE_FW_001",
+        "MANUAL_VAC_001",
+        "CODE_VAC_001",
+        "PROD_PHONE_006"
+      ],
+      "on_document_ids": null,
+      "retrieval_error_code": null,
+      "rerank_attempted": false,
+      "rerank_error_code": null,
+      "retrieval_latency_ms": 70.94580000557471,
+      "rerank_latency_ms": null,
+      "rerank_total_tokens": null,
+      "off_first_relevant_rank": 3,
+      "on_first_relevant_rank": null,
+      "off_missing_required_document_ids": [
+        "POLICY_WAR_001",
+        "POLICY_WAR_002"
+      ],
+      "on_missing_required_document_ids": null
+    }
+  ],
+  "limitations": [
+    "检索指标只覆盖 requires_rag=true 的 132 条样本。",
+    "主指标只使用 required 文档标签, nice 标签仅供后续诊断。",
+    "文档级排名取该文档首个 Chunk 在 TopK 中的位置。"
+  ]
+}

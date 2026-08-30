@@ -4,7 +4,8 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M5-B 已完成并通过固定 20 条真实 Rerank OFF/ON Smoke。项目已有
+> 当前状态：M5-C 已固定原项目附带的 150 条评测集和 116 篇检索语料，并完成 132 条真实本地
+> Retrieval OFF Baseline；付费 Rerank ON 与完整 Intent 云端评测尚未执行。项目已有
 > PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
 > `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT/PDF/DOCX/CSV
@@ -12,7 +13,7 @@
 > active-only Cosine 向量召回。`POST /api/v1/chat/stream` 已将
 > `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → Intent 路由 → 检索 → 加权 RRF/去重 → 可配置 Rerank/TopK → 安全 Prompt → Chat 流 → 保存回答/Trace`
 > 通过版本化 SSE 契约公开；超过 12 个 completed 轮次后会用 fast 模型增量摘要滑出窗口的旧轮次。
-> 下一步进入 M5-C：建立 150 条固定检索评测集、失败样本分析和发布加固。
+> 下一步是在单独确认最多 132 次真实 Rerank 费用后完成 OFF/ON 单变量实验，再做发布加固。
 
 ## 项目目标
 
@@ -92,6 +93,14 @@ Pipeline。M5-B 已增加真实 Rerank 适配器、Workspace 配置、资源释�
 运行器；最终一轮 20/20 真实请求成功且无重试。固定合成集的 OFF → ON 指标为：Hit@1
 `0.10 → 1.00`、Hit@3 `0.30 → 1.00`、MRR@10 `0.2929 → 1.00`，总计 9,686 Token，成功请求
 延迟 P50/P95 为 196.685/231.871 ms。该结果只验证工程链路与合成小样本方向，不代表生产效果。
+
+M5-C 使用原项目附带数据的字节级快照重新建立了独立 Baseline：150 条 Query 中 132 条进入
+Retrieval 分母、18 条 no-rag 不混入检索指标；115 篇正式文档加 `PRODUCT_MAPPING` 共 116 篇，
+已通过正式解析、400/64 分块、本地 BGE 和 pgvector 幂等导入为 1,524 个 active Chunk。132 条
+真实本地 OFF 运行 0 失败，Doc Hit@1/3/5/10 分别为 `0.7045/0.8939/0.9545/0.9848`，
+Recall@3/5/10 为 `0.6723/0.7683/0.8598`，MRR@10 为 `0.8075`。37 条没有召回全部 required
+文档，其中 2 条 Top10 完全未命中；Rerank 只能调整现有候选顺序，不能找回这些缺失文档。
+脱敏逐样本报告见 `evaluation/reports/m5c-full-retrieval-off.json`。
 
 ## 当前文档解析边界
 
@@ -364,6 +373,50 @@ python -m customer_agent2.evaluation --live
 OFF 不访问云端；ON 串行发出最多 20 次 `qwen3-rerank` 请求，每条最多一次且不重试。报告只包含
 固定样本 ID、名次、聚合指标、延迟、Token 和稳定错误码，不包含密钥、Workspace ID、Query 或
 候选正文。认证、配置、额度或协议错误会在首条失败后终止整轮。
+
+M5-C 的固定快照位于 `evaluation/datasets/ragenteval-v1/`，来源和 20 条遗留快速集与全量记录的
+差异边界见目录内 `SOURCE.md`。150 条全量文件是唯一评测真值。先执行完全离线、可幂等复跑的
+语料导入：
+
+```powershell
+python -m customer_agent2.evaluation.full_evaluation_cli --prepare-corpus --offline-models
+```
+
+首次运行导入 116 篇；相同快照再次运行应跳过 116 篇且不创建重复版本。随后执行不访问云端的
+132 条 Retrieval OFF：
+
+```powershell
+python -m customer_agent2.evaluation.full_evaluation_cli --run-off --offline-models
+```
+
+固定参数为 400/64 Token 分块、向量召回 20、HNSW `ef_search=100`、RRF `k=60`、每文档最多
+2 个 Chunk、候选上限 40、最终 TopK 10。400/64 在 BGE 512 Token 上限内保留跨块上下文；召回
+20 与 `ef_search=100` 保持当前正式检索成本；RRF 60 降低单个原始名次的过强影响；每文档 2 个
+Chunk 防止单文档挤占上下文；40→10 给 Rerank 足够候选并限制请求体和最终 Prompt。
+
+真实 OFF/ON 必须显式确认最大付费调用数，且会复用每条 Query 的同一次向量召回和融合候选：
+
+```powershell
+python -m customer_agent2.evaluation.full_evaluation_cli `
+  --live-rerank --accept-paid-calls 132 --offline-models
+```
+
+没有 `--live-rerank` 和精确的 `--accept-paid-calls 132` 时，运行器不会调用云端。ON 串行、每条
+最多一次、不重试，认证、配置、额度、协议错误或任何降级会在首条发生时安全终止。报告不保存
+API Key、Workspace ID、Query、Ground Truth 或 Chunk 正文。协议详见
+[ADR-0012](docs/adr/0012-full-evaluation-dataset-and-protocol.md)。
+
+完整 Intent 使用全部 150 条，`requires_rag=true` 映射 `knowledge_base`，18 条 no-rag 映射
+`system_direct`；原数据没有可靠的 `clarification` 真值，因此不会伪造该路由的准确率。真实运行
+同样需要独立确认最多 150 次 fast Chat 调用：
+
+```powershell
+python -m customer_agent2.evaluation.full_intent_cli `
+  --live-intent --accept-paid-calls 150
+```
+
+运行器记录总体、RAG/no-rag、Intent L1 切片、混淆矩阵、P50/P95 和 Token；不保存问题或答案，
+任何模型降级在第一条发生时终止。该命令与 132 次 Rerank 是两个独立费用边界，不能互相代替授权。
 
 ## 参考与致谢
 

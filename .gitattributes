@@ -18,6 +18,10 @@ LICENSE text eol=lf
 NOTICE text eol=lf
 uv.lock text eol=lf
 
+# Preserve byte-identical upstream evaluation inputs without whitespace normalization.
+evaluation/datasets/ragenteval-v1/eval_set_v1*.jsonl -text -diff
+evaluation/datasets/ragenteval-v1/knowledge_base/** -text -diff
+
 *.png binary
 *.jpg binary
 *.jpeg binary

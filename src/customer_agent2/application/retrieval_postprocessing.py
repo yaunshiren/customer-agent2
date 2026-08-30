@@ -63,6 +63,7 @@ class CandidateRerankResult:
     candidates: tuple[VectorSearchCandidate, ...]
     model_id: str
     degradation_reason: RerankDegradationReason | None = None
+    total_tokens: int | None = None
 
     def __post_init__(self) -> None:
         model_id = self.model_id.strip()
@@ -72,6 +73,8 @@ class CandidateRerankResult:
             range(1, len(self.candidates) + 1)
         ):
             raise ValueError("Rerank 候选必须使用连续排名")
+        if self.total_tokens is not None and self.total_tokens < 0:
+            raise ValueError("Rerank total_tokens 不能为负数")
         object.__setattr__(self, "model_id", model_id)
 
 
@@ -268,6 +271,7 @@ class RetrievalPostProcessor:
             reranked,
             result.model_id,
             result.degradation_reason,
+            result.total_tokens,
         )
 
     def _fallback(
