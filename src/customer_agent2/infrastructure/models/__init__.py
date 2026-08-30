@@ -1,5 +1,9 @@
 """Concrete and controllable model adapters."""
 
+from customer_agent2.infrastructure.models.dashscope_rerank import (
+    DEFAULT_RERANK_INSTRUCTION,
+    DashScopeRerankModel,
+)
 from customer_agent2.infrastructure.models.fakes import (
     FakeChatModel,
     FakeEmbeddingModel,
@@ -12,6 +16,8 @@ from customer_agent2.infrastructure.models.sentence_transformer_embedding import
 )
 
 __all__ = [
+    "DEFAULT_RERANK_INSTRUCTION",
+    "DashScopeRerankModel",
     "FakeChatModel",
     "FakeEmbeddingModel",
     "FakeRerankModel",

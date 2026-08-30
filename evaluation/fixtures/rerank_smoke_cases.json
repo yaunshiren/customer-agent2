@@ -1,0 +1,207 @@
+{
+  "dataset_id": "m5b-rerank-smoke-v1",
+  "documents": [
+    {
+      "document_id": "refund_window",
+      "text": "退款时限：商品签收之日起七天内可以申请无理由退款，超过七天需符合质量问题等售后条件。"
+    },
+    {
+      "document_id": "refund_steps",
+      "text": "退款流程：进入订单详情，点击申请售后，选择退款原因并提交；审核通过后款项原路退回。"
+    },
+    {
+      "document_id": "return_shipping",
+      "text": "退货运费：因商品质量问题产生的退货运费由商家承担，个人原因退货通常由消费者承担。"
+    },
+    {
+      "document_id": "invoice",
+      "text": "电子发票可在订单完成后从订单详情申请，开票成功后可下载 PDF 文件。"
+    },
+    {
+      "document_id": "logistics",
+      "text": "订单发货后，可在订单详情的物流信息中查看承运商、运单号和最新运输节点。"
+    },
+    {
+      "document_id": "address_change",
+      "text": "订单尚未发货时可以联系客服修改收货地址；发货后需联系承运商确认是否支持改址。"
+    },
+    {
+      "document_id": "cancel_order",
+      "text": "未付款订单可以直接取消；已付款但未发货的订单可申请取消，退款将原路返回。"
+    },
+    {
+      "document_id": "payment_methods",
+      "text": "订单支持支付宝、微信支付和符合条件的银行卡支付，实际方式以收银台展示为准。"
+    },
+    {
+      "document_id": "payment_failed",
+      "text": "支付失败时请检查余额、银行卡限额和网络状态；重复扣款应保留支付记录并联系客服核查。"
+    },
+    {
+      "document_id": "coupon",
+      "text": "优惠券需在有效期内使用，每张订单通常只能使用一张，具体门槛和适用商品以券面说明为准。"
+    },
+    {
+      "document_id": "points",
+      "text": "会员积分可在积分商城兑换优惠券或礼品，积分不可直接提现，过期规则以账户页面为准。"
+    },
+    {
+      "document_id": "membership",
+      "text": "会员等级根据成长值计算，不同等级可获得专属折扣、生日礼和优先客服等权益。"
+    },
+    {
+      "document_id": "warranty",
+      "text": "商品保修期从签收日开始计算，保修期限和覆盖范围以商品详情及品牌保修政策为准。"
+    },
+    {
+      "document_id": "repair",
+      "text": "申请维修时需在售后页面提交故障描述和凭证，审核后会提供寄修地址或上门服务安排。"
+    },
+    {
+      "document_id": "damaged",
+      "text": "收到破损商品应在签收后尽快拍摄外包装、面单和商品照片，并通过订单售后入口提交。"
+    },
+    {
+      "document_id": "wrong_item",
+      "text": "收到错发商品时请保留商品和包装，上传订单与实物照片，审核后可安排换货或退款。"
+    },
+    {
+      "document_id": "presale",
+      "text": "预售商品的预计发货时间会显示在商品页和订单页，尾款支付时间以预售活动规则为准。"
+    },
+    {
+      "document_id": "out_of_stock",
+      "text": "缺货商品可以设置到货提醒；补货时间无法保证，库存恢复后系统会按设置发送通知。"
+    },
+    {
+      "document_id": "privacy",
+      "text": "账户信息仅用于履行订单和提供服务，可在隐私设置中管理授权并申请查询或删除个人信息。"
+    },
+    {
+      "document_id": "service_hours",
+      "text": "人工客服服务时间为每天九点至二十一点，非服务时间可以提交留言等待后续处理。"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "refund_window",
+      "query": "商品签收后多久之内可以申请无理由退款?",
+      "candidate_ids": ["refund_window", "invoice", "logistics", "coupon", "points", "membership", "presale", "privacy", "service_hours", "address_change"],
+      "relevant_ids": ["refund_window"]
+    },
+    {
+      "case_id": "refund_steps",
+      "query": "我应该从哪里提交退款申请?",
+      "candidate_ids": ["invoice", "refund_steps", "logistics", "coupon", "points", "membership", "warranty", "presale", "privacy", "service_hours"],
+      "relevant_ids": ["refund_steps"]
+    },
+    {
+      "case_id": "return_shipping",
+      "query": "质量问题退货产生的运费由谁承担?",
+      "candidate_ids": ["invoice", "logistics", "return_shipping", "coupon", "points", "membership", "warranty", "presale", "privacy", "service_hours"],
+      "relevant_ids": ["return_shipping"]
+    },
+    {
+      "case_id": "invoice",
+      "query": "订单完成后如何申请和下载电子发票?",
+      "candidate_ids": ["logistics", "coupon", "points", "invoice", "membership", "warranty", "presale", "out_of_stock", "privacy", "service_hours"],
+      "relevant_ids": ["invoice"]
+    },
+    {
+      "case_id": "logistics",
+      "query": "商品发货后在哪里查看运单号和物流进度?",
+      "candidate_ids": ["coupon", "points", "membership", "warranty", "logistics", "presale", "out_of_stock", "privacy", "service_hours", "refund_window"],
+      "relevant_ids": ["logistics"]
+    },
+    {
+      "case_id": "address_change",
+      "query": "订单还没有发货，可以修改收货地址吗?",
+      "candidate_ids": ["coupon", "points", "membership", "warranty", "presale", "address_change", "out_of_stock", "privacy", "service_hours", "refund_window"],
+      "relevant_ids": ["address_change"]
+    },
+    {
+      "case_id": "cancel_order",
+      "query": "已经付款但还没发货的订单如何取消?",
+      "candidate_ids": ["invoice", "coupon", "points", "membership", "warranty", "presale", "cancel_order", "privacy", "service_hours", "address_change"],
+      "relevant_ids": ["cancel_order"]
+    },
+    {
+      "case_id": "payment_methods",
+      "query": "下单时支持哪些付款方式?",
+      "candidate_ids": ["invoice", "logistics", "coupon", "points", "membership", "warranty", "presale", "payment_methods", "privacy", "service_hours"],
+      "relevant_ids": ["payment_methods"]
+    },
+    {
+      "case_id": "payment_failed",
+      "query": "付款失败或者出现重复扣款应该怎么办?",
+      "candidate_ids": ["invoice", "logistics", "coupon", "points", "membership", "warranty", "presale", "privacy", "payment_failed", "service_hours"],
+      "relevant_ids": ["payment_failed"]
+    },
+    {
+      "case_id": "coupon",
+      "query": "一张订单能使用几张优惠券，有什么限制?",
+      "candidate_ids": ["invoice", "logistics", "points", "membership", "warranty", "presale", "out_of_stock", "privacy", "service_hours", "coupon"],
+      "relevant_ids": ["coupon"]
+    },
+    {
+      "case_id": "points",
+      "query": "会员积分可以兑换什么，能不能提现?",
+      "candidate_ids": ["points", "invoice", "logistics", "coupon", "membership", "warranty", "presale", "out_of_stock", "privacy", "service_hours"],
+      "relevant_ids": ["points"]
+    },
+    {
+      "case_id": "membership",
+      "query": "会员等级如何计算，不同等级有哪些权益?",
+      "candidate_ids": ["invoice", "membership", "logistics", "coupon", "points", "warranty", "presale", "out_of_stock", "privacy", "service_hours"],
+      "relevant_ids": ["membership"]
+    },
+    {
+      "case_id": "warranty",
+      "query": "商品保修期从什么时候开始，保修多久?",
+      "candidate_ids": ["invoice", "logistics", "warranty", "coupon", "points", "membership", "presale", "out_of_stock", "privacy", "service_hours"],
+      "relevant_ids": ["warranty"]
+    },
+    {
+      "case_id": "repair",
+      "query": "商品发生故障后怎样提交维修申请?",
+      "candidate_ids": ["invoice", "logistics", "coupon", "repair", "points", "membership", "presale", "out_of_stock", "privacy", "service_hours"],
+      "relevant_ids": ["repair"]
+    },
+    {
+      "case_id": "damaged",
+      "query": "收到破损商品需要拍摄和提交哪些材料?",
+      "candidate_ids": ["invoice", "logistics", "coupon", "points", "damaged", "membership", "warranty", "presale", "privacy", "service_hours"],
+      "relevant_ids": ["damaged"]
+    },
+    {
+      "case_id": "wrong_item",
+      "query": "商家发错商品了，应该如何处理?",
+      "candidate_ids": ["invoice", "logistics", "coupon", "points", "membership", "wrong_item", "warranty", "presale", "privacy", "service_hours"],
+      "relevant_ids": ["wrong_item"]
+    },
+    {
+      "case_id": "presale",
+      "query": "预售商品什么时候发货，尾款什么时候支付?",
+      "candidate_ids": ["invoice", "logistics", "coupon", "points", "membership", "warranty", "presale", "out_of_stock", "privacy", "service_hours"],
+      "relevant_ids": ["presale"]
+    },
+    {
+      "case_id": "out_of_stock",
+      "query": "商品缺货后能否设置到货提醒?",
+      "candidate_ids": ["invoice", "logistics", "coupon", "points", "membership", "warranty", "presale", "out_of_stock", "privacy", "service_hours"],
+      "relevant_ids": ["out_of_stock"]
+    },
+    {
+      "case_id": "privacy",
+      "query": "我可以在哪里管理授权或申请删除个人信息?",
+      "candidate_ids": ["invoice", "logistics", "coupon", "points", "membership", "warranty", "presale", "out_of_stock", "privacy", "service_hours"],
+      "relevant_ids": ["privacy"]
+    },
+    {
+      "case_id": "service_hours",
+      "query": "人工客服每天几点到几点在线?",
+      "candidate_ids": ["invoice", "logistics", "coupon", "points", "membership", "warranty", "presale", "out_of_stock", "privacy", "service_hours"],
+      "relevant_ids": ["service_hours"]
+    }
+  ]
+}

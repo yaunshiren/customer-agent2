@@ -136,6 +136,7 @@ def test_settings_expose_m5a_postprocessing_baseline() -> None:
     assert settings.retrieval_context_top_k == 10
     assert settings.retrieval_max_chunks_per_document == 2
     assert settings.rerank_timeout_seconds == 10
+    assert settings.dashscope_rerank_region == "cn-beijing"
 
     with pytest.raises(ValidationError, match="RERANK_TIMEOUT_SECONDS"):
         Settings(rerank_timeout_seconds=120)
@@ -199,14 +200,14 @@ def test_settings_require_credentials_when_rerank_is_enabled() -> None:
             }
         )
 
-    with pytest.raises(ValidationError, match="M5-A"):
-        Settings.model_validate(
-            {
-                "rerank_enabled": True,
-                "dashscope_api_key": "test-key",
-                "dashscope_workspace_id": "workspace",
-            }
-        )
+    enabled = Settings.model_validate(
+        {
+            "rerank_enabled": True,
+            "dashscope_api_key": "test-key",
+            "dashscope_workspace_id": "workspace",
+        }
+    )
+    assert enabled.rerank_enabled is True
 
     with pytest.raises(ValidationError, match="DASHSCOPE_WORKSPACE_ID"):
         Settings.model_validate(

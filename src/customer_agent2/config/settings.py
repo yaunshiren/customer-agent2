@@ -65,6 +65,7 @@ class Settings(BaseSettings):
     rerank_provider: Literal["dashscope"] = "dashscope"
     rerank_model: str = "qwen3-rerank"
     dashscope_workspace_id: str | None = None
+    dashscope_rerank_region: Literal["cn-beijing"] = "cn-beijing"
     rerank_timeout_seconds: float = Field(default=10.0, gt=0)
 
     database_url: PostgresDsn = PostgresDsn(
@@ -204,7 +205,6 @@ class Settings(BaseSettings):
                 raise ValueError("启用 Rerank 时必须配置 DASHSCOPE_API_KEY")
             if self.dashscope_workspace_id is None:
                 raise ValueError("启用 Rerank 时必须配置 DASHSCOPE_WORKSPACE_ID")
-            raise ValueError("M5-A 尚未接入真实 Rerank, 请保持 RERANK_ENABLED=false")
         return self
 
 

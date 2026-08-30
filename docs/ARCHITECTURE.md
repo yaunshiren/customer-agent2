@@ -205,10 +205,11 @@ rerank_candidate_limit >= context_top_k
 按 Chunk UUID 聚合加权 RRF → 内容哈希去重 → 文档上限 → 候选截断 → Rerank → TopK
 ```
 
-M5-A 当前只有同一向量通道的 1～3 个子问题，因此权重均为 1.0；RRF `k=60`，每个子问题
+当前只有同一向量通道的 1～3 个子问题，因此权重均为 1.0；RRF `k=60`，每个子问题
 召回 20 条，每个文档最多 2 个 Chunk，Rerank 候选上限 40，最终 TopK 10。这些是可复现
-Baseline，不表示已经由本项目评测证明最优。在线服务当前注入 No-op Rerank；真实专用模型和
-OFF/ON 对比留在 M5-B。
+Baseline，不表示已经由本项目评测证明最优。在线服务默认注入 No-op Rerank；显式启用并通过
+配置校验后注入 `qwen3-rerank` 专用异步适配器。最终固定 20 条 OFF/ON Smoke 的 20 次真实请求
+全部成功且无重试；合成集三项指标均明显上升，但该实验不代表生产分布或正式效果结论。
 
 ### 6.3 向量检索作用域
 
@@ -375,7 +376,7 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 - M5-A 默认 RRF `k=60`、每文档最多 2 个 Chunk、Rerank 候选上限 40、最终 TopK 10，
   Rerank 独立超时 10 秒且小于全局截止时间。
 - PostgreSQL、pgvector 和 Redis 是否可连接。
-- M5-A 必须保持 `RERANK_ENABLED=false`；M5-B 接入真实适配器后，启用时还要校验 Workspace ID。
+- `RERANK_ENABLED=false` 是安全默认值；启用真实适配器时必须同时校验 API Key 和 Workspace ID。
 - 启用 VLM/MCP 时相应端点是否配置。
 
 配置错误应快速失败，不允许静默使用未知默认值。
@@ -394,7 +395,8 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
   模型输出、问题正文和 Prompt 不进入 Trace。
 - M4-C 的分类 Prompt 同样转义输入并严格校验 JSON；系统直答 Prompt 禁止声称访问知识库、订单、
   工具或网络。Intent 日志和 Trace 只保留稳定路由、候选数与降级代码。
-- M5-A 的融合与 Rerank Trace 不保存问题、候选正文或排序分数；No-op 不会把候选发送到外部服务。
+- 融合与 Rerank Trace 不保存问题、候选正文或排序分数；No-op 不发送候选，真实适配器也只在
+  显式启用或显式 `--live` Smoke 时向外部服务发送合成/当前请求候选。
 - MCP 工具使用 Allowlist；P1 默认只实现只读工具。
 - 错误响应不暴露密钥、数据库 DSN、堆栈和完整文档内容。
 - 日志中的问题和文档片段应支持截断或关闭。
@@ -412,7 +414,9 @@ M2-E 不持久化原始文档，只在请求期间使用框架管理的 multipar
 M3-C 已记录 Retrieval、Prompting、Generation Trace、最终来源 Chunk、模型结果、Token 用量和
 终局。M4-B 增加 Rewrite 耗时、实际子问题数量和可选稳定降级代码；M4-C 增加 Intent 耗时、
 候选数、决策与可选分类降级代码。M5-A 增加 Fusion 和 Rerank 耗时、最终候选数、模型 ID 与
-稳定降级代码，但不保存 RRF/Rerank 分数，也不伪造真实模型效果。
+稳定降级代码；M5-B 增加固定 20 条合成数据、OFF/ON 指标、调用/Token/延迟汇总和脱敏错误码，
+但不保存 RRF/Rerank 分数、Query 或候选正文。最终报告记录 20/20 成功、9,686 Token、
+P50/P95 196.685/231.871 ms，并明确禁止把合成 Smoke 外推为生产效果。
 M4-A 摘要失败使用不含消息正文和异常文本的结构化 `conversation_summary_degraded` 告警；摘要
 目前不伪装成公开 Pipeline Trace 阶段。
 

@@ -31,6 +31,7 @@ from customer_agent2.infrastructure.documents import (
 )
 from customer_agent2.infrastructure.intents import load_default_intent_tree
 from customer_agent2.infrastructure.models import (
+    DashScopeRerankModel,
     NoOpRerankModel,
     OpenAICompatibleChatModel,
     SentenceTransformerEmbeddingModel,
@@ -111,6 +112,22 @@ def build_application_services(
         timeout_seconds=settings.llm_timeout_seconds,
         first_packet_timeout_seconds=settings.llm_first_packet_timeout_seconds,
     )
+    if settings.rerank_enabled:
+        workspace_id = settings.dashscope_workspace_id
+        assert workspace_id is not None
+        rerank = DashScopeRerankModel(
+            api_key=settings.dashscope_api_key,
+            base_url=(
+                f"https://{workspace_id}.{settings.dashscope_rerank_region}"
+                ".maas.aliyuncs.com/compatible-api/v1"
+            ),
+            model_id=settings.rerank_model,
+            timeout_seconds=settings.rerank_timeout_seconds,
+        )
+        rerank_closeables = (rerank,)
+    else:
+        rerank = NoOpRerankModel()
+        rerank_closeables = ()
     memory_repository = SQLAlchemyConversationMemoryRepository(database.session_factory)
     rag = SummarizingStreamingRagPipeline(
         PersistentStreamingRagPipeline(
@@ -134,7 +151,7 @@ def build_application_services(
                         max_output_tokens=settings.intent_max_output_tokens,
                     ),
                     RetrievalPostProcessor(
-                        NoOpRerankModel(),
+                        rerank,
                         rrf_k=settings.retrieval_rrf_k,
                         rerank_candidate_limit=settings.retrieval_rerank_candidate_limit,
                         context_top_k=settings.retrieval_context_top_k,
@@ -170,5 +187,5 @@ def build_application_services(
         ),
         retrieval=retrieval,
         rag=rag,
-        closeables=(final_chat, fast_chat),
+        closeables=(final_chat, fast_chat, *rerank_closeables),
     )

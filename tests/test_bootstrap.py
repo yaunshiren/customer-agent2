@@ -7,7 +7,10 @@ from customer_agent2.application import SummarizingStreamingRagPipeline
 from customer_agent2.bootstrap import build_application_services
 from customer_agent2.domain.models import ModelError, ModelErrorCode
 from customer_agent2.infrastructure.database import DatabaseManager
-from customer_agent2.infrastructure.models import OpenAICompatibleChatModel
+from customer_agent2.infrastructure.models import (
+    DashScopeRerankModel,
+    OpenAICompatibleChatModel,
+)
 from tests.settings import IsolatedSettings
 
 
@@ -45,3 +48,25 @@ async def test_default_service_graph_rejects_missing_chat_credentials() -> None:
 
     assert captured.value.code is ModelErrorCode.CONFIGURATION
     assert "凭据未配置" in captured.value.public_message
+
+
+@pytest.mark.asyncio
+async def test_enabled_rerank_is_owned_by_default_service_graph() -> None:
+    settings = IsolatedSettings(
+        app_env="test",
+        dashscope_api_key=SecretStr("test-key"),
+        dashscope_workspace_id="workspace",
+        rerank_enabled=True,
+    )
+    database = DatabaseManager(settings)
+    await database.open()
+    try:
+        services = build_application_services(settings, database)
+
+        assert len(services.closeables) == 3
+        assert isinstance(services.closeables[-1], DashScopeRerankModel)
+        assert services.closeables[-1].model_id == "qwen3-rerank"
+
+        await services.aclose()
+    finally:
+        await database.close()

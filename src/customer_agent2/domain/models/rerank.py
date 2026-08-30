@@ -76,6 +76,7 @@ class RerankResult:
     items: tuple[RerankItem, ...]
     degraded: bool = False
     degradation_reason: RerankDegradationReason | None = None
+    total_tokens: int | None = None
 
     def __post_init__(self) -> None:
         if not self.model_id.strip():
@@ -84,6 +85,8 @@ class RerankResult:
             raise ValueError("RerankResult.items 不能为空")
         if self.degraded != (self.degradation_reason is not None):
             raise ValueError("RerankResult 降级状态和原因必须一致")
+        if self.total_tokens is not None and self.total_tokens < 0:
+            raise ValueError("RerankResult.total_tokens 不能为负数")
 
 
 class RerankModel(Protocol):

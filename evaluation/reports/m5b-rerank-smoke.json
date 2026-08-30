@@ -1,0 +1,193 @@
+{
+  "dataset_id": "m5b-rerank-smoke-v1",
+  "model_id": "qwen3-rerank",
+  "sample_count": 20,
+  "candidates_per_case": 10,
+  "top_n": 10,
+  "live_calls": 20,
+  "successful_calls": 20,
+  "failed_calls": 0,
+  "total_tokens": 9686,
+  "off_metrics": {
+    "hit_at_1": 0.1,
+    "hit_at_3": 0.3,
+    "mrr_at_10": 0.2928968253968254
+  },
+  "on_metrics": {
+    "hit_at_1": 1.0,
+    "hit_at_3": 1.0,
+    "mrr_at_10": 1.0
+  },
+  "wins": 18,
+  "ties": 2,
+  "losses": 0,
+  "latency_ms_p50": 196.68450000608573,
+  "latency_ms_p95": 231.8712300038897,
+  "cases": [
+    {
+      "case_id": "refund_window",
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 304.58479998924304,
+      "total_tokens": 510
+    },
+    {
+      "case_id": "refund_steps",
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 193.727800011402,
+      "total_tokens": 467
+    },
+    {
+      "case_id": "return_shipping",
+      "off_first_relevant_rank": 3,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 180.3049000009196,
+      "total_tokens": 465
+    },
+    {
+      "case_id": "invoice",
+      "off_first_relevant_rank": 4,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 220.3866000054404,
+      "total_tokens": 477
+    },
+    {
+      "case_id": "logistics",
+      "off_first_relevant_rank": 5,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 159.70099999685772,
+      "total_tokens": 514
+    },
+    {
+      "case_id": "address_change",
+      "off_first_relevant_rank": 6,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 183.7043999985326,
+      "total_tokens": 505
+    },
+    {
+      "case_id": "cancel_order",
+      "off_first_relevant_rank": 7,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 199.8858000006294,
+      "total_tokens": 486
+    },
+    {
+      "case_id": "payment_methods",
+      "off_first_relevant_rank": 8,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 188.0964000010863,
+      "total_tokens": 453
+    },
+    {
+      "case_id": "payment_failed",
+      "off_first_relevant_rank": 9,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 199.92729999648873,
+      "total_tokens": 488
+    },
+    {
+      "case_id": "coupon",
+      "off_first_relevant_rank": 10,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 220.47359999851324,
+      "total_tokens": 497
+    },
+    {
+      "case_id": "points",
+      "off_first_relevant_rank": 1,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 192.09480000426993,
+      "total_tokens": 477
+    },
+    {
+      "case_id": "membership",
+      "off_first_relevant_rank": 2,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 191.44690000393894,
+      "total_tokens": 487
+    },
+    {
+      "case_id": "warranty",
+      "off_first_relevant_rank": 3,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 203.82140000583604,
+      "total_tokens": 487
+    },
+    {
+      "case_id": "repair",
+      "off_first_relevant_rank": 4,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 187.96729999303352,
+      "total_tokens": 479
+    },
+    {
+      "case_id": "damaged",
+      "off_first_relevant_rank": 5,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 183.96450000000186,
+      "total_tokens": 487
+    },
+    {
+      "case_id": "wrong_item",
+      "off_first_relevant_rank": 6,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 200.04130000597797,
+      "total_tokens": 479
+    },
+    {
+      "case_id": "presale",
+      "off_first_relevant_rank": 7,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 192.06870000925846,
+      "total_tokens": 487
+    },
+    {
+      "case_id": "out_of_stock",
+      "off_first_relevant_rank": 8,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 199.64120000076946,
+      "total_tokens": 487
+    },
+    {
+      "case_id": "privacy",
+      "off_first_relevant_rank": 9,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 200.21109998924658,
+      "total_tokens": 487
+    },
+    {
+      "case_id": "service_hours",
+      "off_first_relevant_rank": 10,
+      "on_first_relevant_rank": 1,
+      "error_code": null,
+      "latency_ms": 228.04420000466052,
+      "total_tokens": 467
+    }
+  ],
+  "limitations": [
+    "20 条合成客服样本只用于工程 Smoke, 不代表生产流量。",
+    "候选顺序经过分层安排, 不代表真实 pgvector 排名分布。",
+    "M5-C 仍需使用 150 条固定检索集完成正式结论。"
+  ]
+}

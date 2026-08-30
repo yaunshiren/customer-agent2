@@ -4,14 +4,15 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M5-A 检索后处理 OFF Baseline 已完成。项目已有 PostgreSQL/Redis 连接管理、
+> 当前状态：M5-B 已完成并通过固定 20 条真实 Rerank OFF/ON Smoke。项目已有
+> PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
 > `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT/PDF/DOCX/CSV
 > 解析，以及 400/64 Token 分块、原子版本切换、同步上传/状态/删除 API 和带作用域过滤的
 > active-only Cosine 向量召回。`POST /api/v1/chat/stream` 已将
-> `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → Intent 路由 → 检索 → 加权 RRF/去重 → No-op Rerank/TopK → 安全 Prompt → Chat 流 → 保存回答/Trace`
+> `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → Intent 路由 → 检索 → 加权 RRF/去重 → 可配置 Rerank/TopK → 安全 Prompt → Chat 流 → 保存回答/Trace`
 > 通过版本化 SSE 契约公开；超过 12 个 completed 轮次后会用 fast 模型增量摘要滑出窗口的旧轮次。
-> 下一步进入 M5-B：接入真实专用 Rerank，并在固定融合参数下运行 OFF/ON 单变量实验。
+> 下一步进入 M5-C：建立 150 条固定检索评测集、失败样本分析和发布加固。
 
 ## 项目目标
 
@@ -63,7 +64,7 @@
 | 最终回答 | `qwen3.7-max-preview` | 配置化，可随额度切换 |
 | 内部快速任务 | `qwen3.7-flash` | 用于改写、意图、摘要等 |
 | Embedding Baseline | `BAAI/bge-base-zh-v1.5` | 本地 CPU，768 维 |
-| Rerank | M5-A 为 No-op；M5-B 规划 `qwen3-rerank` | 关闭或已知失败时显式降级 |
+| Rerank | `qwen3-rerank`，默认关闭 | 关闭或已知失败时显式降级 |
 | VLM | `qwen3.7-plus` | 后续阶段启用 |
 
 真实密钥只允许放在本地 `.env`，不得提交到仓库。
@@ -76,7 +77,8 @@
 - final 模型只用于最终回答；fast 模型已用于长会话摘要、严格 JSON Query Rewrite 和 Intent 分类。
 - Embedding 模型按首次请求懒加载，CPU 推理在工作线程执行，并串行保护同一个模型实例。
 - Embedding 结果会验证批量形状、768 维、NaN/无限值和 L2 归一化；最大序列固定为 512 Token。
-- Rerank 未启用时使用显式 No-op，保留原始顺序并记录降级原因，不使用 Chat 模型冒充 Rerank。
+- Rerank 未启用时使用显式 No-op；显式启用后使用异步 `qwen3-rerank` 专用接口和独立连接池，
+  不使用 Chat 模型冒充 Rerank。
 - Fake 模型可稳定复现正常结果、流式结果、排序结果和结构化错误，不需要网络或真实密钥。
 
 Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实云端模型或消耗额度。本地
@@ -85,8 +87,11 @@ M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embe
 在线向量召回连成闭环。M3-A 已接入最终 Chat 流，M3-B 已提供公开 SSE 问答 API，M3-C 已保存
 最小会话消息和 RAG Run 终局；M4-A 已把持久化摘要和最近 completed 消息接入 Prompt，M4-B
 已让上下文改写和最多 3 个子问题实际参与向量召回；M4-C 已实现系统直答、知识库问答、需要
-澄清三类路由和固定 20 条决策 Smoke Test；M5-A 已把加权 RRF、重复控制、候选预算和 No-op
-Rerank 接入在线 Pipeline，但尚未调用真实 Rerank 服务或产生效果对比数据。
+澄清三类路由和固定 20 条决策 Smoke Test；M5-A 已把加权 RRF、重复控制和候选预算接入在线
+Pipeline。M5-B 已增加真实 Rerank 适配器、Workspace 配置、资源释放和固定 20 条 OFF/ON
+运行器；最终一轮 20/20 真实请求成功且无重试。固定合成集的 OFF → ON 指标为：Hit@1
+`0.10 → 1.00`、Hit@3 `0.30 → 1.00`、MRR@10 `0.2929 → 1.00`，总计 9,686 Token，成功请求
+延迟 P50/P95 为 196.685/231.871 ms。该结果只验证工程链路与合成小样本方向，不代表生产效果。
 
 ## 当前文档解析边界
 
@@ -162,7 +167,8 @@ Rerank 接入在线 Pipeline，但尚未调用真实 Rerank 服务或产生效�
   严格 JSON。默认改写超时 20 秒、最多 512 token，模型错误、超时或协议不合规时退回原问题，
   并在日志与 Trace 保留稳定降级代码。
 - 子问题使用结构化并发检索，异常、超时和取消会收拢全部子任务。检索结果使用等权加权 RRF，
-  再执行内容哈希去重、每文档上限和候选截断；当前 No-op Rerank 显式保留融合顺序并返回 TopK 10。
+  再执行内容哈希去重、每文档上限和候选截断；默认 No-op Rerank 保留融合顺序，显式启用后调用
+  `qwen3-rerank`，两条路径最终都返回 TopK 10。
 - fast 模型按打包的三节点意图树输出三个独立置信分数。最高分至少 `0.75` 且与第二名差值至少
   `0.10` 才执行系统直答或知识库问答；低置信、歧义或显式澄清路由会返回 `guidance`，不检索也
   不调用 final 模型。分类模型失败、超时或协议不合规时，只在请求已授权的知识库作用域内降级检索。
@@ -179,8 +185,9 @@ Rerank 接入在线 Pipeline，但尚未调用真实 Rerank 服务或产生效�
 - 每个已开始请求会保存 user 消息与 RAG Run；completed 会原子保存 assistant 消息、可选来源 Chunk、
   模型用量和轻量 Trace；clarification 会保存 guidance assistant 消息；no_context/failed/cancelled
   不保存伪成功回答。Run 同时保存稳定 `intent_route`。
-- 当前没有认证、真实云端 Rerank、会话管理 API、断线重放或心跳；协议、Run 持久化、记忆、
-  改写、Intent 和检索后处理边界分别见 ADR-0005 至 ADR-0010。
+- 当前没有应用用户认证、会话管理 API、断线重放或心跳；真实云端 Rerank 已完成工程接线和
+  固定 20 条 Smoke。协议、Run 持久化、记忆、改写、Intent 和检索后处理边界分别见
+  ADR-0005 至 ADR-0011。
 
 ## 当前文档
 
@@ -197,6 +204,7 @@ Rerank 接入在线 Pipeline，但尚未调用真实 Rerank 服务或产生效�
 - [Query Rewrite 与多问题检索基线](docs/adr/0008-query-rewrite-and-multi-question-retrieval.md)
 - [Intent 路由、澄清与降级契约](docs/adr/0009-intent-routing-and-guidance.md)
 - [检索后处理与 No-op Rerank 基线](docs/adr/0010-retrieval-post-processing-baseline.md)
+- [DashScope Rerank 与 20 条 OFF/ON Smoke](docs/adr/0011-dashscope-rerank-and-smoke-evaluation.md)
 - [AI 协作规则](AGENTS.md)
 
 ## 本地启动
@@ -345,6 +353,17 @@ Markdown 解析、BGE 分块/Embedding 和 pgvector 原子激活：
 $env:RUN_INGESTION_SMOKE="1"
 pytest -m ingestion_smoke
 ```
+
+M5-B 的 Rerank Smoke 使用 20 条固定合成样本。先在本地 `.env` 配置同一地域/计费方案下有效的
+`DASHSCOPE_API_KEY` 和 `DASHSCOPE_WORKSPACE_ID`，再显式授权真实调用：
+
+```powershell
+python -m customer_agent2.evaluation --live
+```
+
+OFF 不访问云端；ON 串行发出最多 20 次 `qwen3-rerank` 请求，每条最多一次且不重试。报告只包含
+固定样本 ID、名次、聚合指标、延迟、Token 和稳定错误码，不包含密钥、Workspace ID、Query 或
+候选正文。认证、配置、额度或协议错误会在首条失败后终止整轮。
 
 ## 参考与致谢
 

@@ -3,7 +3,8 @@
 - 状态：Accepted
 - 日期：2026-08-29
 - 修订：[ADR-0005](0005-streaming-rag-api.md) 和
-  [ADR-0008](0008-query-rewrite-and-multi-question-retrieval.md)
+  [ADR-0008](0008-query-rewrite-and-multi-question-retrieval.md)；真实 Rerank 与 Smoke 由
+  [ADR-0011](0011-dashscope-rerank-and-smoke-evaluation.md) 继续修订
 
 ## 背景
 
