@@ -118,6 +118,7 @@ class ConversationSummaryService:
             ),
             temperature=0,
             max_output_tokens=self._max_output_tokens,
+            reasoning_enabled=False,
         )
         async with asyncio.timeout(self._timeout_seconds):
             result = await self._chat_model.complete(request)

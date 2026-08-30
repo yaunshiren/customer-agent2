@@ -7,6 +7,7 @@ from typing import Protocol
 from uuid import UUID
 
 from customer_agent2.domain.models.chat import TokenUsage
+from customer_agent2.domain.models.errors import ModelErrorCode
 
 
 class IntentRoute(StrEnum):
@@ -112,6 +113,7 @@ class IntentDecision:
     classifier_finish_reason: str | None = None
     usage: TokenUsage | None = None
     degradation_reason: IntentDegradationReason | None = None
+    model_error_code: ModelErrorCode | None = None
 
     def __post_init__(self) -> None:
         message = self.guidance_message.strip() if self.guidance_message is not None else None
@@ -132,6 +134,8 @@ class IntentDecision:
                 raise ValueError("正常 IntentDecision 必须包含分类模型结果")
             if self.reason is IntentDecisionReason.CLASSIFIER_FALLBACK:
                 raise ValueError("正常 IntentDecision 不能使用降级原因")
+            if self.model_error_code is not None:
+                raise ValueError("正常 IntentDecision 不能包含模型错误代码")
         else:
             if (
                 self.route is not IntentRoute.KNOWLEDGE_BASE

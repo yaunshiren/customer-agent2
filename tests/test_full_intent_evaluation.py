@@ -12,10 +12,12 @@ from customer_agent2.domain.models import (
     IntentDecisionReason,
     IntentDegradationReason,
     IntentRoute,
+    ModelErrorCode,
     TokenUsage,
 )
 from customer_agent2.evaluation.full_dataset import load_full_evaluation_assets
 from customer_agent2.evaluation.full_intent import (
+    FullIntentCaseResult,
     FullIntentRunError,
     run_full_intent_evaluation,
 )
@@ -42,6 +44,7 @@ class FixedIntentClassifier:
                 reason=IntentDecisionReason.CLASSIFIER_FALLBACK,
                 candidates=(),
                 degradation_reason=IntentDegradationReason.PROTOCOL,
+                model_error_code=ModelErrorCode.PROTOCOL,
             )
         route = self._routes[request.question]
         return IntentDecision(
@@ -117,8 +120,61 @@ async def test_full_intent_run_stops_at_first_degradation() -> None:
     }
     failed_sample = assets.dataset.samples[2]
     classifier = FixedIntentClassifier(routes, degrade_question=failed_sample.query)
+    recorded: list[FullIntentCaseResult] = []
 
-    with pytest.raises(FullIntentRunError, match=failed_sample.query_id):
-        await run_full_intent_evaluation(assets.dataset, classifier)
+    with pytest.raises(FullIntentRunError, match=failed_sample.query_id) as captured:
+        await run_full_intent_evaluation(
+            assets.dataset,
+            classifier,
+            on_case=recorded.append,
+        )
 
     assert classifier.calls == 3
+    assert len(recorded) == 3
+    assert recorded[-1].degradation_reason is IntentDegradationReason.PROTOCOL
+    assert captured.value.error_code == ModelErrorCode.PROTOCOL.value
+
+
+@pytest.mark.asyncio
+async def test_full_intent_run_resumes_successful_prefix_without_recalling_it() -> None:
+    assets = load_full_evaluation_assets(SNAPSHOT_ROOT)
+    routes = {
+        sample.query: (
+            IntentRoute.KNOWLEDGE_BASE if sample.requires_rag else IntentRoute.SYSTEM_DIRECT
+        )
+        for sample in assets.dataset.samples
+    }
+    first_run = await run_full_intent_evaluation(
+        assets.dataset,
+        FixedIntentClassifier(routes),
+    )
+    resumed_classifier = FixedIntentClassifier(routes)
+
+    resumed = await run_full_intent_evaluation(
+        assets.dataset,
+        resumed_classifier,
+        initial_cases=first_run.cases[:144],
+    )
+
+    assert resumed_classifier.calls == 6
+    assert resumed.sample_count == 150
+    assert resumed.overall.accuracy == 1
+
+
+@pytest.mark.asyncio
+async def test_full_intent_run_rejects_non_prefix_checkpoint() -> None:
+    assets = load_full_evaluation_assets(SNAPSHOT_ROOT)
+    routes = {
+        sample.query: (
+            IntentRoute.KNOWLEDGE_BASE if sample.requires_rag else IntentRoute.SYSTEM_DIRECT
+        )
+        for sample in assets.dataset.samples
+    }
+    report = await run_full_intent_evaluation(assets.dataset, FixedIntentClassifier(routes))
+
+    with pytest.raises(ValueError, match="连续成功前缀"):
+        await run_full_intent_evaluation(
+            assets.dataset,
+            FixedIntentClassifier(routes),
+            initial_cases=report.cases[1:2],
+        )

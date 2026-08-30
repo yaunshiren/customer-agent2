@@ -63,6 +63,7 @@ class FastModelQueryRewriter:
             ),
             temperature=0,
             max_output_tokens=self._max_output_tokens,
+            reasoning_enabled=False,
         )
         try:
             async with asyncio.timeout(self._timeout_seconds):

@@ -74,6 +74,31 @@ def test_settings_keep_api_key_secret_and_separate_chat_profiles() -> None:
     assert settings.chat_model_fast == "fast-model"
 
 
+def test_settings_derive_workspace_chat_and_rerank_endpoints() -> None:
+    settings = Settings(dashscope_workspace_id="workspace-123")
+
+    assert settings.dashscope_chat_api_base_url == (
+        "https://workspace-123.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+    )
+    assert settings.dashscope_rerank_api_base_url == (
+        "https://workspace-123.cn-beijing.maas.aliyuncs.com/compatible-api/v1"
+    )
+
+
+def test_settings_fall_back_to_configured_public_chat_without_workspace() -> None:
+    settings = Settings.model_validate(
+        {"dashscope_base_url": "https://example.invalid/compatible-mode/v1/"}
+    )
+
+    assert settings.dashscope_chat_api_base_url == ("https://example.invalid/compatible-mode/v1")
+    assert settings.dashscope_rerank_api_base_url is None
+
+
+def test_settings_reject_invalid_workspace_domain_label() -> None:
+    with pytest.raises(ValidationError, match="DASHSCOPE_WORKSPACE_ID"):
+        Settings(dashscope_workspace_id="workspace/path")
+
+
 def test_settings_reject_first_packet_timeout_above_total_timeout() -> None:
     with pytest.raises(ValidationError, match="FIRST_PACKET"):
         Settings(

@@ -1,13 +1,13 @@
 {
   "dataset_id": "ragenteval-v1-all",
-  "rerank_enabled": false,
+  "rerank_enabled": true,
   "sample_count": 132,
   "retrieval_successes": 132,
   "retrieval_failures": 0,
-  "rerank_live_calls": 0,
-  "rerank_successes": 0,
+  "rerank_live_calls": 132,
+  "rerank_successes": 132,
   "rerank_failures": 0,
-  "rerank_total_tokens": 0,
+  "rerank_total_tokens": 210769,
   "off_metrics": {
     "hit_at_1": 0.7045454545454546,
     "hit_at_3": 0.8939393939393939,
@@ -18,14 +18,23 @@
     "recall_at_10": 0.8446969696969698,
     "mrr_at_10": 0.8075306637806637
   },
-  "on_metrics": null,
-  "wins": null,
-  "ties": null,
-  "losses": null,
+  "on_metrics": {
+    "hit_at_1": 0.6363636363636364,
+    "hit_at_3": 0.8712121212121212,
+    "hit_at_5": 0.946969696969697,
+    "hit_at_10": 0.9772727272727273,
+    "recall_at_3": 0.6578282828282828,
+    "recall_at_5": 0.7689393939393939,
+    "recall_at_10": 0.8327020202020201,
+    "mrr_at_10": 0.762202380952381
+  },
+  "wins": 21,
+  "ties": 81,
+  "losses": 30,
   "retrieval_latency_ms_p50": 70.67539999843575,
   "retrieval_latency_ms_p95": 85.74976500021876,
-  "rerank_latency_ms_p50": null,
-  "rerank_latency_ms_p95": null,
+  "rerank_latency_ms_p50": 199.33470000250963,
+  "rerank_latency_ms_p95": 266.6881149947584,
   "cases": [
     {
       "query_id": "S1-01",
@@ -42,17 +51,26 @@
         "PROD_PHONE_002",
         "GUIDE_GIFT_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_PHONE_002",
+        "GUIDE_PHONE_002",
+        "GUIDE_GIFT_002",
+        "GUIDE_PHONE_001",
+        "GUIDE_PHONE_003",
+        "PROD_PHONE_001",
+        "PROD_PHONE_003",
+        "GUIDE_PHONE_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 11402.016099993489,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 407.91660000104457,
+      "rerank_total_tokens": 2331,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S1-02",
@@ -67,17 +85,23 @@
         "GUIDE_HOME_001",
         "GUIDE_HOME_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_GIFT_001",
+        "GUIDE_GIFT_002",
+        "GUIDE_PHONE_004",
+        "GUIDE_HOME_001",
+        "GUIDE_HOME_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 87.1636999945622,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 153.1810000014957,
+      "rerank_total_tokens": 2073,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S1-03",
@@ -94,17 +118,26 @@
         "PROD_PHONE_003",
         "PROD_PHONE_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_PHONE_001",
+        "PROD_PHONE_005",
+        "GUIDE_PHONE_003",
+        "PROD_PHONE_001",
+        "PROD_PHONE_002",
+        "PROD_PHONE_004",
+        "GUIDE_PHONE_002",
+        "PROD_PHONE_006"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 84.59640000364743,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 214.1593999986071,
+      "rerank_total_tokens": 2550,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S1-04",
@@ -119,17 +152,24 @@
         "PROD_VAC_005",
         "PROD_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_VAC_001",
+        "GUIDE_VAC_001",
+        "GUIDE_VAC_003",
+        "PROD_VAC_005",
+        "PROD_VAC_003",
+        "GUIDE_VAC_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 82.24150000023656,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 235.55909999413416,
+      "rerank_total_tokens": 2113,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S1-05",
@@ -146,17 +186,26 @@
         "PROD_WATCH_003",
         "GUIDE_PHONE_004"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_PHONE_001",
+        "GUIDE_GIFT_001",
+        "GUIDE_PHONE_002",
+        "GUIDE_GIFT_002",
+        "GUIDE_HOME_001",
+        "PROD_WATCH_003",
+        "GUIDE_WATCH_001",
+        "PROD_WATCH_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 82.24450000852812,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 205.23779999348335,
+      "rerank_total_tokens": 3410,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 4,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S1-06",
@@ -173,19 +222,29 @@
         "PROD_LIGHT_001",
         "GUIDE_VAC_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_HOME_001",
+        "GUIDE_HOME_002",
+        "GUIDE_GIFT_001",
+        "PROD_LIGHT_001",
+        "PRODUCT_MAPPING",
+        "PROD_LOCK_001",
+        "PROD_SOCKET_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 82.09440000064205,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 194.46379999862984,
+      "rerank_total_tokens": 1693,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "AUTO_GUIDE_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "AUTO_GUIDE_001"
+      ]
     },
     {
       "query_id": "S1-07",
@@ -202,19 +261,29 @@
         "GUIDE_WATCH_001",
         "PROD_WATCH_004"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_BUDS_001",
+        "PROD_BUDS_003",
+        "PROD_BUDS_001",
+        "PROD_BUDS_005",
+        "PROD_BUDS_002",
+        "GUIDE_WATCH_001",
+        "MANUAL_BUDS_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 76.9544000067981,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 290.9395000024233,
+      "rerank_total_tokens": 2075,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "PROD_BUDS_004"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "PROD_BUDS_004"
+      ]
     },
     {
       "query_id": "S1-08",
@@ -230,17 +299,25 @@
         "PROD_AIR_003",
         "GUIDE_GIFT_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_AIR_001",
+        "GUIDE_AIR_002",
+        "PRODUCT_MAPPING",
+        "PROD_AIR_002",
+        "PROD_AIR_003",
+        "PROD_AIR_001",
+        "GUIDE_GIFT_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 77.38670000981074,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 192.82850000308827,
+      "rerank_total_tokens": 2058,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S2-01",
@@ -256,17 +333,26 @@
         "PROD_PHONE_001",
         "PROD_BOOK_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_PHONE_001",
+        "PROD_PHONE_004",
+        "PROD_WATCH_002",
+        "PROD_PAD_002",
+        "PROD_PHONE_003",
+        "PROD_PAD_003",
+        "PROD_PAD_001",
+        "MANUAL_PHONE_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 75.1182000094559,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 219.49810000660364,
+      "rerank_total_tokens": 3474,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S2-02",
@@ -283,17 +369,26 @@
         "PROD_PHONE_005",
         "PROD_WATCH_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_PHONE_006",
+        "PROD_PHONE_002",
+        "CODE_PHONE_001",
+        "PROD_LIFE_005",
+        "PROD_WATCH_002",
+        "PROD_PHONE_005",
+        "PROD_VAC_004",
+        "PROD_VAC_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 76.60980000218842,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 211.43409999785945,
+      "rerank_total_tokens": 3595,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S2-03",
@@ -308,17 +403,24 @@
         "MANUAL_AIR_002",
         "GUIDE_AIR_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_AIR_002",
+        "GUIDE_AIR_001",
+        "PROD_AIR_001",
+        "GUIDE_AIR_002",
+        "PROD_AIR_003",
+        "MANUAL_AIR_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 74.12969999131747,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 178.2600000005914,
+      "rerank_total_tokens": 1442,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 5,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S2-04",
@@ -331,19 +433,25 @@
         "PROD_PAD_003",
         "PROD_PAD_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_PAD_002",
+        "PROD_PAD_003",
+        "PROD_PAD_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 71.98399999469984,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 176.70720000751317,
+      "rerank_total_tokens": 919,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "MANUAL_PAD_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_PAD_001"
+      ]
     },
     {
       "query_id": "S2-05",
@@ -360,17 +468,25 @@
         "PRODUCT_MAPPING",
         "MANUAL_LOCK_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_LOCK_002",
+        "AUTO_GUIDE_001",
+        "MANUAL_LOCK_001",
+        "PRODUCT_MAPPING",
+        "PROD_LOCK_001",
+        "MANUAL_LOCK_002",
+        "CODE_LOCK_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 79.14590000291355,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 225.47920000215527,
+      "rerank_total_tokens": 1553,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 3,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S2-06",
@@ -386,17 +502,25 @@
         "PROD_WATCH_005",
         "MANUAL_WATCH_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_WATCH_002",
+        "PROD_WATCH_001",
+        "GUIDE_WATCH_001",
+        "MANUAL_WATCH_001",
+        "PROD_WATCH_003",
+        "PROD_WATCH_005",
+        "PROD_WATCH_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 76.22160000028089,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 327.8095999994548,
+      "rerank_total_tokens": 1588,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S2-07",
@@ -414,17 +538,25 @@
         "PROD_PHONE_004",
         "PROD_WATCH_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_PHONE_001",
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "PROD_PHONE_002",
+        "PROD_PHONE_001",
+        "PROD_BUDS_003",
+        "PROD_WATCH_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 74.2820000014035,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 199.7208000102546,
+      "rerank_total_tokens": 4253,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S2-08",
@@ -441,17 +573,26 @@
         "MANUAL_VAC_003",
         "MANUAL_VAC_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_VAC_002",
+        "PROD_VAC_002",
+        "MANUAL_VAC_002",
+        "GUIDE_VAC_003",
+        "PROD_VAC_004",
+        "FAQ_VAC_001",
+        "PROD_VAC_003",
+        "PROD_VAC_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 78.66160001140088,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 175.75670000223909,
+      "rerank_total_tokens": 1662,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 7,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S2-09",
@@ -466,17 +607,24 @@
         "PROD_BUDS_003",
         "PROD_BUDS_004"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_PAD_003",
+        "PROD_BUDS_004",
+        "PROD_PAD_002",
+        "PROD_PAD_001",
+        "PROD_BUDS_003",
+        "MANUAL_PAD_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 77.43499999924097,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 193.5010000015609,
+      "rerank_total_tokens": 1192,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 3,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S2-10",
@@ -494,19 +642,29 @@
         "PROD_LIFE_005",
         "PROD_PAD_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_BUDS_004",
+        "PROD_BUDS_003",
+        "PROD_BUDS_002",
+        "PROD_PAD_003",
+        "PROD_BUDS_001",
+        "PROD_WATCH_002",
+        "PROD_WATCH_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 80.11059999989811,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 194.16280000586994,
+      "rerank_total_tokens": 3076,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [
         "MANUAL_BUDS_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_BUDS_001"
+      ]
     },
     {
       "query_id": "S3-01",
@@ -522,17 +680,24 @@
         "GUIDE_PHONE_003",
         "PROD_PHONE_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_PHONE_003",
+        "GUIDE_PHONE_001",
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "PROD_PHONE_001",
+        "PROD_PHONE_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 73.34570000239182,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 174.31510001188144,
+      "rerank_total_tokens": 1677,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 3,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S3-02",
@@ -550,17 +715,26 @@
         "PROD_VAC_004",
         "CODE_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_VAC_001",
+        "PROD_VAC_002",
+        "GUIDE_VAC_002",
+        "PROD_VAC_003",
+        "PROD_VAC_004",
+        "GUIDE_VAC_003",
+        "MANUAL_VAC_003",
+        "CODE_VAC_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 73.65410000784323,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 189.60749999678228,
+      "rerank_total_tokens": 2186,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S3-03",
@@ -577,17 +751,28 @@
         "PROD_PHONE_005",
         "GUIDE_PHONE_004"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_PHONE_001",
+        "GUIDE_PHONE_003",
+        "PROD_PHONE_006",
+        "GUIDE_PHONE_004",
+        "PROD_PHONE_005",
+        "GUIDE_GIFT_002",
+        "PROD_PHONE_004",
+        "PROD_PHONE_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 72.05550000071526,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 186.53800000902265,
+      "rerank_total_tokens": 3100,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 8,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "PROD_PHONE_001"
+      ]
     },
     {
       "query_id": "S3-04",
@@ -602,17 +787,24 @@
         "PROD_BUDS_003",
         "PROD_BUDS_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_BUDS_001",
+        "PRODUCT_MAPPING",
+        "PROD_BUDS_004",
+        "PROD_BUDS_003",
+        "PROD_BUDS_002",
+        "PROD_BUDS_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 83.50969999446534,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 205.49569999275263,
+      "rerank_total_tokens": 1905,
       "off_first_relevant_rank": 3,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 4,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S3-05",
@@ -630,17 +822,25 @@
         "GUIDE_AIR_002",
         "GUIDE_AIR_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_AIR_002",
+        "PROD_AIR_002",
+        "PROD_AIR_001",
+        "PROD_AIR_003",
+        "CODE_AIR_001",
+        "GUIDE_AIR_001",
+        "GUIDE_AIR_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 81.50110000860877,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 293.71910000918433,
+      "rerank_total_tokens": 1771,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S3-06",
@@ -658,19 +858,29 @@
         "PROD_PHONE_005",
         "PROD_PHONE_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_PHONE_001",
+        "GUIDE_PHONE_003",
+        "GUIDE_GIFT_002",
+        "PROD_PHONE_005",
+        "PROD_PHONE_003",
+        "GUIDE_PHONE_002",
+        "PROD_PHONE_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 85.63470000808593,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 211.2028000119608,
+      "rerank_total_tokens": 2743,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 5,
       "off_missing_required_document_ids": [
         "PRODUCT_MAPPING"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "PRODUCT_MAPPING"
+      ]
     },
     {
       "query_id": "S3-07",
@@ -689,19 +899,29 @@
         "PROD_VAC_001",
         "MANUAL_VAC_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_VAC_002",
+        "PROD_VAC_001",
+        "GUIDE_VAC_003",
+        "GUIDE_VAC_001",
+        "PROD_VAC_002",
+        "PROD_VAC_003",
+        "PRODUCT_MAPPING"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 87.12450000166427,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 195.45719999587163,
+      "rerank_total_tokens": 3402,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "GUIDE_VAC_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "PROD_VAC_004"
+      ]
     },
     {
       "query_id": "S3-08",
@@ -717,17 +937,26 @@
         "PRODUCT_MAPPING",
         "GUIDE_GIFT_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_WATCH_001",
+        "PROD_WATCH_003",
+        "PROD_WATCH_002",
+        "PRODUCT_MAPPING",
+        "PROD_WATCH_005",
+        "GUIDE_GIFT_002",
+        "PROD_WATCH_001",
+        "PROD_WATCH_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 103.76290000567678,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 197.68440000189003,
+      "rerank_total_tokens": 1953,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S4-01",
@@ -742,19 +971,29 @@
         "GUIDE_GIFT_002",
         "PROD_BOOK_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_PHONE_001",
+        "GUIDE_GIFT_002",
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "PROD_PHONE_005",
+        "GUIDE_PHONE_004",
+        "PROD_PHONE_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 90.6847000005655,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 170.10809999192134,
+      "rerank_total_tokens": 3062,
       "off_first_relevant_rank": null,
       "on_first_relevant_rank": null,
       "off_missing_required_document_ids": [
         "POLICY_RET_004"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "POLICY_RET_004"
+      ]
     },
     {
       "query_id": "S4-02",
@@ -772,19 +1011,27 @@
         "PROD_BOOK_001",
         "PROD_PHONE_005"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_PHONE_001",
+        "PROD_PHONE_004",
+        "PRODUCT_MAPPING",
+        "PROD_PHONE_003",
+        "GUIDE_GIFT_002",
+        "GUIDE_PHONE_004",
+        "PROD_PHONE_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 75.95349999610335,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 226.50839999550954,
+      "rerank_total_tokens": 2976,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [
         "PRODUCT_MAPPING"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S4-03",
@@ -799,19 +1046,27 @@
         "POLICY_RET_004",
         "POLICY_RET_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_WAR_003",
+        "POLICY_RET_001",
+        "POLICY_VIP_001",
+        "POLICY_VIP_002",
+        "POLICY_RET_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 79.9812000041129,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 173.99969999678433,
+      "rerank_total_tokens": 654,
       "off_first_relevant_rank": 4,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 5,
       "off_missing_required_document_ids": [
         "GUIDE_PHONE_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "GUIDE_PHONE_001"
+      ]
     },
     {
       "query_id": "S4-04",
@@ -829,19 +1084,31 @@
         "PROD_VAC_005",
         "GUIDE_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_VAC_001",
+        "GUIDE_VAC_002",
+        "PRODUCT_MAPPING",
+        "POLICY_RET_003",
+        "POLICY_VIP_002",
+        "PROD_VAC_001",
+        "PROD_VAC_005",
+        "GUIDE_VAC_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 85.89039999060333,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 206.10539999324828,
+      "rerank_total_tokens": 2606,
       "off_first_relevant_rank": 5,
       "on_first_relevant_rank": null,
       "off_missing_required_document_ids": [
         "POLICY_LOG_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "POLICY_RET_004",
+        "POLICY_LOG_001"
+      ]
     },
     {
       "query_id": "S4-05",
@@ -858,17 +1125,25 @@
         "POLICY_LOG_001",
         "PROD_PHONE_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_VIP_002",
+        "POLICY_RET_004",
+        "GUIDE_PHONE_001",
+        "GUIDE_GIFT_002",
+        "POLICY_LOG_001",
+        "GUIDE_PHONE_002",
+        "PROD_PHONE_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 79.8785999941174,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 215.8958999934839,
+      "rerank_total_tokens": 3926,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S4-06",
@@ -884,17 +1159,25 @@
         "POLICY_VIP_002",
         "POLICY_RET_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_RET_004",
+        "POLICY_RET_001",
+        "POLICY_VIP_001",
+        "POLICY_INV_001",
+        "POLICY_RET_003",
+        "POLICY_VIP_002",
+        "POLICY_WAR_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 73.25669999409001,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 183.10339999152347,
+      "rerank_total_tokens": 1364,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S5-01",
@@ -910,19 +1193,30 @@
         "PROD_PHONE_001",
         "GUIDE_GIFT_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "GUIDE_PHONE_001",
+        "GUIDE_GIFT_002",
+        "PROD_PHONE_001",
+        "PROD_BOOK_001",
+        "PROD_PHONE_002",
+        "PROD_PHONE_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 76.12349999544676,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 174.97599999478552,
+      "rerank_total_tokens": 1764,
       "off_first_relevant_rank": null,
       "on_first_relevant_rank": null,
       "off_missing_required_document_ids": [
         "POLICY_LOG_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "POLICY_LOG_001"
+      ]
     },
     {
       "query_id": "S5-02",
@@ -938,17 +1232,24 @@
         "POLICY_INV_001",
         "POLICY_VIP_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_LOG_003",
+        "POLICY_RET_001",
+        "POLICY_INV_001",
+        "POLICY_RET_002",
+        "POLICY_VIP_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 77.26689999981318,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 215.69739999540616,
+      "rerank_total_tokens": 1088,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S5-03",
@@ -966,19 +1267,29 @@
         "PROD_PHONE_005",
         "PROD_BOOK_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "GUIDE_PHONE_001",
+        "GUIDE_GIFT_002",
+        "PROD_PHONE_001",
+        "PROD_PHONE_005",
+        "PROD_PHONE_006"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 73.6822999897413,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 213.65439999499358,
+      "rerank_total_tokens": 2450,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "POLICY_LOG_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "POLICY_LOG_001"
+      ]
     },
     {
       "query_id": "S5-04",
@@ -995,19 +1306,29 @@
         "CODE_FW_001",
         "GUIDE_WATCH_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PRODUCT_MAPPING",
+        "GUIDE_WATCH_001",
+        "PROD_WATCH_002",
+        "PROD_WATCH_003",
+        "CODE_FW_001",
+        "PROD_WATCH_001",
+        "PROD_WATCH_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 76.62559999153018,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 223.97089999867603,
+      "rerank_total_tokens": 1734,
       "off_first_relevant_rank": 7,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [
         "POLICY_LOG_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "POLICY_LOG_001"
+      ]
     },
     {
       "query_id": "S5-05",
@@ -1023,17 +1344,25 @@
         "POLICY_RET_004",
         "CODE_FW_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_RET_003",
+        "POLICY_WAR_004",
+        "POLICY_RET_001",
+        "POLICY_RET_004",
+        "CODE_LOCK_001",
+        "POLICY_WAR_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 73.27739999163896,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 213.0170000018552,
+      "rerank_total_tokens": 1669,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S6-01",
@@ -1051,19 +1380,31 @@
         "PROD_PHONE_001",
         "PROD_BUDS_005"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_PHONE_004",
+        "PROD_PHONE_003",
+        "PROD_PHONE_001",
+        "CODE_PHONE_001",
+        "PROD_PHONE_002",
+        "PROD_PHONE_006",
+        "PROD_PHONE_005",
+        "PROD_LIFE_005",
+        "PROD_BUDS_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 63.647300004959106,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 200.3266999963671,
+      "rerank_total_tokens": 2720,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "MANUAL_PHONE_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_PHONE_001"
+      ]
     },
     {
       "query_id": "S6-02",
@@ -1081,17 +1422,25 @@
         "PROD_VAC_004",
         "GUIDE_AIR_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_VAC_003",
+        "PROD_VAC_001",
+        "PROD_VAC_004",
+        "PROD_VAC_002",
+        "MANUAL_VAC_003",
+        "CODE_AIR_001",
+        "GUIDE_AIR_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 64.52870000794064,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 202.77820000774227,
+      "rerank_total_tokens": 1840,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S6-03",
@@ -1108,19 +1457,31 @@
         "PROD_BUDS_005",
         "PROD_PHONE_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_PHONE_002",
+        "PROD_PHONE_003",
+        "PROD_PHONE_004",
+        "PROD_PHONE_001",
+        "PROD_PHONE_006",
+        "CODE_PHONE_001",
+        "GUIDE_GIFT_002",
+        "PROD_BUDS_005",
+        "PROD_LIFE_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 67.55530000373255,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 180.19400000048336,
+      "rerank_total_tokens": 2720,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [
         "MANUAL_PHONE_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_PHONE_001"
+      ]
     },
     {
       "query_id": "S6-04",
@@ -1137,17 +1498,27 @@
         "GUIDE_VAC_001",
         "MANUAL_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_VAC_003",
+        "PROD_VAC_002",
+        "MANUAL_VAC_001",
+        "GUIDE_VAC_001",
+        "MANUAL_VAC_003",
+        "GUIDE_VAC_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 63.56370000867173,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 184.16309999884106,
+      "rerank_total_tokens": 2797,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 5,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "PROD_VAC_001",
+        "PROD_VAC_004"
+      ]
     },
     {
       "query_id": "S6-05",
@@ -1166,17 +1537,28 @@
         "MANUAL_PHONE_001",
         "PROD_PHONE_005"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_PHONE_001",
+        "CODE_PHONE_001",
+        "PROD_PHONE_004",
+        "PROD_PHONE_002",
+        "PROD_PHONE_003",
+        "PROD_PHONE_006",
+        "PROD_LIFE_005",
+        "PROD_CAM_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 73.2480000006035,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 229.66440000163857,
+      "rerank_total_tokens": 2552,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_PHONE_001"
+      ]
     },
     {
       "query_id": "S6-06",
@@ -1193,19 +1575,26 @@
         "GUIDE_BUDS_001",
         "PROD_BUDS_005"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_BUDS_001",
+        "PROD_BUDS_002",
+        "PROD_BUDS_004",
+        "PROD_BUDS_003",
+        "GUIDE_BUDS_001",
+        "MANUAL_BUDS_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 68.95229998917785,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 247.4573999934364,
+      "rerank_total_tokens": 1676,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [
         "MANUAL_BUDS_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S6-07",
@@ -1223,20 +1612,30 @@
         "PRODUCT_MAPPING",
         "PROD_VAC_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_VAC_001",
+        "PRODUCT_MAPPING",
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_003",
+        "GUIDE_VAC_001",
+        "PROD_VAC_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 70.18339999194723,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 211.47359999304172,
+      "rerank_total_tokens": 1586,
       "off_first_relevant_rank": 3,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "MANUAL_VAC_003",
         "PROD_VAC_004"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_VAC_003",
+        "PROD_VAC_004"
+      ]
     },
     {
       "query_id": "S7-01",
@@ -1253,17 +1652,25 @@
         "PRODUCT_MAPPING",
         "GUIDE_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_003",
+        "MANUAL_VAC_002",
+        "GUIDE_VAC_001",
+        "MANUAL_VAC_001",
+        "PROD_VAC_005",
+        "PROD_VAC_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 74.54739999957383,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 201.89160000882111,
+      "rerank_total_tokens": 2048,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S7-02",
@@ -1280,17 +1687,24 @@
         "PROD_LOCK_002",
         "GUIDE_HOME_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "FAQ_LOCK_001",
+        "CODE_LOCK_001",
+        "MANUAL_LOCK_001",
+        "PROD_LOCK_002",
+        "PROD_LOCK_001",
+        "POLICY_WAR_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 61.380500002996996,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 180.69909999030642,
+      "rerank_total_tokens": 1182,
       "off_first_relevant_rank": 3,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 3,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S7-03",
@@ -1306,20 +1720,29 @@
         "PROD_VAC_001",
         "PROD_VAC_005"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_VAC_001",
+        "PROD_VAC_001",
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_003",
+        "PROD_VAC_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 71.67220000701491,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 261.89169999270234,
+      "rerank_total_tokens": 1015,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "PROD_VAC_002",
         "PROD_VAC_004"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "PROD_VAC_002",
+        "PROD_VAC_004"
+      ]
     },
     {
       "query_id": "S7-04",
@@ -1336,17 +1759,25 @@
         "PRODUCT_MAPPING",
         "GUIDE_GIFT_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_AIR_001",
+        "PROD_AIR_002",
+        "PROD_AIR_001",
+        "PROD_AIR_003",
+        "PRODUCT_MAPPING",
+        "GUIDE_AIR_002",
+        "GUIDE_HOME_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 67.5626000011107,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 183.29349999839906,
+      "rerank_total_tokens": 2027,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S7-05",
@@ -1363,17 +1794,24 @@
         "CODE_FW_001",
         "MANUAL_VAC_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_VAC_003",
+        "GUIDE_VAC_002",
+        "CODE_VAC_001",
+        "GUIDE_VAC_001",
+        "CODE_FW_001",
+        "MANUAL_VAC_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 67.38860000041313,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 225.24220000195783,
+      "rerank_total_tokens": 1341,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S7-06",
@@ -1392,19 +1830,29 @@
         "MANUAL_LOCK_001",
         "PROD_LOCK_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_HOME_002",
+        "PROD_CAM_002",
+        "PROD_LOCK_002",
+        "PROD_LOCK_001",
+        "POLICY_LOG_002",
+        "POLICY_WAR_004",
+        "AUTO_GUIDE_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 64.04889999248553,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 204.9131999956444,
+      "rerank_total_tokens": 1487,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "POLICY_RET_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "POLICY_RET_001"
+      ]
     },
     {
       "query_id": "S1-09",
@@ -1424,20 +1872,30 @@
         "GUIDE_HOME_001",
         "PROD_SPK_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_BUDS_001",
+        "GUIDE_GIFT_002",
+        "GUIDE_BUDS_001",
+        "PROD_BUDS_005",
+        "PROD_SPK_001",
+        "MANUAL_BUDS_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 71.07170000381302,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 274.7573999949964,
+      "rerank_total_tokens": 2762,
       "off_first_relevant_rank": 6,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 3,
       "off_missing_required_document_ids": [
         "PROD_BUDS_003",
         "PROD_SPK_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "PROD_BUDS_003",
+        "PROD_SPK_002"
+      ]
     },
     {
       "query_id": "S2-11",
@@ -1453,17 +1911,25 @@
         "PROD_PHONE_004",
         "PROD_PHONE_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_BOOK_003",
+        "PROD_BOOK_002",
+        "PROD_BOOK_001",
+        "PRODUCT_MAPPING",
+        "GUIDE_PHONE_001",
+        "MANUAL_BOOK_001",
+        "PROD_PHONE_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 70.68409999192227,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 188.46830000984482,
+      "rerank_total_tokens": 2015,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S3-09",
@@ -1477,17 +1943,22 @@
         "PROD_PAD_001",
         "PRODUCT_MAPPING"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PRODUCT_MAPPING",
+        "PROD_PAD_001",
+        "PROD_PAD_002",
+        "PROD_PAD_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 75.94889999018051,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 200.02750000276137,
+      "rerank_total_tokens": 804,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 3,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S4-07",
@@ -1503,19 +1974,27 @@
         "PRODUCT_MAPPING",
         "POLICY_WAR_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_PAD_003",
+        "PRODUCT_MAPPING",
+        "PROD_PAD_002",
+        "PROD_PAD_001",
+        "POLICY_WAR_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 76.42679999116808,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 175.9600999939721,
+      "rerank_total_tokens": 1046,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "POLICY_RET_004"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "POLICY_RET_004"
+      ]
     },
     {
       "query_id": "S5-06",
@@ -1531,17 +2010,26 @@
         "NET_GUIDE_001",
         "POLICY_VIP_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_LOG_001",
+        "PROD_SPK_002",
+        "PROD_SPK_003",
+        "PROD_SPK_001",
+        "NET_GUIDE_001",
+        "MANUAL_SPK_001",
+        "POLICY_RET_001",
+        "POLICY_LOG_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 78.2372999965446,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 250.39909999759402,
+      "rerank_total_tokens": 2645,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S7-07",
@@ -1559,21 +2047,32 @@
         "GUIDE_VAC_002",
         "MANUAL_SPK_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "GUIDE_HOME_002",
+        "GUIDE_HOME_001",
+        "GUIDE_GIFT_001",
+        "MANUAL_SPK_001",
+        "GUIDE_VAC_002",
+        "PRODUCT_MAPPING"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 75.75979999091942,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 177.8731000085827,
+      "rerank_total_tokens": 1067,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "PROD_SPK_001",
         "PROD_SOCKET_001",
         "PROD_LIGHT_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "PROD_SPK_001",
+        "PROD_SOCKET_001",
+        "PROD_LIGHT_002"
+      ]
     },
     {
       "query_id": "S8-01",
@@ -1590,17 +2089,26 @@
         "MANUAL_VAC_001",
         "FAQ_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_VAC_001",
+        "MANUAL_AIR_001",
+        "MANUAL_VAC_002",
+        "CODE_FW_001",
+        "FAQ_VAC_001",
+        "MANUAL_SPK_001",
+        "GUIDE_VAC_001",
+        "MANUAL_VAC_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 63.790700005483814,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 231.16910000680946,
+      "rerank_total_tokens": 1918,
       "off_first_relevant_rank": 7,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S8-02",
@@ -1615,17 +2123,24 @@
         "NET_GUIDE_001",
         "PRODUCT_MAPPING"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_SPK_001",
+        "PRODUCT_MAPPING",
+        "PROD_SPK_002",
+        "PROD_SPK_001",
+        "NET_GUIDE_001",
+        "PROD_SPK_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 64.2807999975048,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 197.76670000283048,
+      "rerank_total_tokens": 1658,
       "off_first_relevant_rank": 4,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S8-03",
@@ -1642,19 +2157,30 @@
         "GUIDE_VAC_002",
         "GUIDE_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_VAC_002",
+        "MANUAL_VAC_001",
+        "PROD_VAC_005",
+        "MANUAL_AIR_001",
+        "CODE_FW_001",
+        "CODE_VAC_001",
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.35870000172872,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 205.57499999995343,
+      "rerank_total_tokens": 1755,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "APP_GUIDE_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "APP_GUIDE_002"
+      ]
     },
     {
       "query_id": "S8-04",
@@ -1671,17 +2197,25 @@
         "CODE_LOCK_001",
         "PROD_LOCK_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_LOCK_001",
+        "FAQ_LOCK_001",
+        "MANUAL_PHONE_001",
+        "MANUAL_LOCK_002",
+        "CODE_LOCK_001",
+        "POLICY_WAR_004",
+        "PROD_LOCK_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.35470000037458,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 280.04969999892637,
+      "rerank_total_tokens": 792,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S8-05",
@@ -1698,17 +2232,25 @@
         "MANUAL_AIR_002",
         "CODE_AIR_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_AIR_001",
+        "AUTO_GUIDE_001",
+        "AUTO_GUIDE_002",
+        "GUIDE_AIR_002",
+        "CODE_AIR_001",
+        "MANUAL_AIR_002",
+        "MANUAL_BOOK_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 67.00819999969099,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 188.61589999869466,
+      "rerank_total_tokens": 1543,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S8-06",
@@ -1725,19 +2267,30 @@
         "AUTO_GUIDE_001",
         "CODE_FW_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_VAC_001",
+        "MANUAL_VAC_002",
+        "MANUAL_SPK_001",
+        "AUTO_GUIDE_002",
+        "GUIDE_VAC_002",
+        "GUIDE_VAC_003",
+        "AUTO_GUIDE_001",
+        "CODE_FW_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 69.14839999808464,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 239.0947999956552,
+      "rerank_total_tokens": 1736,
       "off_first_relevant_rank": 3,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [
         "APP_GUIDE_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "APP_GUIDE_002"
+      ]
     },
     {
       "query_id": "S8-07",
@@ -1754,19 +2307,28 @@
         "POLICY_WAR_004",
         "PROD_LOCK_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_LOCK_002",
+        "FAQ_LOCK_001",
+        "PROD_LOCK_001",
+        "PROD_LOCK_002",
+        "MANUAL_LOCK_001",
+        "POLICY_WAR_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 74.64169999002479,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 205.07689999067225,
+      "rerank_total_tokens": 1109,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "APP_GUIDE_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "APP_GUIDE_002"
+      ]
     },
     {
       "query_id": "S8-08",
@@ -1781,17 +2343,23 @@
         "CODE_FW_001",
         "PROD_WATCH_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_WATCH_001",
+        "PROD_WATCH_002",
+        "PROD_WATCH_001",
+        "PROD_WATCH_003",
+        "CODE_FW_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 64.90930001018569,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 186.09980000474025,
+      "rerank_total_tokens": 946,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S9-01",
@@ -1809,17 +2377,26 @@
         "MANUAL_PHONE_001",
         "FAQ_NET_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "NET_GUIDE_001",
+        "NET_GUIDE_002",
+        "MANUAL_VAC_001",
+        "CODE_AIR_001",
+        "CODE_FW_001",
+        "NET_GUIDE_003",
+        "FAQ_NET_001",
+        "MANUAL_AIR_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 65.97599999804515,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 249.51890000374988,
+      "rerank_total_tokens": 1812,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S9-02",
@@ -1837,19 +2414,29 @@
         "FAQ_AIR_001",
         "NET_GUIDE_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "APP_GUIDE_002",
+        "FAQ_NET_001",
+        "FAQ_AIR_001",
+        "CODE_FW_001",
+        "FAQ_LOCK_001",
+        "NET_GUIDE_001",
+        "CODE_LOCK_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.41909999598283,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 199.1476999974111,
+      "rerank_total_tokens": 762,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 5,
       "off_missing_required_document_ids": [
         "MANUAL_LOCK_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_LOCK_001"
+      ]
     },
     {
       "query_id": "S9-03",
@@ -1867,17 +2454,26 @@
         "NET_GUIDE_002",
         "CODE_LOCK_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_VAC_001",
+        "FAQ_NET_001",
+        "FAQ_AIR_001",
+        "CODE_FW_001",
+        "CODE_LOCK_001",
+        "CODE_AIR_001",
+        "NET_GUIDE_002",
+        "NET_GUIDE_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.38519999978598,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 216.45550000539515,
+      "rerank_total_tokens": 1820,
       "off_first_relevant_rank": 3,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S9-04",
@@ -1894,17 +2490,25 @@
         "APP_GUIDE_004",
         "PROD_SOCKET_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "NET_GUIDE_001",
+        "NET_GUIDE_002",
+        "PROD_SOCKET_001",
+        "NET_GUIDE_003",
+        "APP_GUIDE_002",
+        "FAQ_NET_001",
+        "APP_GUIDE_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 71.66850000794511,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 168.90479999710806,
+      "rerank_total_tokens": 947,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 4,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S9-05",
@@ -1923,20 +2527,31 @@
         "AUTO_GUIDE_001",
         "MANUAL_LOCK_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "FAQ_LOCK_001",
+        "NET_GUIDE_002",
+        "CODE_LOCK_001",
+        "FAQ_NET_001",
+        "APP_GUIDE_002",
+        "MANUAL_LOCK_001",
+        "PROD_SOCKET_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 69.2713000025833,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 226.86320000502747,
+      "rerank_total_tokens": 884,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "NET_GUIDE_001",
         "NET_GUIDE_003"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "NET_GUIDE_001",
+        "NET_GUIDE_003"
+      ]
     },
     {
       "query_id": "S9-06",
@@ -1954,20 +2569,30 @@
         "NET_GUIDE_003",
         "NET_GUIDE_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "FAQ_NET_001",
+        "CODE_FW_001",
+        "FAQ_AIR_001",
+        "NET_GUIDE_002",
+        "NET_GUIDE_003",
+        "NET_GUIDE_001",
+        "CODE_AIR_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 68.97839999874122,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 208.8279000017792,
+      "rerank_total_tokens": 1380,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "NET_GUIDE_002",
         "FAQ_VAC_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "FAQ_VAC_001"
+      ]
     },
     {
       "query_id": "S9-07",
@@ -1985,19 +2610,31 @@
         "NET_GUIDE_002",
         "NET_GUIDE_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "NET_GUIDE_002",
+        "FAQ_AIR_001",
+        "CODE_LOCK_001",
+        "FAQ_LOCK_001",
+        "CODE_AIR_001",
+        "CODE_FW_001",
+        "FAQ_NET_001",
+        "NET_GUIDE_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.42990000545979,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 194.3676999944728,
+      "rerank_total_tokens": 1269,
       "off_first_relevant_rank": 4,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 7,
       "off_missing_required_document_ids": [
         "APP_GUIDE_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "NET_GUIDE_001",
+        "APP_GUIDE_002"
+      ]
     },
     {
       "query_id": "S10-01",
@@ -2012,17 +2649,25 @@
         "APP_GUIDE_005",
         "APP_GUIDE_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "APP_GUIDE_001",
+        "POLICY_LOG_003",
+        "POLICY_RET_002",
+        "APP_GUIDE_003",
+        "APP_GUIDE_004",
+        "APP_GUIDE_002",
+        "APP_GUIDE_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 63.18959999771323,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 203.7302999960957,
+      "rerank_total_tokens": 1216,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S10-02",
@@ -2037,17 +2682,24 @@
         "POLICY_RET_001",
         "POLICY_INV_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_LOG_003",
+        "APP_GUIDE_001",
+        "POLICY_RET_001",
+        "POLICY_RET_002",
+        "POLICY_LOG_001",
+        "POLICY_INV_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 72.50159999239258,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 170.72469998674933,
+      "rerank_total_tokens": 1081,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S10-03",
@@ -2064,17 +2716,25 @@
         "MANUAL_VAC_002",
         "GUIDE_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_VAC_001",
+        "APP_GUIDE_003",
+        "CODE_FW_001",
+        "MANUAL_SPK_001",
+        "PROD_CAM_001",
+        "MANUAL_VAC_002",
+        "CODE_FW_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 64.17430000146851,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 221.04940000281204,
+      "rerank_total_tokens": 1898,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S10-04",
@@ -2090,17 +2750,26 @@
         "APP_GUIDE_005",
         "AUTO_GUIDE_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "APP_GUIDE_002",
+        "POLICY_VIP_001",
+        "APP_GUIDE_004",
+        "MANUAL_LOCK_001",
+        "NET_GUIDE_001",
+        "AUTO_GUIDE_001",
+        "APP_GUIDE_005",
+        "MANUAL_LOCK_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 65.94140001107007,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 168.6623999994481,
+      "rerank_total_tokens": 1355,
       "off_first_relevant_rank": 3,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S10-05",
@@ -2117,17 +2786,26 @@
         "CODE_FW_001",
         "MANUAL_PAD_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_FW_001",
+        "APP_GUIDE_005",
+        "FAQ_LOCK_001",
+        "MANUAL_PAD_001",
+        "CODE_FW_002",
+        "MANUAL_PHONE_001",
+        "CODE_AIR_001",
+        "FAQ_NET_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 67.81160000537056,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 188.13979999686126,
+      "rerank_total_tokens": 1143,
       "off_first_relevant_rank": 4,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S10-06",
@@ -2144,17 +2822,25 @@
         "PROD_AIR_003",
         "FAQ_AIR_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "APP_GUIDE_003",
+        "MANUAL_AIR_002",
+        "CODE_AIR_001",
+        "AUTO_GUIDE_002",
+        "CODE_VAC_001",
+        "AUTO_GUIDE_001",
+        "MANUAL_AIR_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 70.51559998944867,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 198.15399999788497,
+      "rerank_total_tokens": 1487,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S10-07",
@@ -2171,17 +2857,25 @@
         "NET_GUIDE_001",
         "MANUAL_PAD_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_PHONE_001",
+        "MANUAL_PAD_001",
+        "APP_GUIDE_004",
+        "FAQ_NET_001",
+        "NET_GUIDE_003",
+        "APP_GUIDE_002",
+        "NET_GUIDE_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 69.04329999815673,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 185.09840000479016,
+      "rerank_total_tokens": 1257,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 3,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S11-01",
@@ -2196,17 +2890,24 @@
         "PROD_WATCH_002",
         "MANUAL_PHONE_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_FW_001",
+        "MANUAL_PHONE_001",
+        "MANUAL_WATCH_001",
+        "PROD_WATCH_003",
+        "PROD_WATCH_001",
+        "MANUAL_PHONE_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 69.27310000173748,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 182.02439999731723,
+      "rerank_total_tokens": 1565,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S11-02",
@@ -2223,19 +2924,30 @@
         "FAQ_VAC_001",
         "CODE_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_FW_001",
+        "CODE_FW_002",
+        "CODE_VAC_001",
+        "PRODUCT_MAPPING",
+        "FAQ_VAC_001",
+        "PROD_VAC_005",
+        "GUIDE_VAC_002",
+        "MANUAL_VAC_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 63.27010001405142,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 173.3968000044115,
+      "rerank_total_tokens": 1576,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "MANUAL_VAC_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_VAC_001"
+      ]
     },
     {
       "query_id": "S11-03",
@@ -2248,17 +2960,21 @@
         "CODE_FW_002",
         "FAQ_NET_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_FW_001",
+        "FAQ_NET_001",
+        "CODE_FW_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 62.21950000326615,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 165.17289998591878,
+      "rerank_total_tokens": 248,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S11-04",
@@ -2276,17 +2992,25 @@
         "CODE_VAC_001",
         "CODE_PHONE_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_FW_001",
+        "CODE_FW_002",
+        "CODE_VAC_001",
+        "CODE_LOCK_001",
+        "FAQ_LOCK_001",
+        "CODE_PHONE_001",
+        "POLICY_WAR_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 67.37540000176523,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 196.78790000034496,
+      "rerank_total_tokens": 702,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S11-05",
@@ -2298,17 +3022,20 @@
         "CODE_FW_002",
         "CODE_FW_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_FW_002",
+        "CODE_FW_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 67.7243000100134,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 206.63500000955537,
+      "rerank_total_tokens": 178,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S12-01",
@@ -2325,19 +3052,30 @@
         "GUIDE_VAC_003",
         "PROD_SPK_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_SPK_001",
+        "PROD_SPK_001",
+        "AUTO_GUIDE_002",
+        "PROD_SPK_002",
+        "CODE_FW_001",
+        "NET_GUIDE_003",
+        "PROD_SPK_003",
+        "NET_GUIDE_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 70.21189999068156,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 207.88010000251234,
+      "rerank_total_tokens": 1566,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "MANUAL_VAC_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_VAC_001"
+      ]
     },
     {
       "query_id": "S12-02",
@@ -2356,19 +3094,30 @@
         "PROD_LOCK_001",
         "AUTO_GUIDE_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_LOCK_001",
+        "MANUAL_SPK_001",
+        "AUTO_GUIDE_001",
+        "AUTO_GUIDE_002",
+        "CODE_LOCK_001",
+        "PROD_LOCK_001",
+        "PROD_LOCK_002",
+        "FAQ_LOCK_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 68.02259999676608,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 156.897900000331,
+      "rerank_total_tokens": 1166,
       "off_first_relevant_rank": 5,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 3,
       "off_missing_required_document_ids": [
         "PROD_LIGHT_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "PROD_LIGHT_001"
+      ]
     },
     {
       "query_id": "S12-03",
@@ -2384,19 +3133,29 @@
         "MANUAL_AIR_001",
         "PROD_LIGHT_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "AUTO_GUIDE_001",
+        "MANUAL_LOCK_001",
+        "PROD_LIGHT_001",
+        "MANUAL_AIR_001",
+        "AUTO_GUIDE_002",
+        "MANUAL_SPK_001",
+        "PROD_SPK_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 74.74469998851418,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 210.48419999715406,
+      "rerank_total_tokens": 1111,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "APP_GUIDE_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "APP_GUIDE_002"
+      ]
     },
     {
       "query_id": "S12-04",
@@ -2416,19 +3175,30 @@
         "CODE_FW_001",
         "AUTO_GUIDE_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_FW_001",
+        "CODE_LOCK_001",
+        "MANUAL_SPK_001",
+        "AUTO_GUIDE_002",
+        "FAQ_LOCK_001",
+        "AUTO_GUIDE_001",
+        "PROD_LOCK_001",
+        "MANUAL_LOCK_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 77.2002000012435,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 183.69749998964835,
+      "rerank_total_tokens": 772,
       "off_first_relevant_rank": 4,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 4,
       "off_missing_required_document_ids": [
         "MANUAL_VAC_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_VAC_002"
+      ]
     },
     {
       "query_id": "S12-05",
@@ -2446,19 +3216,30 @@
         "CODE_FW_001",
         "PROD_VAC_005"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "AUTO_GUIDE_001",
+        "CODE_FW_001",
+        "MANUAL_SPK_001",
+        "MANUAL_AIR_001",
+        "GUIDE_VAC_003",
+        "MANUAL_LOCK_001",
+        "GUIDE_VAC_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 74.22170000791084,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 216.2627999932738,
+      "rerank_total_tokens": 1430,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "MANUAL_VAC_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "AUTO_GUIDE_002",
+        "MANUAL_VAC_002"
+      ]
     },
     {
       "query_id": "S12-06",
@@ -2475,17 +3256,25 @@
         "APP_GUIDE_001",
         "APP_GUIDE_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "APP_GUIDE_002",
+        "APP_GUIDE_004",
+        "APP_GUIDE_005",
+        "AUTO_GUIDE_002",
+        "APP_GUIDE_001",
+        "APP_GUIDE_003",
+        "POLICY_WAR_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.98260000848677,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 187.01640001381747,
+      "rerank_total_tokens": 949,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S13-01",
@@ -2502,17 +3291,25 @@
         "PROD_AIR_001",
         "GUIDE_AIR_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_AIR_002",
+        "FAQ_AIR_001",
+        "CODE_AIR_001",
+        "MANUAL_AIR_001",
+        "PROD_AIR_001",
+        "GUIDE_AIR_001",
+        "PROD_AIR_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 62.41659999068361,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 177.21330000495072,
+      "rerank_total_tokens": 959,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S13-02",
@@ -2527,17 +3324,25 @@
         "FAQ_VAC_001",
         "MANUAL_HEALTH_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_VAC_001",
+        "MANUAL_VAC_003",
+        "FAQ_VAC_001",
+        "MANUAL_HEALTH_001",
+        "PROD_VAC_005",
+        "GUIDE_VAC_003",
+        "GUIDE_VAC_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 64.25859998853412,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 217.7291999978479,
+      "rerank_total_tokens": 1950,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S13-03",
@@ -2552,17 +3357,23 @@
         "POLICY_RET_003",
         "POLICY_RET_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_HEALTH_001",
+        "PROD_HEALTH_001",
+        "POLICY_RET_001",
+        "MANUAL_VAC_003",
+        "POLICY_RET_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.2202000094112,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 180.84870000893716,
+      "rerank_total_tokens": 735,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S13-04",
@@ -2578,17 +3389,25 @@
         "CODE_VAC_001",
         "PROD_AIR_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_AIR_002",
+        "CODE_AIR_001",
+        "MANUAL_AIR_001",
+        "CODE_VAC_001",
+        "FAQ_AIR_001",
+        "PROD_AIR_003",
+        "PROD_AIR_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 77.9750000074273,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 192.96460000623483,
+      "rerank_total_tokens": 873,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S13-05",
@@ -2606,19 +3425,29 @@
         "GUIDE_VAC_003",
         "MANUAL_VAC_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_VAC_003",
+        "CODE_VAC_001",
+        "MANUAL_VAC_003",
+        "GUIDE_VAC_002",
+        "PROD_VAC_005",
+        "MANUAL_AIR_002",
+        "FAQ_VAC_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.67790000210516,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 206.53049999964423,
+      "rerank_total_tokens": 2059,
       "off_first_relevant_rank": 8,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 3,
       "off_missing_required_document_ids": [
         "MANUAL_VAC_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_VAC_001"
+      ]
     },
     {
       "query_id": "S13-06",
@@ -2634,17 +3463,26 @@
         "MANUAL_VAC_003",
         "PROD_WATCH_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "FAQ_VAC_001",
+        "CODE_VAC_001",
+        "MANUAL_HEALTH_001",
+        "MANUAL_VAC_003",
+        "MANUAL_AIR_002",
+        "MANUAL_WATCH_001",
+        "CODE_FW_001",
+        "PROD_WATCH_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 65.10319998778868,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 188.10370001301635,
+      "rerank_total_tokens": 1440,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 6,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S13-07",
@@ -2661,19 +3499,27 @@
         "FAQ_AIR_001",
         "CODE_FW_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "FAQ_VAC_001",
+        "FAQ_AIR_001",
+        "CODE_VAC_001",
+        "MANUAL_VAC_003",
+        "CODE_FW_001",
+        "PROD_VAC_005",
+        "MANUAL_AIR_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.62430000142194,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 197.20419999794103,
+      "rerank_total_tokens": 1532,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "MANUAL_VAC_003"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S13-08",
@@ -2688,17 +3534,22 @@
         "MANUAL_AIR_002",
         "MANUAL_AIR_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "FAQ_AIR_001",
+        "CODE_AIR_001",
+        "MANUAL_AIR_002",
+        "MANUAL_AIR_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 69.93009999860078,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 169.6195000113221,
+      "rerank_total_tokens": 544,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S13-09",
@@ -2716,17 +3567,26 @@
         "MANUAL_VAC_003",
         "MANUAL_HEALTH_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "MANUAL_HEALTH_001",
+        "MANUAL_VAC_003",
+        "CODE_VAC_001",
+        "POLICY_RET_003",
+        "FAQ_VAC_001",
+        "GUIDE_VAC_001",
+        "PROD_VAC_005",
+        "MANUAL_AIR_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 69.63289999112021,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 196.30969999707304,
+      "rerank_total_tokens": 2200,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S14-01",
@@ -2743,17 +3603,24 @@
         "MANUAL_PHONE_001",
         "POLICY_RET_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "PROD_PHONE_004",
+        "POLICY_WAR_001",
+        "POLICY_WAR_002",
+        "PROD_PHONE_003",
+        "POLICY_RET_001",
+        "POLICY_WAR_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 68.51579999784008,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 228.61819999525324,
+      "rerank_total_tokens": 2417,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S14-02",
@@ -2769,17 +3636,24 @@
         "CODE_FW_002",
         "MANUAL_PAD_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_WAR_002",
+        "POLICY_WAR_003",
+        "POLICY_WAR_004",
+        "POLICY_WAR_001",
+        "CODE_FW_002",
+        "MANUAL_PAD_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 99.35040000709705,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 202.87000000826083,
+      "rerank_total_tokens": 1195,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S14-03",
@@ -2795,17 +3669,24 @@
         "CODE_AIR_001",
         "POLICY_WAR_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_WAR_004",
+        "POLICY_WAR_002",
+        "CODE_PHONE_001",
+        "CODE_AIR_001",
+        "CODE_VAC_001",
+        "POLICY_WAR_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 79.63150000432506,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 201.99649999267422,
+      "rerank_total_tokens": 1087,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S14-04",
@@ -2820,17 +3701,25 @@
         "MANUAL_PHONE_001",
         "POLICY_RET_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_WAR_003",
+        "POLICY_WAR_001",
+        "POLICY_WAR_004",
+        "POLICY_RET_003",
+        "POLICY_WAR_002",
+        "MANUAL_PHONE_001",
+        "MANUAL_PAD_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 70.47850001254119,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 179.016900001443,
+      "rerank_total_tokens": 1452,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S14-05",
@@ -2846,17 +3735,24 @@
         "POLICY_WAR_003",
         "FAQ_LOCK_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_WAR_002",
+        "POLICY_WAR_001",
+        "POLICY_WAR_004",
+        "POLICY_WAR_003",
+        "CODE_LOCK_001",
+        "FAQ_LOCK_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 76.77529999637045,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 201.14720000128727,
+      "rerank_total_tokens": 1200,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S14-06",
@@ -2872,17 +3768,24 @@
         "CODE_FW_002",
         "POLICY_WAR_005"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_WAR_004",
+        "POLICY_WAR_003",
+        "POLICY_WAR_002",
+        "POLICY_WAR_001",
+        "CODE_FW_002",
+        "POLICY_WAR_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 71.50569999066647,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 203.11370000126772,
+      "rerank_total_tokens": 1323,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S14-07",
@@ -2898,17 +3801,24 @@
         "POLICY_WAR_002",
         "POLICY_WAR_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_WAR_005",
+        "POLICY_WAR_002",
+        "POLICY_WAR_001",
+        "POLICY_WAR_004",
+        "POLICY_INV_001",
+        "POLICY_RET_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 68.90279999061022,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 176.614600000903,
+      "rerank_total_tokens": 1154,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S14-08",
@@ -2925,17 +3835,24 @@
         "POLICY_RET_003",
         "POLICY_RET_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_WAR_005",
+        "POLICY_WAR_002",
+        "POLICY_WAR_001",
+        "POLICY_WAR_004",
+        "POLICY_WAR_003",
+        "POLICY_RET_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 84.13329999893904,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 201.89290000416804,
+      "rerank_total_tokens": 1204,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S15-01",
@@ -2949,17 +3866,23 @@
         "POLICY_VIP_002",
         "POLICY_LOG_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_RET_001",
+        "POLICY_RET_002",
+        "POLICY_RET_003",
+        "POLICY_VIP_002",
+        "POLICY_LOG_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 63.43399999605026,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 235.2104000019608,
+      "rerank_total_tokens": 1155,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S15-02",
@@ -2973,17 +3896,23 @@
         "CODE_FW_002",
         "POLICY_RET_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_RET_002",
+        "POLICY_RET_001",
+        "POLICY_RET_003",
+        "CODE_FW_002",
+        "POLICY_VIP_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.51310001325328,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 193.91599998925813,
+      "rerank_total_tokens": 749,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S15-03",
@@ -2998,17 +3927,23 @@
         "POLICY_INV_001",
         "POLICY_RET_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_RET_003",
+        "POLICY_RET_001",
+        "CODE_FW_002",
+        "POLICY_INV_001",
+        "POLICY_RET_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 71.56139999278821,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 210.7426000002306,
+      "rerank_total_tokens": 1212,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S15-04",
@@ -3025,17 +3960,25 @@
         "CODE_AIR_001",
         "POLICY_VIP_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_RET_001",
+        "CODE_FW_002",
+        "POLICY_RET_003",
+        "CODE_PHONE_001",
+        "CODE_VAC_001",
+        "POLICY_VIP_002",
+        "POLICY_RET_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 72.87959998939186,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 181.85299998731352,
+      "rerank_total_tokens": 1131,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S15-05",
@@ -3052,17 +3995,25 @@
         "POLICY_VIP_002",
         "POLICY_INV_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_RET_003",
+        "POLICY_LOG_003",
+        "POLICY_WAR_002",
+        "POLICY_WAR_004",
+        "POLICY_RET_002",
+        "POLICY_VIP_002",
+        "POLICY_WAR_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 64.30869999167044,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 192.62799998978153,
+      "rerank_total_tokens": 1501,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S15-06",
@@ -3079,17 +4030,25 @@
         "POLICY_INV_001",
         "POLICY_VIP_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_RET_004",
+        "POLICY_RET_001",
+        "POLICY_WAR_004",
+        "POLICY_VIP_001",
+        "CODE_FW_002",
+        "POLICY_RET_003",
+        "POLICY_INV_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 76.73070000601001,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 192.74730001052376,
+      "rerank_total_tokens": 1847,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S15-07",
@@ -3106,17 +4065,25 @@
         "CODE_FW_002",
         "POLICY_LOG_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_RET_003",
+        "POLICY_RET_001",
+        "POLICY_WAR_005",
+        "POLICY_LOG_003",
+        "CODE_FW_002",
+        "POLICY_RET_002",
+        "POLICY_RET_004"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 67.85890000173822,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 272.5503999972716,
+      "rerank_total_tokens": 2029,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S16-01",
@@ -3132,17 +4099,25 @@
         "POLICY_RET_001",
         "POLICY_WAR_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_RET_001",
+        "POLICY_RET_002",
+        "POLICY_LOG_002",
+        "POLICY_WAR_001",
+        "POLICY_RET_003",
+        "POLICY_LOG_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 81.96630000020377,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 230.16619999543764,
+      "rerank_total_tokens": 2433,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S16-02",
@@ -3158,17 +4133,25 @@
         "GUIDE_HOME_001",
         "APP_GUIDE_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_LOG_002",
+        "POLICY_WAR_004",
+        "GUIDE_HOME_001",
+        "POLICY_RET_002",
+        "APP_GUIDE_001",
+        "POLICY_WAR_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 70.391400004155,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 205.98519999475684,
+      "rerank_total_tokens": 927,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S16-03",
@@ -3181,17 +4164,22 @@
         "POLICY_LOG_003",
         "POLICY_RET_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_LOG_002",
+        "POLICY_LOG_001",
+        "POLICY_RET_001",
+        "POLICY_LOG_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 77.11919999564998,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 196.06450000719633,
+      "rerank_total_tokens": 532,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S16-04",
@@ -3208,17 +4196,25 @@
         "POLICY_RET_001",
         "APP_GUIDE_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_LOG_003",
+        "POLICY_LOG_001",
+        "POLICY_RET_001",
+        "POLICY_RET_002",
+        "POLICY_VIP_001",
+        "POLICY_VIP_002",
+        "CODE_FW_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 81.12280000932515,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 215.85639999830164,
+      "rerank_total_tokens": 1491,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S16-05",
@@ -3232,17 +4228,23 @@
         "POLICY_INV_001",
         "POLICY_LOG_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_LOG_003",
+        "APP_GUIDE_001",
+        "POLICY_LOG_001",
+        "POLICY_RET_002",
+        "POLICY_INV_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 69.92949999403208,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 194.31510000140406,
+      "rerank_total_tokens": 1223,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S16-06",
@@ -3257,17 +4259,25 @@
         "CODE_PHONE_001",
         "CODE_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_LOG_003",
+        "POLICY_RET_002",
+        "POLICY_RET_003",
+        "POLICY_WAR_002",
+        "CODE_PHONE_001",
+        "POLICY_VIP_002",
+        "CODE_AIR_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 73.68479999422561,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 207.23159999761265,
+      "rerank_total_tokens": 1028,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S17-01",
@@ -3279,17 +4289,21 @@
         "POLICY_WAR_005",
         "POLICY_RET_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_INV_001",
+        "POLICY_RET_001",
+        "POLICY_WAR_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 65.96449999778997,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 131.38530000287574,
+      "rerank_total_tokens": 340,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S17-02",
@@ -3305,17 +4319,26 @@
         "POLICY_WAR_004",
         "POLICY_RET_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_VIP_001",
+        "POLICY_VIP_002",
+        "POLICY_WAR_001",
+        "POLICY_RET_003",
+        "POLICY_WAR_005",
+        "APP_GUIDE_004",
+        "APP_GUIDE_001",
+        "APP_GUIDE_005"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 69.94499999564141,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 178.85280000336934,
+      "rerank_total_tokens": 1334,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S17-03",
@@ -3329,17 +4352,23 @@
         "POLICY_RET_003",
         "POLICY_RET_004"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_INV_001",
+        "POLICY_VIP_002",
+        "POLICY_WAR_005",
+        "POLICY_RET_004",
+        "POLICY_RET_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 67.665600014152,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 160.2167999953963,
+      "rerank_total_tokens": 820,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S17-04",
@@ -3352,19 +4381,25 @@
         "APP_GUIDE_001",
         "MANUAL_BUDS_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_VIP_002",
+        "APP_GUIDE_001",
+        "MANUAL_BUDS_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 64.2807999975048,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 186.92380000720732,
+      "rerank_total_tokens": 411,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "POLICY_VIP_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "POLICY_VIP_001"
+      ]
     },
     {
       "query_id": "S17-05",
@@ -3379,17 +4414,24 @@
         "FAQ_VAC_001",
         "PROD_LOCK_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_INV_001",
+        "FAQ_LOCK_001",
+        "CODE_LOCK_001",
+        "CODE_VAC_001",
+        "FAQ_VAC_001",
+        "PROD_LOCK_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.33060000604019,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 175.8092999953078,
+      "rerank_total_tokens": 798,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "S17-06",
@@ -3405,17 +4447,25 @@
         "FAQ_LOCK_001",
         "POLICY_LOG_003"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_VIP_002",
+        "POLICY_VIP_001",
+        "POLICY_LOG_002",
+        "FAQ_LOCK_001",
+        "POLICY_RET_002",
+        "POLICY_LOG_001",
+        "POLICY_LOG_003"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 74.1520000010496,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 189.44669999473263,
+      "rerank_total_tokens": 1151,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "F1-01",
@@ -3433,19 +4483,30 @@
         "MANUAL_VAC_003",
         "FAQ_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_FW_001",
+        "CODE_LOCK_001",
+        "FAQ_AIR_001",
+        "MANUAL_VAC_003",
+        "FAQ_VAC_001",
+        "CODE_PHONE_001",
+        "FAQ_LOCK_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.23090000357479,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 199.52170000760816,
+      "rerank_total_tokens": 1047,
       "off_first_relevant_rank": 5,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 5,
       "off_missing_required_document_ids": [
         "CODE_VAC_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "CODE_VAC_001",
+        "MANUAL_VAC_001"
+      ]
     },
     {
       "query_id": "F1-02",
@@ -3462,19 +4523,28 @@
         "AUTO_GUIDE_002",
         "CODE_VAC_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "FAQ_AIR_001",
+        "CODE_AIR_001",
+        "CODE_VAC_001",
+        "AUTO_GUIDE_002",
+        "MANUAL_AIR_002",
+        "FAQ_VAC_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 66.05389999458566,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 215.15509999881033,
+      "rerank_total_tokens": 552,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "MANUAL_AIR_001"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "MANUAL_AIR_001"
+      ]
     },
     {
       "query_id": "F1-03",
@@ -3489,17 +4559,22 @@
         "CODE_LOCK_001",
         "MANUAL_LOCK_002"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "FAQ_LOCK_001",
+        "MANUAL_LOCK_001",
+        "CODE_LOCK_001",
+        "MANUAL_LOCK_002"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 70.66670000494923,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 184.02859999332577,
+      "rerank_total_tokens": 642,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "F1-04",
@@ -3516,17 +4591,24 @@
         "FAQ_NET_001",
         "CODE_AIR_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_FW_001",
+        "CODE_VAC_001",
+        "CODE_AIR_001",
+        "FAQ_VAC_001",
+        "CODE_LOCK_001",
+        "FAQ_AIR_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 63.94759999238886,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 201.3689000013983,
+      "rerank_total_tokens": 892,
       "off_first_relevant_rank": 2,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 2,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "F1-05",
@@ -3542,20 +4624,29 @@
         "CODE_VAC_001",
         "PROD_LIFE_005"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_VAC_001",
+        "CODE_PHONE_001",
+        "MANUAL_WATCH_001",
+        "PROD_LIFE_005",
+        "CODE_FW_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 69.52400000591297,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 162.17359999427572,
+      "rerank_total_tokens": 704,
       "off_first_relevant_rank": 3,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 3,
       "off_missing_required_document_ids": [
         "POLICY_WAR_001",
         "POLICY_WAR_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "POLICY_WAR_001",
+        "POLICY_WAR_002"
+      ]
     },
     {
       "query_id": "F3-02",
@@ -3572,17 +4663,26 @@
         "CODE_FW_002",
         "POLICY_VIP_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "POLICY_LOG_001",
+        "POLICY_LOG_003",
+        "CODE_FW_002",
+        "FAQ_NET_001",
+        "POLICY_VIP_001",
+        "POLICY_RET_002",
+        "CODE_FW_001",
+        "CODE_PHONE_001"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 68.69099999312311,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 194.21059999149293,
+      "rerank_total_tokens": 822,
       "off_first_relevant_rank": 1,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": []
     },
     {
       "query_id": "F3-03",
@@ -3600,25 +4700,38 @@
         "FAQ_NET_001",
         "CODE_FW_001"
       ],
-      "on_document_ids": null,
+      "on_document_ids": [
+        "CODE_PHONE_001",
+        "MANUAL_PHONE_001",
+        "MANUAL_PHONE_002",
+        "CODE_FW_001",
+        "CODE_FW_002",
+        "FAQ_NET_001",
+        "CODE_VAC_001",
+        "PROD_PHONE_006"
+      ],
       "retrieval_error_code": null,
-      "rerank_attempted": false,
+      "rerank_attempted": true,
       "rerank_error_code": null,
       "retrieval_latency_ms": 63.060200001928024,
-      "rerank_latency_ms": null,
-      "rerank_total_tokens": null,
+      "rerank_latency_ms": 204.83280000917148,
+      "rerank_total_tokens": 1226,
       "off_first_relevant_rank": 3,
-      "on_first_relevant_rank": null,
+      "on_first_relevant_rank": 1,
       "off_missing_required_document_ids": [
         "POLICY_WAR_001",
         "POLICY_WAR_002"
       ],
-      "on_missing_required_document_ids": null
+      "on_missing_required_document_ids": [
+        "POLICY_WAR_001",
+        "POLICY_WAR_002"
+      ]
     }
   ],
   "limitations": [
     "检索指标只覆盖 requires_rag=true 的 132 条样本。",
     "主指标只使用 required 文档标签, nice 标签仅供后续诊断。",
-    "文档级排名取该文档首个 Chunk 在 TopK 中的位置。"
+    "文档级排名取该文档首个 Chunk 在 TopK 中的位置。",
+    "付费 ON 完成后修正 OFF 的 Chunk TopK 统计, OFF 使用同配置确定性本地复算。"
   ]
 }

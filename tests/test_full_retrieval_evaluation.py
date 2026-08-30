@@ -25,7 +25,10 @@ from customer_agent2.domain.models import (
 from customer_agent2.evaluation.full_dataset import load_full_evaluation_assets
 from customer_agent2.evaluation.full_retrieval import (
     FullRetrievalCaseResult,
+    FullRetrievalReport,
     calculate_retrieval_metrics,
+    merge_full_retrieval_reports,
+    rank_documents_from_top_chunks,
     run_full_retrieval_evaluation,
 )
 
@@ -151,6 +154,14 @@ def test_document_metrics_count_missing_required_documents() -> None:
     assert cases[0].off_missing_required_document_ids == ("D2",)
 
 
+def test_document_ranking_applies_chunk_top_k_before_document_deduplication() -> None:
+    candidates = tuple(_candidate("query", f"DOC-{(rank - 1) // 2}", rank) for rank in range(1, 12))
+
+    ranking = rank_documents_from_top_chunks(candidates, top_k=10)
+
+    assert ranking == ("DOC-0", "DOC-1", "DOC-2", "DOC-3", "DOC-4")
+
+
 @pytest.mark.asyncio
 async def test_full_off_run_uses_only_132_rag_samples_and_sanitizes_report() -> None:
     assets = load_full_evaluation_assets(SNAPSHOT_ROOT)
@@ -179,6 +190,7 @@ async def test_full_off_run_uses_only_132_rag_samples_and_sanitizes_report() -> 
     assert assets.dataset.rag_samples[0].ground_truth not in serialized
     assert '"off_first_relevant_rank":1' in serialized
     assert '"off_missing_required_document_ids":[]' in serialized
+    assert FullRetrievalReport.model_validate_json(serialized) == report
 
 
 @pytest.mark.asyncio
@@ -204,6 +216,19 @@ async def test_full_on_run_reuses_one_retrieval_and_tracks_tokens() -> None:
     assert report.rerank_total_tokens == 132
     assert report.on_metrics == report.off_metrics
     assert (report.wins, report.ties, report.losses) == (0, 132, 0)
+
+    corrected_off = await run_full_retrieval_evaluation(
+        assets.dataset,
+        retrieval,
+        _postprocessor(rerank),
+        SCOPE,
+        enable_rerank=False,
+    )
+    merged = merge_full_retrieval_reports(corrected_off, report)
+    assert merged.rerank_live_calls == 132
+    assert merged.rerank_total_tokens == 132
+    assert merged.off_metrics == corrected_off.off_metrics
+    assert merged.on_metrics == report.on_metrics
 
 
 @pytest.mark.asyncio

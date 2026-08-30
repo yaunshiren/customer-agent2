@@ -8,6 +8,7 @@ class ModelErrorCode(StrEnum):
 
     CONFIGURATION = "configuration"
     AUTHENTICATION = "authentication"
+    ACCESS_DENIED = "access_denied"
     QUOTA_EXHAUSTED = "quota_exhausted"
     RATE_LIMITED = "rate_limited"
     TIMEOUT = "timeout"

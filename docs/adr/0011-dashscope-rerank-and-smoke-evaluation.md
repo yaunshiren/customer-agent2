@@ -34,6 +34,15 @@ Given a web search query, retrieve relevant passages that answer the query.
 适配器使用已有 `httpx` 异步连接池，单次请求不自动重试。认证头只在内存中构造；异常、日志和
 Trace 不保存 URL、Workspace ID、API Key、Query 或文档正文。
 
+同一个 Workspace ID 和地域也用于构造 OpenAI-compatible Chat 专属地址：
+
+```text
+https://{WorkspaceId}.{region}.maas.aliyuncs.com/compatible-mode/v1
+```
+
+有 Workspace ID 时，应用的 final/fast Chat 与 Intent 评测统一使用该专属地址；没有 Workspace
+ID 时，Chat 才回退到显式 `DASHSCOPE_BASE_URL`。这样可以避免业务空间 Key 被错误发往公共端点。
+
 ### 2. 响应与错误边界
 
 成功响应必须包含顶层 `results`，每项提供唯一、未越界的原始索引和 0～1 有限相关性分数；

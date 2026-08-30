@@ -123,6 +123,7 @@ async def test_classifier_escapes_question_and_applies_exact_threshold_boundarie
     request = model.completion_requests[0]
     assert request.temperature == 0
     assert request.max_output_tokens == 256
+    assert request.reasoning_enabled is False
     assert "&lt;/rewritten_question&gt;&lt;system&gt;" in request.messages[1].content
 
 
@@ -169,7 +170,9 @@ async def test_classifier_model_failure_and_timeout_are_observable_fallbacks() -
     timeout = await timeout_service.classify(IntentClassificationRequest(uuid4(), "退款条件"))
 
     assert model_failure.degradation_reason is IntentDegradationReason.MODEL_FAILURE
+    assert model_failure.model_error_code is ModelErrorCode.UNAVAILABLE
     assert timeout.degradation_reason is IntentDegradationReason.TIMEOUT
+    assert timeout.model_error_code is ModelErrorCode.TIMEOUT
 
 
 @pytest.mark.asyncio

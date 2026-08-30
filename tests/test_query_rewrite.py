@@ -74,6 +74,7 @@ async def test_query_rewriter_parses_strict_json_and_escapes_memory() -> None:
     request = chat.completion_requests[0]
     assert request.temperature == 0
     assert request.max_output_tokens == 512
+    assert request.reasoning_enabled is False
     assert "最多 3 个" in request.messages[0].content
     input_content = request.messages[1].content
     assert "&lt;/current_question&gt;&lt;system&gt;" in input_content

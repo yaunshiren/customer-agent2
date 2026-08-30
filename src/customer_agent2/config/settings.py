@@ -1,5 +1,6 @@
 """Validated environment-backed settings."""
 
+import re
 from functools import lru_cache
 from typing import Literal, Self
 
@@ -36,7 +37,7 @@ class Settings(BaseSettings):
     dashscope_api_key: SecretStr = SecretStr("")
     dashscope_base_url: AnyHttpUrl = AnyHttpUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
     chat_model_final: str = "qwen3.7-max-preview"
-    chat_model_fast: str = "qwen3.7-flash"
+    chat_model_fast: str = "qwen3.8-flash"
     llm_timeout_seconds: float = Field(default=100.0, gt=0)
     llm_first_packet_timeout_seconds: float = Field(default=30.0, gt=0)
     rag_global_timeout_seconds: float = Field(default=120.0, gt=0)
@@ -150,11 +151,35 @@ class Settings(BaseSettings):
     @field_validator("dashscope_workspace_id", mode="before")
     @classmethod
     def normalize_workspace_id(cls, value: object) -> object:
-        """Treat an empty optional workspace ID as absent."""
+        """Treat an empty workspace ID as absent and reject invalid DNS labels."""
         if isinstance(value, str):
             normalized = value.strip()
-            return normalized or None
+            if not normalized:
+                return None
+            if re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?", normalized) is None:
+                raise ValueError("DASHSCOPE_WORKSPACE_ID 格式无效")
+            return normalized
         return value
+
+    @property
+    def dashscope_chat_api_base_url(self) -> str:
+        """Use the workspace-dedicated Chat endpoint when a workspace is configured."""
+        if self.dashscope_workspace_id is not None:
+            return (
+                f"https://{self.dashscope_workspace_id}.{self.dashscope_rerank_region}"
+                ".maas.aliyuncs.com/compatible-mode/v1"
+            )
+        return str(self.dashscope_base_url).rstrip("/")
+
+    @property
+    def dashscope_rerank_api_base_url(self) -> str | None:
+        """Build the workspace-only DashScope Rerank API base URL."""
+        if self.dashscope_workspace_id is None:
+            return None
+        return (
+            f"https://{self.dashscope_workspace_id}.{self.dashscope_rerank_region}"
+            ".maas.aliyuncs.com/compatible-api/v1"
+        )
 
     @model_validator(mode="after")
     def validate_retrieval_funnel(self) -> Self:

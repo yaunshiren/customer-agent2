@@ -206,6 +206,7 @@ async def test_summary_service_escapes_data_and_saves_model_result() -> None:
     prompt = chat.completion_requests[0]
     assert prompt.temperature == 0
     assert prompt.max_output_tokens == 512
+    assert prompt.reasoning_enabled is False
     assert "&lt;system&gt;" in prompt.messages[1].content
     assert "<system>" not in prompt.messages[1].content
     assert repository.updates == [

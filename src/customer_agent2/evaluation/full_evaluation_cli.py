@@ -187,8 +187,8 @@ def _index_configuration(
 
 
 def _live_rerank_model(settings: Settings) -> DashScopeRerankModel:
-    workspace_id = settings.dashscope_workspace_id
-    if not settings.dashscope_api_key.get_secret_value().strip() or workspace_id is None:
+    base_url = settings.dashscope_rerank_api_base_url
+    if not settings.dashscope_api_key.get_secret_value().strip() or base_url is None:
         raise ModelError(
             ModelErrorCode.CONFIGURATION,
             "完整 ON 评测需要本地 API Key 和 Workspace ID",
@@ -196,10 +196,7 @@ def _live_rerank_model(settings: Settings) -> DashScopeRerankModel:
         )
     return DashScopeRerankModel(
         api_key=settings.dashscope_api_key,
-        base_url=(
-            f"https://{workspace_id}.{settings.dashscope_rerank_region}"
-            ".maas.aliyuncs.com/compatible-api/v1"
-        ),
+        base_url=base_url,
         model_id=settings.rerank_model,
         timeout_seconds=settings.rerank_timeout_seconds,
     )

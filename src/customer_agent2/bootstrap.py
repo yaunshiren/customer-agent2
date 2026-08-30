@@ -100,27 +100,24 @@ def build_application_services(
     )
     final_chat = OpenAICompatibleChatModel(
         api_key=settings.dashscope_api_key,
-        base_url=str(settings.dashscope_base_url).rstrip("/"),
+        base_url=settings.dashscope_chat_api_base_url,
         model_id=settings.chat_model_final,
         timeout_seconds=settings.llm_timeout_seconds,
         first_packet_timeout_seconds=settings.llm_first_packet_timeout_seconds,
     )
     fast_chat = OpenAICompatibleChatModel(
         api_key=settings.dashscope_api_key,
-        base_url=str(settings.dashscope_base_url).rstrip("/"),
+        base_url=settings.dashscope_chat_api_base_url,
         model_id=settings.chat_model_fast,
         timeout_seconds=settings.llm_timeout_seconds,
         first_packet_timeout_seconds=settings.llm_first_packet_timeout_seconds,
     )
     if settings.rerank_enabled:
-        workspace_id = settings.dashscope_workspace_id
-        assert workspace_id is not None
+        rerank_base_url = settings.dashscope_rerank_api_base_url
+        assert rerank_base_url is not None
         rerank = DashScopeRerankModel(
             api_key=settings.dashscope_api_key,
-            base_url=(
-                f"https://{workspace_id}.{settings.dashscope_rerank_region}"
-                ".maas.aliyuncs.com/compatible-api/v1"
-            ),
+            base_url=rerank_base_url,
             model_id=settings.rerank_model,
             timeout_seconds=settings.rerank_timeout_seconds,
         )

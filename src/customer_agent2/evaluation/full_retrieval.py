@@ -3,7 +3,7 @@
 import math
 from collections.abc import Iterable
 from time import perf_counter
-from typing import Literal, Self
+from typing import Literal, Self, cast
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
@@ -13,6 +13,7 @@ from customer_agent2.application.services import VectorRetrievalUseCase
 from customer_agent2.domain.models import (
     ModelError,
     RetrievalError,
+    VectorSearchCandidate,
     VectorSearchRequest,
     VectorSearchScope,
 )
@@ -63,6 +64,22 @@ class FullRetrievalCaseResult(BaseModel):
     retrieval_latency_ms: float | None = Field(default=None, ge=0)
     rerank_latency_ms: float | None = Field(default=None, ge=0)
     rerank_total_tokens: int | None = Field(default=None, ge=0)
+
+    @model_validator(mode="before")
+    @classmethod
+    def discard_serialized_computed_fields(cls, value: object) -> object:
+        """Allow strict reports to round-trip their four deterministic fields."""
+        if not isinstance(value, dict):
+            return value
+        sanitized = cast(dict[str, object], value).copy()
+        for field_name in (
+            "off_first_relevant_rank",
+            "on_first_relevant_rank",
+            "off_missing_required_document_ids",
+            "on_missing_required_document_ids",
+        ):
+            sanitized.pop(field_name, None)
+        return sanitized
 
     @model_validator(mode="after")
     def validate_outcome(self) -> Self:
@@ -206,7 +223,7 @@ async def run_full_retrieval_evaluation(
             continue
 
         retrieval_latency_ms = (perf_counter() - started) * 1000
-        off_ids = _document_ranking(fusion.candidates)
+        off_ids = rank_documents_from_top_chunks(fusion.candidates)
         if not enable_rerank or not fusion.candidates:
             cases.append(
                 FullRetrievalCaseResult(
@@ -244,7 +261,7 @@ async def run_full_retrieval_evaluation(
                 query_id=sample.query_id,
                 required_document_ids=sample.expected_doc_ids,
                 off_document_ids=off_ids,
-                on_document_ids=_document_ranking(reranked.candidates),
+                on_document_ids=rank_documents_from_top_chunks(reranked.candidates),
                 rerank_attempted=True,
                 retrieval_latency_ms=retrieval_latency_ms,
                 rerank_latency_ms=rerank_latency_ms,
@@ -252,7 +269,59 @@ async def run_full_retrieval_evaluation(
             )
         )
 
-    case_results = tuple(cases)
+    return _build_report(dataset.dataset_id, tuple(cases), enable_rerank)
+
+
+def merge_full_retrieval_reports(
+    off_report: FullRetrievalReport,
+    live_report: FullRetrievalReport,
+) -> FullRetrievalReport:
+    """Attach corrected deterministic OFF rankings to an existing paid ON run."""
+    if off_report.rerank_enabled or not live_report.rerank_enabled:
+        raise ValueError("合并报告必须按 OFF、ON 顺序提供")
+    if off_report.dataset_id != live_report.dataset_id:
+        raise ValueError("OFF 和 ON 报告的数据集不一致")
+    if off_report.retrieval_failures or live_report.retrieval_failures:
+        raise ValueError("存在检索失败时不能合并 OFF/ON 报告")
+    off_cases = {case.query_id: case for case in off_report.cases}
+    if set(off_cases) != {case.query_id for case in live_report.cases}:
+        raise ValueError("OFF 和 ON 报告的 Query ID 不一致")
+
+    merged_cases: list[FullRetrievalCaseResult] = []
+    for live_case in live_report.cases:
+        off_case = off_cases[live_case.query_id]
+        if off_case.required_document_ids != live_case.required_document_ids:
+            raise ValueError("OFF 和 ON 报告的 required 文档不一致")
+        merged_cases.append(
+            FullRetrievalCaseResult(
+                query_id=live_case.query_id,
+                required_document_ids=live_case.required_document_ids,
+                off_document_ids=off_case.off_document_ids,
+                on_document_ids=live_case.on_document_ids,
+                rerank_attempted=live_case.rerank_attempted,
+                rerank_error_code=live_case.rerank_error_code,
+                retrieval_latency_ms=off_case.retrieval_latency_ms,
+                rerank_latency_ms=live_case.rerank_latency_ms,
+                rerank_total_tokens=live_case.rerank_total_tokens,
+            )
+        )
+    return _build_report(
+        live_report.dataset_id,
+        tuple(merged_cases),
+        True,
+        extra_limitations=(
+            "付费 ON 完成后修正 OFF 的 Chunk TopK 统计, OFF 使用同配置确定性本地复算。",
+        ),
+    )
+
+
+def _build_report(
+    dataset_id: str,
+    case_results: tuple[FullRetrievalCaseResult, ...],
+    enable_rerank: bool,
+    *,
+    extra_limitations: tuple[str, ...] = (),
+) -> FullRetrievalReport:
     retrieval_latencies = tuple(
         case.retrieval_latency_ms for case in case_results if case.retrieval_latency_ms is not None
     )
@@ -264,7 +333,7 @@ async def run_full_retrieval_evaluation(
     rerank_failures = sum(case.rerank_error_code is not None for case in case_results)
     wins, ties, losses = _wins_ties_losses(case_results) if enable_rerank else (None, None, None)
     return FullRetrievalReport(
-        dataset_id=dataset.dataset_id,
+        dataset_id=dataset_id,
         rerank_enabled=enable_rerank,
         sample_count=len(case_results),
         retrieval_successes=len(case_results) - retrieval_failures,
@@ -289,6 +358,7 @@ async def run_full_retrieval_evaluation(
             "检索指标只覆盖 requires_rag=true 的 132 条样本。",
             "主指标只使用 required 文档标签, nice 标签仅供后续诊断。",
             "文档级排名取该文档首个 Chunk 在 TopK 中的位置。",
+            *extra_limitations,
         ),
     )
 
@@ -325,18 +395,23 @@ def calculate_retrieval_metrics(
     )
 
 
-def _document_ranking(candidates: Iterable[object]) -> tuple[str, ...]:
+def rank_documents_from_top_chunks(
+    candidates: Iterable[VectorSearchCandidate],
+    *,
+    top_k: int = _TOP_K,
+) -> tuple[str, ...]:
+    """Deduplicate document IDs only after enforcing the Chunk TopK cutoff."""
+    if top_k < 1:
+        raise ValueError("Chunk TopK 必须大于 0")
     document_ids: list[str] = []
     seen: set[str] = set()
-    for candidate in candidates:
-        source_key = getattr(candidate, "source_key", None)
-        if not isinstance(source_key, str) or not source_key.strip():
-            raise ValueError("检索候选缺少业务文档 ID")
+    for chunk_rank, candidate in enumerate(candidates, start=1):
+        if chunk_rank > top_k:
+            break
+        source_key = candidate.source_key
         if source_key not in seen:
             seen.add(source_key)
             document_ids.append(source_key)
-        if len(document_ids) == _TOP_K:
-            break
     return tuple(document_ids)
 
 

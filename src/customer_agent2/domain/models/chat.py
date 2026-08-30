@@ -33,6 +33,7 @@ class ChatRequest:
     messages: tuple[ChatMessage, ...]
     temperature: float | None = None
     max_output_tokens: int | None = None
+    reasoning_enabled: bool | None = None
 
     def __post_init__(self) -> None:
         if not self.messages:

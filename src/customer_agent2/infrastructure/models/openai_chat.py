@@ -116,6 +116,11 @@ class OpenAICompatibleChatModel:
                 max_tokens=(
                     request.max_output_tokens if request.max_output_tokens is not None else omit
                 ),
+                extra_body=(
+                    {"enable_thinking": request.reasoning_enabled}
+                    if request.reasoning_enabled is not None
+                    else None
+                ),
             )
         except OpenAIError as error:
             raise _map_openai_error(error) from None
@@ -135,6 +140,11 @@ class OpenAICompatibleChatModel:
                     temperature=(request.temperature if request.temperature is not None else omit),
                     max_tokens=(
                         request.max_output_tokens if request.max_output_tokens is not None else omit
+                    ),
+                    extra_body=(
+                        {"enable_thinking": request.reasoning_enabled}
+                        if request.reasoning_enabled is not None
+                        else None
                     ),
                 )
                 first_chunk = await anext(sdk_stream)
@@ -261,28 +271,28 @@ def _map_openai_error(error: OpenAIError) -> ModelError:
         return ModelError(ModelErrorCode.TIMEOUT, "Chat 模型请求超时", retryable=True)
     if isinstance(error, APIConnectionError):
         return ModelError(ModelErrorCode.UNAVAILABLE, "Chat 模型暂时不可用", retryable=True)
-    if isinstance(error, (AuthenticationError, PermissionDeniedError)):
+    provider_code = _provider_error_code(error) if isinstance(error, APIStatusError) else None
+    if provider_code in _QUOTA_ERROR_CODES:
+        return ModelError(
+            ModelErrorCode.QUOTA_EXHAUSTED,
+            "Chat 模型额度不可用",
+            retryable=False,
+        )
+    if isinstance(error, AuthenticationError):
         return ModelError(
             ModelErrorCode.AUTHENTICATION,
-            "Chat 模型认证或访问权限无效",
+            "Chat 模型认证无效",
+            retryable=False,
+        )
+    if isinstance(error, PermissionDeniedError):
+        return ModelError(
+            ModelErrorCode.ACCESS_DENIED,
+            "Chat 模型或业务空间访问权限无效",
             retryable=False,
         )
     if isinstance(error, RateLimitError):
-        if _provider_error_code(error) in _QUOTA_ERROR_CODES:
-            return ModelError(
-                ModelErrorCode.QUOTA_EXHAUSTED,
-                "Chat 模型额度不可用",
-                retryable=False,
-            )
         return ModelError(ModelErrorCode.RATE_LIMITED, "Chat 模型请求限流", retryable=True)
     if isinstance(error, APIStatusError):
-        provider_code = _provider_error_code(error)
-        if provider_code in _QUOTA_ERROR_CODES:
-            return ModelError(
-                ModelErrorCode.QUOTA_EXHAUSTED,
-                "Chat 模型额度不可用",
-                retryable=False,
-            )
         if error.status_code == 408:
             return ModelError(ModelErrorCode.TIMEOUT, "Chat 模型请求超时", retryable=True)
         if error.status_code == 429:

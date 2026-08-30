@@ -4,8 +4,9 @@
 
 项目目标不是再做一个“上传文档后调用模型”的演示，而是完整呈现从文档入库、问题理解、检索与重排序，到流式生成、引用溯源和效果评测的工程链路。
 
-> 当前状态：M5-C 已固定原项目附带的 150 条评测集和 116 篇检索语料，并完成 132 条真实本地
-> Retrieval OFF Baseline；付费 Rerank ON 与完整 Intent 云端评测尚未执行。项目已有
+> 当前状态：M5-C 已固定原项目附带的 150 条评测集和 116 篇检索语料，并完成 132 条本地
+> Retrieval OFF、132/132 次真实 `qwen3-rerank` ON 单变量实验，以及 150/150 次真实
+> `qwen3.8-flash` Intent 评测。项目已有
 > PostgreSQL/Redis 连接管理、
 > 阿里云百炼 OpenAI-compatible Chat 非流式/流式适配器、本地
 > `BAAI/bge-base-zh-v1.5` Embedding、版本化 pgvector 存储、Markdown/TXT/PDF/DOCX/CSV
@@ -13,7 +14,7 @@
 > active-only Cosine 向量召回。`POST /api/v1/chat/stream` 已将
 > `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → Intent 路由 → 检索 → 加权 RRF/去重 → 可配置 Rerank/TopK → 安全 Prompt → Chat 流 → 保存回答/Trace`
 > 通过版本化 SSE 契约公开；超过 12 个 completed 轮次后会用 fast 模型增量摘要滑出窗口的旧轮次。
-> 下一步是在单独确认最多 132 次真实 Rerank 费用后完成 OFF/ON 单变量实验，再做发布加固。
+> 下一步是根据完整集失败切片校准 Intent 与 Rerank 策略，并继续发布加固。
 
 ## 项目目标
 
@@ -63,7 +64,7 @@
 | 能力 | 默认方案 | 说明 |
 |---|---|---|
 | 最终回答 | `qwen3.7-max-preview` | 配置化，可随额度切换 |
-| 内部快速任务 | `qwen3.7-flash` | 用于改写、意图、摘要等 |
+| 内部快速任务 | `qwen3.8-flash` | 用于改写、意图、摘要等；结构化任务关闭思考模式 |
 | Embedding Baseline | `BAAI/bge-base-zh-v1.5` | 本地 CPU，768 维 |
 | Rerank | `qwen3-rerank`，默认关闭 | 关闭或已知失败时显式降级 |
 | VLM | `qwen3.7-plus` | 后续阶段启用 |
@@ -74,16 +75,19 @@
 
 - Chat 同时定义非流式、流式、推理内容和 Token 用量结构。
 - Chat 适配器使用异步连接池，支持独立首包超时，并在流结束、取消或调用方提前停止时释放响应。
-- 供应商认证、额度、限流、超时、不可用和协议错误会转换为稳定且脱敏的领域错误。
+- 供应商认证、访问权限、额度、限流、超时、不可用和协议错误会转换为稳定且脱敏的领域错误；
+  403 中的已知额度代码优先归为额度错误，不会被笼统归为权限错误。
 - final 模型只用于最终回答；fast 模型已用于长会话摘要、严格 JSON Query Rewrite 和 Intent 分类。
 - Embedding 模型按首次请求懒加载，CPU 推理在工作线程执行，并串行保护同一个模型实例。
 - Embedding 结果会验证批量形状、768 维、NaN/无限值和 L2 归一化；最大序列固定为 512 Token。
 - Rerank 未启用时使用显式 No-op；显式启用后使用异步 `qwen3-rerank` 专用接口和独立连接池，
   不使用 Chat 模型冒充 Rerank。
+- 配置 Workspace ID 时，Chat 与 Rerank 自动使用同一地域的业务空间专属域名；没有 Workspace
+  ID 时，Chat 才回退到 `DASHSCOPE_BASE_URL`。这避免 Workspace Key 被误发到公共 Chat 端点。
 - Fake 模型可稳定复现正常结果、流式结果、排序结果和结构化错误，不需要网络或真实密钥。
 
-Chat 协议目前通过本地 HTTP Mock 验证，没有调用真实云端模型或消耗额度。本地
-Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。M2-A 至
+Chat 协议已通过本地 HTTP Mock 覆盖，并由 150 条真实 `qwen3.8-flash` Intent 运行验证非流式
+云端路径。本地 Embedding 已使用模型缓存完成离线真实 Smoke，但模型权重不属于仓库内容。M2-A 至
 M2-G 已把五种 P0 文档解析、版本化存储、结构分块、批量 Embedding、pgvector 原子切换和
 在线向量召回连成闭环。M3-A 已接入最终 Chat 流，M3-B 已提供公开 SSE 问答 API，M3-C 已保存
 最小会话消息和 RAG Run 终局；M4-A 已把持久化摘要和最近 completed 消息接入 Prompt，M4-B
@@ -98,9 +102,23 @@ M5-C 使用原项目附带数据的字节级快照重新建立了独立 Baseline
 Retrieval 分母、18 条 no-rag 不混入检索指标；115 篇正式文档加 `PRODUCT_MAPPING` 共 116 篇，
 已通过正式解析、400/64 分块、本地 BGE 和 pgvector 幂等导入为 1,524 个 active Chunk。132 条
 真实本地 OFF 运行 0 失败，Doc Hit@1/3/5/10 分别为 `0.7045/0.8939/0.9545/0.9848`，
-Recall@3/5/10 为 `0.6723/0.7683/0.8598`，MRR@10 为 `0.8075`。37 条没有召回全部 required
-文档，其中 2 条 Top10 完全未命中；Rerank 只能调整现有候选顺序，不能找回这些缺失文档。
-脱敏逐样本报告见 `evaluation/reports/m5c-full-retrieval-off.json`。
+Recall@3/5/10 为 `0.6723/0.7683/0.8447`，MRR@10 为 `0.8075`。42 条没有召回全部 required
+文档，其中 2 条 Top10 完全未命中。随后 132/132 次真实 `qwen3-rerank` 请求成功、0 失败、
+零重试，共 210,769 Token，延迟 P50/P95 为 199.335/266.688 ms；ON 的
+Hit@1/3/5/10 为 `0.6364/0.8712/0.9470/0.9773`，Recall@3/5/10 为
+`0.6578/0.7689/0.8327`，MRR@10 为 `0.7622`，胜/平/负为 21/81/30。该固定配置下 Rerank
+没有提升完整集，且 Top10 文档多样性略降；因此默认仍保持关闭。脱敏逐样本报告见
+`evaluation/reports/m5c-full-retrieval-off.json` 和
+`evaluation/reports/m5c-full-retrieval-off-on.json`。
+
+完整 Intent 最终独立运行 150/150 成功、0 降级、零重试，固定模型为 `qwen3.8-flash`，温度 0、
+关闭思考模式、阈值 0.75/0.10、最大输出 256 Token；评测专用单条超时为 60 秒，线上默认仍为
+20 秒。总体准确率为 `128/150 = 85.33%`，132 条 RAG 为 `121/132 = 91.67%`，18 条 no-rag 为
+`7/18 = 38.89%`；SUPPORT/FEEDBACK/CHAT 分层准确率为 `92.80%/33.33%/70.00%`。错误包括
+11 条 RAG 被送去澄清，以及 no-rag 的 5 条误进知识库、6 条转澄清。输入/输出合计
+45,101/7,366 Token，延迟 P50/P95 为 794.040/2,459.129 ms。该结果表明 RAG 路由已较稳定，
+但 no-rag 和 FEEDBACK 仍是下一轮阈值/意图树校准重点。脱敏报告见
+`evaluation/reports/m5c-full-intent.json`。
 
 ## 当前文档解析边界
 
@@ -364,7 +382,10 @@ pytest -m ingestion_smoke
 ```
 
 M5-B 的 Rerank Smoke 使用 20 条固定合成样本。先在本地 `.env` 配置同一地域/计费方案下有效的
-`DASHSCOPE_API_KEY` 和 `DASHSCOPE_WORKSPACE_ID`，再显式授权真实调用：
+`DASHSCOPE_API_KEY`、`DASHSCOPE_WORKSPACE_ID` 和 `DASHSCOPE_RERANK_REGION`，再显式授权真实
+调用。配置 Workspace ID 后，Chat 自动使用
+`https://{WorkspaceId}.{region}.maas.aliyuncs.com/compatible-mode/v1`，Rerank 使用同一域名下的
+`compatible-api/v1`；不需要把真实 Workspace ID 写进 `DASHSCOPE_BASE_URL`：
 
 ```powershell
 python -m customer_agent2.evaluation --live
@@ -406,17 +427,24 @@ python -m customer_agent2.evaluation.full_evaluation_cli `
 API Key、Workspace ID、Query、Ground Truth 或 Chunk 正文。协议详见
 [ADR-0012](docs/adr/0012-full-evaluation-dataset-and-protocol.md)。
 
+已完成的真实 OFF/ON 报告严格按最终 TopK 的 Chunk 排名计算 Doc 指标：先截取前 10 个 Chunk，
+再按首次出现顺序做文档去重。付费 ON 完成后发现旧 OFF 辅助统计曾继续扫描 Top10 之外的 Chunk，
+因此 ON 结果原样保留，OFF 使用相同固定配置做了确定性本地复算；没有为修正统计追加云端调用。
+
 完整 Intent 使用全部 150 条，`requires_rag=true` 映射 `knowledge_base`，18 条 no-rag 映射
 `system_direct`；原数据没有可靠的 `clarification` 真值，因此不会伪造该路由的准确率。真实运行
 同样需要独立确认最多 150 次 fast Chat 调用：
 
 ```powershell
 python -m customer_agent2.evaluation.full_intent_cli `
-  --live-intent --accept-paid-calls 150
+  --live-intent --accept-paid-calls 150 --intent-timeout-seconds 60
 ```
 
 运行器记录总体、RAG/no-rag、Intent L1 切片、混淆矩阵、P50/P95 和 Token；不保存问题或答案，
-任何模型降级在第一条发生时终止。该命令与 132 次 Rerank 是两个独立费用边界，不能互相代替授权。
+任何模型降级在第一条发生时终止。每条成功结果会先原子写入脱敏 checkpoint；再次执行时只允许
+同一数据集、模型和参数的连续成功前缀，并要求 `--accept-paid-calls` 精确等于剩余条数，避免重复
+产生费用。60 秒只覆盖本次评测，线上配置仍使用默认 20 秒。该命令与 132 次 Rerank 是两个独立
+费用边界，不能互相代替授权。
 
 ## 参考与致谢
 

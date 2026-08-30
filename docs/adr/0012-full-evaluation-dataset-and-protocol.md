@@ -45,7 +45,9 @@ Doc 级比较，不依赖环境特定 UUID。
 - Intent 分母为全部 150 条；132 条 `requires_rag=true` 映射 `knowledge_base`，18 条 no-rag
   映射 `system_direct`。本项目 P0 三路意图缺少明确澄清真值，因此不伪造 clarification 标签，
   也不报告该路由准确率。真实 Intent 串行、零重试，每条最多一次，完整一轮最多 150 次 fast
-  Chat 计费调用；任何降级在首条发生时终止。
+  Chat 计费调用；任何降级在首条发生时终止。每条成功后原子写入脱敏 checkpoint；恢复时必须
+  使用完全相同的数据集、模型、阈值、超时、Token 和思考模式，并只允许连续成功前缀。每次运行
+  的付费确认数必须精确等于 checkpoint 剩余条数。
 - Retrieval 分母只包含 132 条 `requires_rag=true` 样本；18 条 no-rag 样本用于过召回/路由
   检查，不能送入检索指标分母。
 - required `expected_doc_ids` 是主真值；`expected_doc_ids_nice` 只做诊断，不提高主指标。
@@ -69,5 +71,33 @@ Workspace ID、Query、Ground Truth 或 Chunk 正文。任何云端 132 条 Rera
 
 - M5-C 有可提交、可追溯、严格校验的 150 条输入和116篇可检索文档。
 - 评测复用正式解析、分块、Embedding、pgvector、RRF 和 Rerank 路径，不形成只为拿高分的旁路。
-- 完整 ON 实验会产生最多132次真实 Rerank 费用，必须另行授权。
+- 完整 ON 实验已在独立授权下完成 132 次真实 Rerank 调用；后续复跑仍必须另行授权。
 - 数据集没有明确 clarification 真值，三路 Intent 的 clarification 准确率仍是已知空白。
+
+## 验证记录
+
+2026-08-30 使用固定 `ragenteval-v1` 快照完成 132 条 Retrieval OFF/ON：
+
+- 本地 OFF 与真实 ON 的检索调用均覆盖 132 条；ON 132/132 次 `qwen3-rerank` 成功、0 失败、
+  零重试，共 210,769 Token，延迟 P50/P95 为 199.335/266.688 ms。
+- OFF → ON 的 Hit@1 为 `0.7045 → 0.6364`、Hit@3 为 `0.8939 → 0.8712`、Hit@5 为
+  `0.9545 → 0.9470`、Hit@10 为 `0.9848 → 0.9773`。
+- OFF → ON 的 Recall@3 为 `0.6723 → 0.6578`、Recall@5 为 `0.7683 → 0.7689`、
+  Recall@10 为 `0.8447 → 0.8327`，MRR@10 为 `0.8075 → 0.7622`，胜/平/负为 21/81/30。
+- 该配置下 Rerank 没有改善完整集，默认继续关闭；结果不外推到其他模型、Prompt、候选预算或
+  数据集。
+- 指标按前 10 个 Chunk 截断后再做 Doc 去重。付费 ON 结束后修正了旧 OFF 辅助统计继续扫描
+  Top10 以外 Chunk 的问题；ON 原始结果保留，OFF 只做确定性本地复算，没有追加云端请求。
+
+同日完成最终独立 150 条真实 Intent：
+
+- `qwen3.8-flash` 150/150 成功、0 降级、零重试；温度 0、关闭思考模式、阈值 0.75/0.10、
+  最大输出 256 Token。评测专用超时 60 秒，线上默认仍为 20 秒。
+- 总体准确率 `128/150 = 85.33%`；RAG 为 `121/132 = 91.67%`，no-rag 为
+  `7/18 = 38.89%`；SUPPORT/FEEDBACK/CHAT 为 `92.80%/33.33%/70.00%`。
+- system_direct 真值的 18 条中，7 条正确、5 条误进 knowledge_base、6 条转 clarification；
+  knowledge_base 真值的 132 条中，121 条正确、11 条转 clarification。
+- 输入/输出 Token 为 45,101/7,366，延迟 P50/P95 为 794.040/2,459.129 ms。
+- 最终报告只统计这轮独立 150 条。此前调试过程累计包含 2 次 `qwen3.7-flash` 首条失败，以及
+  一轮 `qwen3.8-flash` 在第 145 条触发 20 秒超时；整个获批过程累计 297 次尝试。旧运行器未
+  持久化中间成功结果的问题已由 checkpoint 修复，历史调试 Token 不混入最终报告。

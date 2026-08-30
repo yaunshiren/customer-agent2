@@ -28,6 +28,7 @@ def _request() -> ChatRequest:
         ),
         temperature=0.2,
         max_output_tokens=128,
+        reasoning_enabled=False,
     )
 
 
@@ -62,6 +63,7 @@ async def test_complete_translates_request_and_response() -> None:
             "model": "test-chat-model",
             "temperature": 0.2,
             "max_tokens": 128,
+            "enable_thinking": False,
             "stream": False,
         }
         return httpx.Response(
@@ -111,6 +113,7 @@ async def test_stream_translates_deltas_finish_reason_and_usage() -> None:
         payload = json.loads(request.content)
         assert payload["stream"] is True
         assert payload["stream_options"] == {"include_usage": True}
+        assert payload["enable_thinking"] is False
         events: list[dict[str, object]] = [
             {
                 "id": "chatcmpl-test",
@@ -185,6 +188,8 @@ async def test_stream_translates_deltas_finish_reason_and_usage() -> None:
     ("status_code", "provider_code", "expected_code", "retryable"),
     [
         (401, "InvalidApiKey", ModelErrorCode.AUTHENTICATION, False),
+        (403, "Model.AccessDenied", ModelErrorCode.ACCESS_DENIED, False),
+        (403, "AllocationQuota.FreeTierOnly", ModelErrorCode.QUOTA_EXHAUSTED, False),
         (400, "Arrearage", ModelErrorCode.QUOTA_EXHAUSTED, False),
         (429, "insufficient_quota", ModelErrorCode.QUOTA_EXHAUSTED, False),
         (429, "Throttling.RateQuota", ModelErrorCode.RATE_LIMITED, True),

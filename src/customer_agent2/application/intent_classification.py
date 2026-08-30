@@ -21,6 +21,7 @@ from customer_agent2.domain.models import (
     IntentRoute,
     IntentTree,
     ModelError,
+    ModelErrorCode,
 )
 
 logger = logging.getLogger(__name__)
@@ -74,6 +75,7 @@ class FastModelIntentClassifier:
             ),
             temperature=0,
             max_output_tokens=self._max_output_tokens,
+            reasoning_enabled=False,
         )
         try:
             async with asyncio.timeout(self._timeout_seconds):
@@ -81,9 +83,17 @@ class FastModelIntentClassifier:
         except asyncio.CancelledError:
             raise
         except TimeoutError:
-            return self._fallback(request, IntentDegradationReason.TIMEOUT)
-        except ModelError:
-            return self._fallback(request, IntentDegradationReason.MODEL_FAILURE)
+            return self._fallback(
+                request,
+                IntentDegradationReason.TIMEOUT,
+                ModelErrorCode.TIMEOUT,
+            )
+        except ModelError as error:
+            return self._fallback(
+                request,
+                IntentDegradationReason.MODEL_FAILURE,
+                error.code,
+            )
 
         try:
             candidates, clarification_question = _parse_response(
@@ -92,7 +102,11 @@ class FastModelIntentClassifier:
             )
             return self._select_decision(response, candidates, clarification_question)
         except (json.JSONDecodeError, TypeError, ValueError):
-            return self._fallback(request, IntentDegradationReason.PROTOCOL)
+            return self._fallback(
+                request,
+                IntentDegradationReason.PROTOCOL,
+                ModelErrorCode.PROTOCOL,
+            )
 
     def _select_decision(
         self,
@@ -142,12 +156,14 @@ class FastModelIntentClassifier:
         self,
         request: IntentClassificationRequest,
         reason: IntentDegradationReason,
+        model_error_code: ModelErrorCode,
     ) -> IntentDecision:
         logger.warning(
             "intent_classifier_degraded",
             extra={
                 "request_id": str(request.request_id),
                 "degradation_reason": reason.value,
+                "model_error_code": model_error_code.value,
             },
         )
         return IntentDecision(
@@ -155,6 +171,7 @@ class FastModelIntentClassifier:
             reason=IntentDecisionReason.CLASSIFIER_FALLBACK,
             candidates=(),
             degradation_reason=reason,
+            model_error_code=model_error_code,
         )
 
 
