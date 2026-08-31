@@ -18,7 +18,10 @@ from customer_agent2.domain.models import (
 from customer_agent2.evaluation.full_dataset import load_full_evaluation_assets
 from customer_agent2.evaluation.full_intent import (
     FullIntentCaseResult,
+    FullIntentEvaluationConfiguration,
+    FullIntentReport,
     FullIntentRunError,
+    replay_full_intent_thresholds,
     run_full_intent_evaluation,
 )
 
@@ -81,6 +84,8 @@ async def test_full_intent_run_covers_all_slices_and_sanitizes_report() -> None:
     assert report.no_rag.sample_count == 18
     assert report.input_tokens == 1500
     assert report.output_tokens == 300
+    assert report.cases[0].candidate_scores is not None
+    assert report.cases[0].candidate_scores.knowledge_base in {0.1, 0.9}
     serialized = report.model_dump_json()
     assert assets.dataset.samples[0].query not in serialized
     assert assets.dataset.samples[0].ground_truth not in serialized
@@ -107,6 +112,55 @@ async def test_full_intent_run_counts_wrong_route_in_fixed_denominator() -> None
     assert math.isclose(report.overall.accuracy, 149 / 150)
     assert report.no_rag.correct_count == 17
     assert report.confusion[IntentRoute.SYSTEM_DIRECT][IntentRoute.KNOWLEDGE_BASE] == 1
+
+
+@pytest.mark.asyncio
+async def test_full_intent_threshold_replay_reuses_scores_without_calls() -> None:
+    assets = load_full_evaluation_assets(SNAPSHOT_ROOT)
+    routes = {
+        sample.query: (
+            IntentRoute.KNOWLEDGE_BASE if sample.requires_rag else IntentRoute.SYSTEM_DIRECT
+        )
+        for sample in assets.dataset.samples
+    }
+    source = await run_full_intent_evaluation(
+        assets.dataset,
+        FixedIntentClassifier(routes),
+        configuration=FullIntentEvaluationConfiguration(
+            model_id="fake-fast",
+            high_confidence_threshold=0.75,
+            ambiguity_margin=0.10,
+            timeout_seconds=60,
+            max_output_tokens=256,
+            temperature=0,
+            reasoning_enabled=False,
+        ),
+    )
+
+    replayed = replay_full_intent_thresholds(
+        source,
+        high_confidence_threshold=0.95,
+        ambiguity_margin=0.10,
+    )
+
+    assert replayed.overall.correct_count == 0
+    assert all(case.actual_route is IntentRoute.CLARIFICATION for case in replayed.cases)
+    assert replayed.input_tokens == source.input_tokens
+    assert replayed.output_tokens == source.output_tokens
+    assert replayed.configuration is not None
+    assert replayed.configuration.high_confidence_threshold == 0.95
+
+
+def test_m5c_report_without_scores_rejects_threshold_replay() -> None:
+    report_path = Path(__file__).parents[1] / "evaluation" / "reports" / "m5c-full-intent.json"
+    report = FullIntentReport.model_validate_json(report_path.read_text(encoding="utf-8"))
+
+    with pytest.raises(ValueError, match="候选分数"):
+        replay_full_intent_thresholds(
+            report,
+            high_confidence_threshold=0.70,
+            ambiguity_margin=0.05,
+        )
 
 
 @pytest.mark.asyncio

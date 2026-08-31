@@ -70,6 +70,7 @@ from customer_agent2.domain.models.intent import (
     IntentDegradationReason,
     IntentRoute,
     IntentTree,
+    select_intent_route,
 )
 from customer_agent2.domain.models.memory import (
     ConversationMemory,
@@ -221,4 +222,5 @@ __all__ = [
     "VectorSearchRequest",
     "VectorSearchResult",
     "VectorSearchScope",
+    "select_intent_route",
 ]

@@ -1,6 +1,7 @@
 """Strict loader for the packaged M4-C intent tree."""
 
 import json
+from hashlib import sha256
 from importlib.resources import files
 from typing import cast
 
@@ -43,3 +44,23 @@ def load_intent_tree_json(content: str) -> IntentTree:
             raise ValueError("Intent Tree 包含未知路由") from None
         definitions.append(IntentDefinition(intent_route, description))
     return IntentTree(version, tuple(definitions))
+
+
+def intent_tree_fingerprint(intent_tree: IntentTree) -> str:
+    """Hash normalized tree semantics so checkpoints reject edited candidates."""
+    normalized = {
+        "version": intent_tree.version,
+        "routes": [
+            {
+                "name": definition.route.value,
+                "description": definition.description,
+            }
+            for definition in intent_tree.definitions
+        ],
+    }
+    payload = json.dumps(
+        normalized,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return sha256(payload).hexdigest()

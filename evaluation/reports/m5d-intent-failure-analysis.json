@@ -1,0 +1,190 @@
+{
+  "dataset_id": "ragenteval-v1-all",
+  "source_model_id": "qwen3.8-flash",
+  "source_intent_tree_version": "m4-c-v1",
+  "sample_count": 150,
+  "correct_count": 128,
+  "incorrect_count": 22,
+  "over_retrieval_count": 5,
+  "under_retrieval_count": 0,
+  "incorrect_clarification_count": 17,
+  "incorrect_by_intent_l1": {
+    "SUPPORT": 9,
+    "FEEDBACK": 10,
+    "CHAT": 3
+  },
+  "incorrect_by_decision_reason": {
+    "explicit_clarification": 13,
+    "low_confidence": 4,
+    "high_confidence": 5
+  },
+  "buckets": [
+    {
+      "intent_l1": "CHAT",
+      "intent_l2": "C2_越界提问",
+      "expected_route": "system_direct",
+      "actual_route": "clarification",
+      "decision_reason": "explicit_clarification",
+      "sample_count": 2,
+      "query_ids": [
+        "C2-01",
+        "C2-04"
+      ]
+    },
+    {
+      "intent_l1": "CHAT",
+      "intent_l2": "C2_越界提问",
+      "expected_route": "system_direct",
+      "actual_route": "knowledge_base",
+      "decision_reason": "high_confidence",
+      "sample_count": 1,
+      "query_ids": [
+        "C2-02"
+      ]
+    },
+    {
+      "intent_l1": "FEEDBACK",
+      "intent_l2": "F2_功能建议",
+      "expected_route": "system_direct",
+      "actual_route": "clarification",
+      "decision_reason": "low_confidence",
+      "sample_count": 1,
+      "query_ids": [
+        "F2-05"
+      ]
+    },
+    {
+      "intent_l1": "FEEDBACK",
+      "intent_l2": "F2_功能建议",
+      "expected_route": "system_direct",
+      "actual_route": "knowledge_base",
+      "decision_reason": "high_confidence",
+      "sample_count": 4,
+      "query_ids": [
+        "F2-01",
+        "F2-02",
+        "F2-03",
+        "F2-04"
+      ]
+    },
+    {
+      "intent_l1": "FEEDBACK",
+      "intent_l2": "F3_投诉吐槽",
+      "expected_route": "knowledge_base",
+      "actual_route": "clarification",
+      "decision_reason": "explicit_clarification",
+      "sample_count": 2,
+      "query_ids": [
+        "F3-02",
+        "F3-03"
+      ]
+    },
+    {
+      "intent_l1": "FEEDBACK",
+      "intent_l2": "F3_投诉吐槽",
+      "expected_route": "system_direct",
+      "actual_route": "clarification",
+      "decision_reason": "explicit_clarification",
+      "sample_count": 1,
+      "query_ids": [
+        "F3-04"
+      ]
+    },
+    {
+      "intent_l1": "FEEDBACK",
+      "intent_l2": "F3_投诉吐槽",
+      "expected_route": "system_direct",
+      "actual_route": "clarification",
+      "decision_reason": "low_confidence",
+      "sample_count": 2,
+      "query_ids": [
+        "F3-01",
+        "F3-05"
+      ]
+    },
+    {
+      "intent_l1": "SUPPORT",
+      "intent_l2": "S11_固件升级",
+      "expected_route": "knowledge_base",
+      "actual_route": "clarification",
+      "decision_reason": "explicit_clarification",
+      "sample_count": 1,
+      "query_ids": [
+        "S11-05"
+      ]
+    },
+    {
+      "intent_l1": "SUPPORT",
+      "intent_l2": "S14_售后政策",
+      "expected_route": "knowledge_base",
+      "actual_route": "clarification",
+      "decision_reason": "explicit_clarification",
+      "sample_count": 1,
+      "query_ids": [
+        "S14-04"
+      ]
+    },
+    {
+      "intent_l1": "SUPPORT",
+      "intent_l2": "S16_物流配送",
+      "expected_route": "knowledge_base",
+      "actual_route": "clarification",
+      "decision_reason": "low_confidence",
+      "sample_count": 1,
+      "query_ids": [
+        "S16-04"
+      ]
+    },
+    {
+      "intent_l1": "SUPPORT",
+      "intent_l2": "S17_发票会员",
+      "expected_route": "knowledge_base",
+      "actual_route": "clarification",
+      "decision_reason": "explicit_clarification",
+      "sample_count": 1,
+      "query_ids": [
+        "S17-05"
+      ]
+    },
+    {
+      "intent_l1": "SUPPORT",
+      "intent_l2": "S1_选购推荐",
+      "expected_route": "knowledge_base",
+      "actual_route": "clarification",
+      "decision_reason": "explicit_clarification",
+      "sample_count": 2,
+      "query_ids": [
+        "S1-02",
+        "S1-05"
+      ]
+    },
+    {
+      "intent_l1": "SUPPORT",
+      "intent_l2": "S4_价格活动",
+      "expected_route": "knowledge_base",
+      "actual_route": "clarification",
+      "decision_reason": "explicit_clarification",
+      "sample_count": 1,
+      "query_ids": [
+        "S4-05"
+      ]
+    },
+    {
+      "intent_l1": "SUPPORT",
+      "intent_l2": "S5_库存到货",
+      "expected_route": "knowledge_base",
+      "actual_route": "clarification",
+      "decision_reason": "explicit_clarification",
+      "sample_count": 2,
+      "query_ids": [
+        "S5-02",
+        "S5-05"
+      ]
+    }
+  ],
+  "limitations": [
+    "报告只保存聚合计数和 Query ID, 不保存 Query、Ground Truth 或模型原始响应。",
+    "M5-C 没有保存候选分数, 不能从本报告可靠重放其他阈值。",
+    "requires_rag 仅作为当前二分类路由真值, 不等同于最终答案质量。"
+  ]
+}

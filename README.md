@@ -14,7 +14,8 @@
 > active-only Cosine 向量召回。`POST /api/v1/chat/stream` 已将
 > `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → Intent 路由 → 检索 → 加权 RRF/去重 → 可配置 Rerank/TopK → 安全 Prompt → Chat 流 → 保存回答/Trace`
 > 通过版本化 SSE 契约公开；超过 12 个 completed 轮次后会用 fast 模型增量摘要滑出窗口的旧轮次。
-> 下一步是根据完整集失败切片校准 Intent 与 Rerank 策略，并继续发布加固。
+> M5-D 已离线完成 Intent 失败切片，并准备了不影响线上默认的 v2 候选树和单变量实验保护；
+> 下一步是在独立费用授权下验证候选树，再单独处理 Rerank 策略。
 
 ## 项目目标
 
@@ -119,6 +120,12 @@ Hit@1/3/5/10 为 `0.6364/0.8712/0.9470/0.9773`，Recall@3/5/10 为
 45,101/7,366 Token，延迟 P50/P95 为 794.040/2,459.129 ms。该结果表明 RAG 路由已较稳定，
 但 no-rag 和 FEEDBACK 仍是下一轮阈值/意图树校准重点。脱敏报告见
 `evaluation/reports/m5c-full-intent.json`。
+
+M5-D 离线分析确认 22 条错误中有 17 条进入不必要的澄清、5 条 no-rag 被送入知识库，并且没有
+应检索却直接回答的错误。分析只保存聚合计数和 Query ID，见
+`evaluation/reports/m5d-intent-failure-analysis.json`。评测专用
+`evaluation/config/m5d-intent-tree-v2.json` 只细化反馈、越界问题、通用规则和澄清边界；线上
+默认仍是 `m4-c-v1`。候选树是否有效尚无真实结果，不能写成已提升。
 
 ## 当前文档解析边界
 
@@ -445,6 +452,26 @@ python -m customer_agent2.evaluation.full_intent_cli `
 同一数据集、模型和参数的连续成功前缀，并要求 `--accept-paid-calls` 精确等于剩余条数，避免重复
 产生费用。60 秒只覆盖本次评测，线上配置仍使用默认 20 秒。该命令与 132 次 Rerank 是两个独立
 费用边界，不能互相代替授权。
+
+M5-D 的失败切片完全离线运行：
+
+```powershell
+python -m customer_agent2.evaluation.intent_failure_analysis_cli
+```
+
+候选树真实实验必须使用独立路径，避免覆盖 M5-C 基线；以下命令会产生最多 150 次真实调用，
+没有新的明确费用授权时不得执行：
+
+```powershell
+python -m customer_agent2.evaluation.full_intent_cli `
+  --live-intent --accept-paid-calls 150 --intent-timeout-seconds 60 `
+  --intent-tree evaluation/config/m5d-intent-tree-v2.json `
+  --output evaluation/reports/m5d-full-intent-v2.json `
+  --checkpoint evaluation/reports/m5d-full-intent-v2.checkpoint.json
+```
+
+v2 报告会保存脱敏三路分数，使一次付费运行可以离线重放其他阈值；同一完整集上的阈值重放只算
+探索性分析，不能替代新的留出集验证。详细控制变量和晋级门槛见 ADR-0013。
 
 ## 参考与致谢
 

@@ -101,6 +101,42 @@ class IntentCandidate:
             raise ValueError("IntentCandidate.score 必须在 0 到 1 之间")
 
 
+def select_intent_route(
+    candidates: tuple[IntentCandidate, ...],
+    *,
+    high_confidence_threshold: float,
+    ambiguity_margin: float,
+) -> tuple[IntentRoute, IntentDecisionReason]:
+    """Apply the shared deterministic policy to one complete score snapshot."""
+    if not 0 <= high_confidence_threshold <= 1:
+        raise ValueError("high_confidence_threshold 必须在 0 到 1 之间")
+    if not 0 <= ambiguity_margin <= 1:
+        raise ValueError("ambiguity_margin 必须在 0 到 1 之间")
+    if len(candidates) != len(IntentRoute) or {candidate.route for candidate in candidates} != set(
+        IntentRoute
+    ):
+        raise ValueError("Intent 候选必须恰好包含三个唯一路由")
+
+    order = {route: index for index, route in enumerate(IntentRoute)}
+    ranked = tuple(
+        sorted(candidates, key=lambda candidate: (-candidate.score, order[candidate.route]))
+    )
+    top, second = ranked[:2]
+    if top.score < high_confidence_threshold:
+        return IntentRoute.CLARIFICATION, IntentDecisionReason.LOW_CONFIDENCE
+    difference = top.score - second.score
+    if difference < ambiguity_margin and not math.isclose(
+        difference,
+        ambiguity_margin,
+        rel_tol=0,
+        abs_tol=1e-12,
+    ):
+        return IntentRoute.CLARIFICATION, IntentDecisionReason.AMBIGUOUS
+    if top.route is IntentRoute.CLARIFICATION:
+        return IntentRoute.CLARIFICATION, IntentDecisionReason.EXPLICIT_CLARIFICATION
+    return top.route, IntentDecisionReason.HIGH_CONFIDENCE
+
+
 @dataclass(frozen=True, slots=True)
 class IntentDecision:
     """Validated route decision, including observable classifier fallback."""

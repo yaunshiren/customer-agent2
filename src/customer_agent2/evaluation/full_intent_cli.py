@@ -1,4 +1,4 @@
-"""Run the explicitly authorized 150-call M5-C live intent evaluation."""
+"""Run one explicitly authorized 150-call live Intent evaluation."""
 
 import argparse
 import asyncio
@@ -7,7 +7,7 @@ from pathlib import Path
 
 from customer_agent2.application import FastModelIntentClassifier
 from customer_agent2.config import Settings
-from customer_agent2.domain.models import ModelError, ModelErrorCode
+from customer_agent2.domain.models import IntentTree, ModelError, ModelErrorCode
 from customer_agent2.evaluation.full_dataset import (
     EXPECTED_FULL_CASES,
     load_full_evaluation_assets,
@@ -21,12 +21,20 @@ from customer_agent2.evaluation.full_intent import (
     FullIntentRunError,
     run_full_intent_evaluation,
 )
-from customer_agent2.infrastructure.intents import load_default_intent_tree
+from customer_agent2.infrastructure.intents import (
+    intent_tree_fingerprint,
+    load_default_intent_tree,
+    load_intent_tree_json,
+)
 from customer_agent2.infrastructure.models import OpenAICompatibleChatModel
+
+_DEFAULT_OUTPUT = Path("evaluation/reports/m5c-full-intent.json")
+_DEFAULT_CHECKPOINT = Path("evaluation/reports/m5c-full-intent.checkpoint.json")
 
 
 def _live_classifier(
     settings: Settings,
+    intent_tree: IntentTree,
     *,
     timeout_seconds: float,
 ) -> tuple[FastModelIntentClassifier, OpenAICompatibleChatModel]:
@@ -45,7 +53,7 @@ def _live_classifier(
     )
     classifier = FastModelIntentClassifier(
         model,
-        load_default_intent_tree(),
+        intent_tree,
         high_confidence_threshold=settings.intent_high_confidence_threshold,
         ambiguity_margin=settings.intent_ambiguity_margin,
         timeout_seconds=timeout_seconds,
@@ -57,12 +65,15 @@ def _live_classifier(
 def new_intent_checkpoint(
     settings: Settings,
     dataset_id: str,
+    intent_tree: IntentTree,
     *,
     timeout_seconds: float,
 ) -> FullIntentCheckpoint:
     return FullIntentCheckpoint(
         dataset_id=dataset_id,
         model_id=settings.chat_model_fast,
+        intent_tree_version=intent_tree.version,
+        intent_tree_sha256=intent_tree_fingerprint(intent_tree),
         high_confidence_threshold=settings.intent_high_confidence_threshold,
         ambiguity_margin=settings.intent_ambiguity_margin,
         timeout_seconds=timeout_seconds,
@@ -75,10 +86,16 @@ def load_intent_checkpoint(
     path: Path,
     settings: Settings,
     dataset_id: str,
+    intent_tree: IntentTree,
     *,
     timeout_seconds: float,
 ) -> FullIntentCheckpoint:
-    expected = new_intent_checkpoint(settings, dataset_id, timeout_seconds=timeout_seconds)
+    expected = new_intent_checkpoint(
+        settings,
+        dataset_id,
+        intent_tree,
+        timeout_seconds=timeout_seconds,
+    )
     if not path.exists():
         return expected
     checkpoint = FullIntentCheckpoint.model_validate_json(path.read_text(encoding="utf-8"))
@@ -104,8 +121,11 @@ async def _run(
     checkpoint_path: Path,
     accepted_paid_calls: int,
     intent_timeout_seconds: float | None,
+    intent_tree_path: Path | None,
 ) -> FullIntentReport:
+    validate_intent_experiment_paths(intent_tree_path, output, checkpoint_path)
     settings = Settings()
+    intent_tree = _load_intent_tree(intent_tree_path)
     timeout_seconds = (
         settings.intent_timeout_seconds
         if intent_timeout_seconds is None
@@ -122,6 +142,7 @@ async def _run(
         checkpoint_path,
         settings,
         assets.dataset.dataset_id,
+        intent_tree,
         timeout_seconds=timeout_seconds,
     )
     remaining_calls = EXPECTED_FULL_CASES - len(checkpoint.completed_cases)
@@ -131,7 +152,11 @@ async def _run(
             f"当前 checkpoint 需要精确确认 {remaining_calls} 次 Intent 调用",
             retryable=False,
         )
-    classifier, model = _live_classifier(settings, timeout_seconds=timeout_seconds)
+    classifier, model = _live_classifier(
+        settings,
+        intent_tree,
+        timeout_seconds=timeout_seconds,
+    )
 
     def record(case: FullIntentCaseResult) -> None:
         nonlocal checkpoint
@@ -166,6 +191,8 @@ async def _run(
             classifier,
             configuration=FullIntentEvaluationConfiguration(
                 model_id=settings.chat_model_fast,
+                intent_tree_version=intent_tree.version,
+                intent_tree_sha256=intent_tree_fingerprint(intent_tree),
                 high_confidence_threshold=settings.intent_high_confidence_threshold,
                 ambiguity_margin=settings.intent_ambiguity_margin,
                 timeout_seconds=timeout_seconds,
@@ -184,6 +211,35 @@ async def _run(
     return report
 
 
+def validate_intent_experiment_paths(
+    intent_tree_path: Path | None,
+    output: Path,
+    checkpoint_path: Path,
+) -> None:
+    """Keep candidate experiments from overwriting the committed M5-C baseline."""
+    if intent_tree_path is not None and (
+        output == _DEFAULT_OUTPUT or checkpoint_path == _DEFAULT_CHECKPOINT
+    ):
+        raise ModelError(
+            ModelErrorCode.CONFIGURATION,
+            "候选 Intent Tree 必须使用独立的输出和 checkpoint 路径",
+            retryable=False,
+        )
+
+
+def _load_intent_tree(path: Path | None) -> IntentTree:
+    if path is None:
+        return load_default_intent_tree()
+    try:
+        return load_intent_tree_json(path.read_text(encoding="utf-8"))
+    except (OSError, TypeError, ValueError) as error:
+        raise ModelError(
+            ModelErrorCode.CONFIGURATION,
+            "候选 Intent Tree 文件无效",
+            retryable=False,
+        ) from error
+
+
 def main() -> None:
     """Require an exact paid-call acknowledgement before any live request."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -197,12 +253,18 @@ def main() -> None:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("evaluation/reports/m5c-full-intent.json"),
+        default=_DEFAULT_OUTPUT,
     )
     parser.add_argument(
         "--checkpoint",
         type=Path,
-        default=Path("evaluation/reports/m5c-full-intent.checkpoint.json"),
+        default=_DEFAULT_CHECKPOINT,
+    )
+    parser.add_argument(
+        "--intent-tree",
+        type=Path,
+        default=None,
+        help="评测专用候选 Intent Tree, 线上默认树不会被修改",
     )
     parser.add_argument(
         "--intent-timeout-seconds",
@@ -225,10 +287,11 @@ def main() -> None:
                 arguments.checkpoint,
                 arguments.accept_paid_calls,
                 arguments.intent_timeout_seconds,
+                arguments.intent_tree,
             )
         )
     except (FullIntentRunError, ModelError) as error:
-        parser.exit(status=2, message=f"M5-C Intent 已安全终止: {error}\n")
+        parser.exit(status=2, message=f"完整 Intent 已安全终止: {error}\n")
     print(
         json.dumps(
             {

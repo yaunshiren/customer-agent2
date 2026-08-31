@@ -3,7 +3,6 @@
 import asyncio
 import json
 import logging
-import math
 from html import escape
 from typing import cast
 
@@ -22,6 +21,7 @@ from customer_agent2.domain.models import (
     IntentTree,
     ModelError,
     ModelErrorCode,
+    select_intent_route,
 )
 
 logger = logging.getLogger(__name__)
@@ -124,23 +124,14 @@ class FastModelIntentClassifier:
                 key=lambda candidate: (-candidate.score, order[candidate.route]),
             )
         )
-        top, second = ranked[:2]
         guidance_message: str | None = None
-        if top.score < self._high_confidence_threshold:
-            route = IntentRoute.CLARIFICATION
-            reason = IntentDecisionReason.LOW_CONFIDENCE
+        route, reason = select_intent_route(
+            ranked,
+            high_confidence_threshold=self._high_confidence_threshold,
+            ambiguity_margin=self._ambiguity_margin,
+        )
+        if route is IntentRoute.CLARIFICATION:
             guidance_message = clarification_question or _DEFAULT_GUIDANCE
-        elif _is_ambiguous(top.score, second.score, self._ambiguity_margin):
-            route = IntentRoute.CLARIFICATION
-            reason = IntentDecisionReason.AMBIGUOUS
-            guidance_message = clarification_question or _DEFAULT_GUIDANCE
-        elif top.route is IntentRoute.CLARIFICATION:
-            route = IntentRoute.CLARIFICATION
-            reason = IntentDecisionReason.EXPLICIT_CLARIFICATION
-            guidance_message = clarification_question or _DEFAULT_GUIDANCE
-        else:
-            route = top.route
-            reason = IntentDecisionReason.HIGH_CONFIDENCE
 
         return IntentDecision(
             route=route,
@@ -225,13 +216,3 @@ def _parse_response(
             raise TypeError("Intent score 必须是数字")
         candidates.append(IntentCandidate(definition.route, float(score)))
     return tuple(candidates), normalized_question
-
-
-def _is_ambiguous(top_score: float, second_score: float, margin: float) -> bool:
-    difference = top_score - second_score
-    return difference < margin and not math.isclose(
-        difference,
-        margin,
-        rel_tol=0,
-        abs_tol=1e-12,
-    )

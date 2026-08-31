@@ -24,7 +24,9 @@ from customer_agent2.evaluation.full_intent import (
     FullIntentFailedAttempt,
     FullIntentReport,
     FullIntentRunError,
+    IntentCandidateScores,
     IntentSliceMetrics,
+    replay_full_intent_thresholds,
     run_full_intent_evaluation,
 )
 from customer_agent2.evaluation.full_retrieval import (
@@ -36,6 +38,11 @@ from customer_agent2.evaluation.full_retrieval import (
     merge_full_retrieval_reports,
     rank_documents_from_top_chunks,
     run_full_retrieval_evaluation,
+)
+from customer_agent2.evaluation.intent_failure_analysis import (
+    IntentFailureAnalysis,
+    IntentFailureBucket,
+    analyze_full_intent_failures,
 )
 from customer_agent2.evaluation.rerank_smoke import (
     RerankSmokeDataset,
@@ -65,16 +72,21 @@ __all__ = [
     "FullRetrievalCaseResult",
     "FullRetrievalReport",
     "FullRetrievalRunError",
+    "IntentCandidateScores",
+    "IntentFailureAnalysis",
+    "IntentFailureBucket",
     "IntentSliceMetrics",
     "RerankSmokeDataset",
     "RerankSmokeReport",
     "RetrievalEvaluationMetrics",
+    "analyze_full_intent_failures",
     "calculate_retrieval_metrics",
     "import_full_evaluation_corpus",
     "load_full_evaluation_assets",
     "load_rerank_smoke_dataset",
     "merge_full_retrieval_reports",
     "rank_documents_from_top_chunks",
+    "replay_full_intent_thresholds",
     "run_full_intent_evaluation",
     "run_full_retrieval_evaluation",
     "run_rerank_smoke",

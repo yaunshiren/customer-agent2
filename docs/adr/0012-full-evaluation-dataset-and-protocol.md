@@ -2,7 +2,8 @@
 
 - 状态：Accepted
 - 日期：2026-08-30
-- 关联：[ADR-0011](0011-dashscope-rerank-and-smoke-evaluation.md)
+- 关联：[ADR-0011](0011-dashscope-rerank-and-smoke-evaluation.md) 和
+  [ADR-0013](0013-intent-failure-calibration.md)
 
 ## 背景
 
