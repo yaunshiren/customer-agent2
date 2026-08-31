@@ -49,9 +49,9 @@ from customer_agent2.infrastructure.intents import intent_tree_fingerprint
 _DEFAULT_SNAPSHOT = Path("evaluation/datasets/ragenteval-v1")
 _DEFAULT_BASELINE = Path("evaluation/reports/m5c-full-intent.json")
 _DEFAULT_MANIFEST = Path("evaluation/config/m5d-intent-stages.json")
-_DEFAULT_TREE = Path("evaluation/config/m5d-intent-tree-v2.json")
-_DEFAULT_CACHE = Path("evaluation/reports/m5d-intent-v2.cache.json")
-_DEFAULT_FULL_OUTPUT = Path("evaluation/reports/m5d-full-intent-v2.json")
+_DEFAULT_TREE = Path("evaluation/config/m5d-intent-tree-v3.json")
+_DEFAULT_CACHE = Path("evaluation/reports/m5d-intent-v3.cache.json")
+_DEFAULT_FULL_OUTPUT = Path("evaluation/reports/m5d-full-intent-v3.json")
 
 
 def new_staged_intent_cache(
@@ -250,7 +250,7 @@ def _write_model(path: Path, model: BaseModel) -> None:
 
 
 def _default_stage_output(stage: IntentEvaluationStage) -> Path:
-    return Path(f"evaluation/reports/m5d-intent-v2-{stage.value}.json")
+    return Path(f"evaluation/reports/m5d-intent-v3-{stage.value}.json")
 
 
 def validate_paid_call_acknowledgement(accepted: int, required: int) -> None:

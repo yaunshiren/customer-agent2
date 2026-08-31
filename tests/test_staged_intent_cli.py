@@ -25,6 +25,7 @@ PROJECT_ROOT = Path(__file__).parents[1]
 BASELINE_REPORT = PROJECT_ROOT / "evaluation" / "reports" / "m5c-full-intent.json"
 STAGE_MANIFEST = PROJECT_ROOT / "evaluation" / "config" / "m5d-intent-stages.json"
 CANDIDATE_TREE = PROJECT_ROOT / "evaluation" / "config" / "m5d-intent-tree-v2.json"
+V3_CANDIDATE_TREE = PROJECT_ROOT / "evaluation" / "config" / "m5d-intent-tree-v3.json"
 
 
 def _new_cache(tree_content: str) -> StagedIntentCache:
@@ -56,6 +57,17 @@ def test_staged_cache_round_trips_and_rejects_tree_drift(tmp_path: Path) -> None
         load_staged_intent_cache(path, _new_cache(changed))
 
     assert captured.value.code is ModelErrorCode.CONFIGURATION
+
+
+def test_v3_candidate_changes_only_versioned_route_descriptions() -> None:
+    v2 = load_intent_tree_json(CANDIDATE_TREE.read_text(encoding="utf-8"))
+    v3 = load_intent_tree_json(V3_CANDIDATE_TREE.read_text(encoding="utf-8"))
+
+    assert v3.version == "m5-d-v3-candidate"
+    assert tuple(item.route for item in v3.definitions) == tuple(
+        item.route for item in v2.definitions
+    )
+    assert intent_tree_fingerprint(v3) != intent_tree_fingerprint(v2)
 
 
 def test_paid_call_acknowledgement_must_equal_uncached_count() -> None:
