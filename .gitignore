@@ -45,6 +45,8 @@ temp/
 .cache/
 artifacts/
 reports/private/
+evaluation/reports/m5d-intent-v2.cache.json
+evaluation/reports/m5d-intent-v2.cache.json.lock
 
 # 数据库与容器卷
 *.db

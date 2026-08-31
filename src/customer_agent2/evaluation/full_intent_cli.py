@@ -32,7 +32,7 @@ _DEFAULT_OUTPUT = Path("evaluation/reports/m5c-full-intent.json")
 _DEFAULT_CHECKPOINT = Path("evaluation/reports/m5c-full-intent.checkpoint.json")
 
 
-def _live_classifier(
+def build_live_intent_classifier(
     settings: Settings,
     intent_tree: IntentTree,
     *,
@@ -125,7 +125,7 @@ async def _run(
 ) -> FullIntentReport:
     validate_intent_experiment_paths(intent_tree_path, output, checkpoint_path)
     settings = Settings()
-    intent_tree = _load_intent_tree(intent_tree_path)
+    intent_tree = load_intent_tree_file(intent_tree_path)
     timeout_seconds = (
         settings.intent_timeout_seconds
         if intent_timeout_seconds is None
@@ -152,7 +152,7 @@ async def _run(
             f"当前 checkpoint 需要精确确认 {remaining_calls} 次 Intent 调用",
             retryable=False,
         )
-    classifier, model = _live_classifier(
+    classifier, model = build_live_intent_classifier(
         settings,
         intent_tree,
         timeout_seconds=timeout_seconds,
@@ -227,7 +227,7 @@ def validate_intent_experiment_paths(
         )
 
 
-def _load_intent_tree(path: Path | None) -> IntentTree:
+def load_intent_tree_file(path: Path | None) -> IntentTree:
     if path is None:
         return load_default_intent_tree()
     try:

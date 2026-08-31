@@ -14,8 +14,9 @@
 > active-only Cosine 向量召回。`POST /api/v1/chat/stream` 已将
 > `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → Intent 路由 → 检索 → 加权 RRF/去重 → 可配置 Rerank/TopK → 安全 Prompt → Chat 流 → 保存回答/Trace`
 > 通过版本化 SSE 契约公开；超过 12 个 completed 轮次后会用 fast 模型增量摘要滑出窗口的旧轮次。
-> M5-D 已离线完成 Intent 失败切片，并准备了不影响线上默认的 v2 候选树和单变量实验保护；
-> 下一步是在独立费用授权下验证候选树，再单独处理 Rerank 策略。
+> M5-D 已离线完成 Intent 失败切片，并准备了不影响线上默认的 v2 候选树。真实验证改为带缓存的
+> 22 条失败集 → 追加 18 条回归集 → 追加 110 条完整集，未通过门禁时不会继续产生后续费用；
+> 下一步只需独立授权第一阶段最多 22 次调用，再单独处理 Rerank 策略。
 
 ## 项目目标
 
@@ -459,19 +460,35 @@ M5-D 的失败切片完全离线运行：
 python -m customer_agent2.evaluation.intent_failure_analysis_cli
 ```
 
-候选树真实实验必须使用独立路径，避免覆盖 M5-C 基线；以下命令会产生最多 150 次真实调用，
-没有新的明确费用授权时不得执行：
+候选树真实实验使用独立、严格绑定候选配置的缓存，避免覆盖 M5-C 基线。先只运行 22 条历史失败：
 
 ```powershell
-python -m customer_agent2.evaluation.full_intent_cli `
-  --live-intent --accept-paid-calls 150 --intent-timeout-seconds 60 `
-  --intent-tree evaluation/config/m5d-intent-tree-v2.json `
-  --output evaluation/reports/m5d-full-intent-v2.json `
-  --checkpoint evaluation/reports/m5d-full-intent-v2.checkpoint.json
+python -m customer_agent2.evaluation.staged_intent_cli `
+  --live-intent --stage failures --accept-paid-calls 22 `
+  --intent-timeout-seconds 60
 ```
 
-v2 报告会保存脱敏三路分数，使一次付费运行可以离线重放其他阈值；同一完整集上的阈值重放只算
-探索性分析，不能替代新的留出集验证。详细控制变量和晋级门槛见 ADR-0013。
+第一阶段门禁通过后，第二阶段只新增 18 条回归保护；前 40 条都通过后，第三阶段才补 110 条：
+
+```powershell
+python -m customer_agent2.evaluation.staged_intent_cli `
+  --live-intent --stage guard --accept-paid-calls 18 `
+  --intent-timeout-seconds 60
+
+python -m customer_agent2.evaluation.staged_intent_cli `
+  --live-intent --stage full --accept-paid-calls 110 `
+  --intent-timeout-seconds 60
+```
+
+每次授权数必须等于缓存中当前缺少的条数；例如第一阶段已成功 5 条后中断，续跑必须确认 17，不能
+仍写 22 或 150。每条成功结果先原子落盘，同一候选的成功样本不会跨阶段重复调用；失败尝试可能
+产生费用但不会伪装成成功，续跑前会重新显示准确缺口。修改模型、候选树、阈值、超时、阶段清单
+或基线后旧缓存会被拒绝，应为新候选指定新的 `--cache`、`--output` 和
+`--full-output` 路径。v2 报告保存脱敏三路分数，使一次付费运行可以离线重放其他阈值；同一完整
+集上的阈值重放只算探索性分析，不能替代新的留出集验证。详细控制变量和晋级门槛见 ADR-0013。
+运行期间同一缓存有独占锁，避免两个终端对相同缺口重复付费；若进程被强制结束并遗留 `.lock`
+文件，应先确认没有同一候选评测仍在运行，再手动删除锁文件。阶段报告中的尝试数来自本地逐条
+回调，用于开发审计但不能替代供应商账单；强制结束进程等极端窗口仍应以控制台账单为准。
 
 ## 参考与致谢
 

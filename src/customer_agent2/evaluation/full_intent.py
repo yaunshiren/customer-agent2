@@ -23,6 +23,7 @@ from customer_agent2.evaluation.full_dataset import (
     EXPECTED_NO_RAG_CASES,
     EXPECTED_RAG_CASES,
     FullEvaluationDataset,
+    FullEvaluationSample,
 )
 
 
@@ -209,8 +210,29 @@ async def run_full_intent_evaluation(
 ) -> FullIntentReport:
     """Classify the remaining full-set queries and checkpoint each sanitized result."""
     _validate_initial_case_prefix(dataset, initial_cases)
-    cases = list(initial_cases)
-    for sample in dataset.samples[len(initial_cases) :]:
+    new_cases = await run_intent_case_evaluation(
+        dataset.samples[len(initial_cases) :],
+        classifier,
+        abort_on_degradation=abort_on_degradation,
+        on_case=on_case,
+    )
+    return build_full_intent_report(
+        dataset,
+        (*initial_cases, *new_cases),
+        configuration=configuration,
+    )
+
+
+async def run_intent_case_evaluation(
+    samples: tuple[FullEvaluationSample, ...],
+    classifier: IntentClassifier,
+    *,
+    abort_on_degradation: bool = True,
+    on_case: Callable[[FullIntentCaseResult], None] | None = None,
+) -> tuple[FullIntentCaseResult, ...]:
+    """Classify an explicit sample subset while preserving full-run safety semantics."""
+    cases: list[FullIntentCaseResult] = []
+    for sample in samples:
         expected_route = (
             IntentRoute.KNOWLEDGE_BASE if sample.requires_rag else IntentRoute.SYSTEM_DIRECT
         )
@@ -249,10 +271,22 @@ async def run_full_intent_evaluation(
             )
         cases.append(case_result)
 
+    return tuple(cases)
+
+
+def build_full_intent_report(
+    dataset: FullEvaluationDataset,
+    cases: tuple[FullIntentCaseResult, ...],
+    *,
+    configuration: FullIntentEvaluationConfiguration | None = None,
+) -> FullIntentReport:
+    """Build the strict 150-case report from cached cases in dataset order."""
+    _validate_complete_case_sequence(dataset, cases)
+
     return _build_report(
         dataset.dataset_id,
         configuration,
-        tuple(cases),
+        cases,
         limitations=(
             "全量集没有 clarification 路由真值, 不报告 clarification 准确率。",
             "requires_rag=true 映射 knowledge_base, no-rag 映射 system_direct。",
@@ -367,6 +401,24 @@ def _validate_initial_case_prefix(
             or case.degradation_reason is not None
         ):
             raise ValueError("Intent checkpoint 必须是当前数据集的连续成功前缀")
+
+
+def _validate_complete_case_sequence(
+    dataset: FullEvaluationDataset,
+    cases: tuple[FullIntentCaseResult, ...],
+) -> None:
+    if len(cases) != len(dataset.samples):
+        raise ValueError("完整 Intent 报告必须包含数据集全部样本")
+    for sample, case in zip(dataset.samples, cases, strict=True):
+        expected_route = (
+            IntentRoute.KNOWLEDGE_BASE if sample.requires_rag else IntentRoute.SYSTEM_DIRECT
+        )
+        if (
+            case.query_id != sample.query_id
+            or case.intent_l1 != sample.intent_l1
+            or case.expected_route is not expected_route
+        ):
+            raise ValueError("完整 Intent 缓存必须按固定数据集顺序匹配标签")
 
 
 def _slice_metrics(cases: tuple[FullIntentCaseResult, ...]) -> IntentSliceMetrics:
