@@ -15,9 +15,9 @@
 > `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → Intent 路由 → 检索 → 加权 RRF/去重 → 可配置 Rerank/TopK → 安全 Prompt → Chat 流 → 保存回答/Trace`
 > 通过版本化 SSE 契约公开；超过 12 个 completed 轮次后会用 fast 模型增量摘要滑出窗口的旧轮次。
 > M5-D 已离线完成 Intent 失败切片，并把真实验证改为带缓存的 22 条失败集 → 追加 18 条回归集
-> → 追加 110 条完整集。v2 第一阶段因 1 条 under-retrieval 未通过门禁并停止；v3 第一阶段随后
-> 22/22 调用成功、22/22 正确、三项门禁全部通过。当前停在费用边界，下一步只考虑追加 18 条
-> M5-C 原本正确的回归保护样本。
+> → 追加 110 条完整集。v2 第一阶段因 1 条 under-retrieval 未通过门禁并停止；v3 已完成前两
+> 阶段，22 条开发失败集和新增 18 条回归保护均全部正确，累计 40/40、0 失败、0 under-retrieval。
+> 当前停在最后费用边界，下一步只考虑补齐剩余 110 条完整集。
 
 ## 项目目标
 
@@ -132,7 +132,11 @@ M5-D 离线分析确认 22 条错误中有 17 条进入不必要的澄清、5 �
 库存、隐含功能建议和竞品问题，文件为 `evaluation/config/m5d-intent-tree-v3.json`。v3 第一阶段
 22/22 成功、0 失败、零重试，应检索/no-rag 均为 11/11，under-retrieval、over-retrieval 和
 clarification 均为 0；脱敏结果见 `evaluation/reports/m5d-intent-v3-failures.json`。该失败集已用于
-开发调优，单独的 22/22 不能证明泛化提升；线上默认仍是 `m4-c-v1`。
+开发调优，单独的 22/22 不能证明泛化提升。第二阶段新增 18 条 M5-C 原本正确的保护样本也达到
+18/18，累计 40/40，SUPPORT/FEEDBACK/CHAT 为 15/15、15/15、10/10，仍为 0 under-retrieval、
+0 over-retrieval、0 clarification；脱敏累计报告见
+`evaluation/reports/m5d-intent-v3-guard.json`。线上默认仍是 `m4-c-v1`，只有完整 150 条通过才会
+讨论晋级。
 
 ## 当前文档解析边界
 
@@ -467,16 +471,8 @@ python -m customer_agent2.evaluation.intent_failure_analysis_cli
 ```
 
 候选树真实实验使用独立、严格绑定候选配置的缓存，避免覆盖 M5-C 基线。v2 已因第一阶段门禁失败
-停止；当前默认候选 v3 已完成第一阶段，不应重复运行这 22 条。获得新的 18 次费用授权后，下一步
-只新增回归保护样本：
-
-```powershell
-python -m customer_agent2.evaluation.staged_intent_cli `
-  --live-intent --stage guard --accept-paid-calls 18 `
-  --intent-timeout-seconds 60
-```
-
-前 40 条都通过后，第三阶段才补 110 条：
+停止；当前默认候选 v3 已完成 22 条失败集和新增 18 条回归保护，不应重复运行这 40 条。获得新的
+110 次费用授权后，第三阶段才补齐完整集：
 
 ```powershell
 python -m customer_agent2.evaluation.staged_intent_cli `
