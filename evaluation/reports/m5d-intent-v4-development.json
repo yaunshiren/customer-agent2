@@ -1,0 +1,178 @@
+{
+  "dataset_id": "m5-d-v4-validation-v1",
+  "manifest_version": "m5-d-v4-validation-v1",
+  "stage": "development",
+  "configuration": {
+    "model_id": "qwen3.8-flash",
+    "intent_tree_version": "m5-d-v4-candidate",
+    "intent_tree_sha256": "9e5f1c1975d9616bdc5616eacd9ce104b78106f8238e7da08f735e67cda77a21",
+    "high_confidence_threshold": 0.75,
+    "ambiguity_margin": 0.1,
+    "timeout_seconds": 60.0,
+    "max_output_tokens": 256,
+    "temperature": 0.0,
+    "reasoning_enabled": false
+  },
+  "target_sample_count": 4,
+  "cached_target_before_count": 0,
+  "new_calls": 4,
+  "total_cached_count": 4,
+  "failed_attempt_count": 0,
+  "total_attempt_count": 4,
+  "remaining_candidate_calls": 20,
+  "input_tokens": 2589,
+  "output_tokens": 182,
+  "overall": {
+    "sample_count": 4,
+    "correct_count": 4,
+    "accuracy": 1.0
+  },
+  "rag": {
+    "sample_count": 2,
+    "correct_count": 2,
+    "accuracy": 1.0
+  },
+  "no_rag": {
+    "sample_count": 2,
+    "correct_count": 2,
+    "accuracy": 1.0
+  },
+  "by_slice": {
+    "known_mixed_product_comparison": {
+      "sample_count": 1,
+      "correct_count": 1,
+      "accuracy": 1.0
+    },
+    "known_cross_ecosystem": {
+      "sample_count": 1,
+      "correct_count": 1,
+      "accuracy": 1.0
+    },
+    "known_third_party_only": {
+      "sample_count": 1,
+      "correct_count": 1,
+      "accuracy": 1.0
+    },
+    "known_generic_brand_opinion": {
+      "sample_count": 1,
+      "correct_count": 1,
+      "accuracy": 1.0
+    }
+  },
+  "under_retrieval_count": 0,
+  "over_retrieval_count": 0,
+  "clarification_count": 0,
+  "gate": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "all_routes_correct",
+        "comparison": "eq",
+        "actual": 4,
+        "required": 4,
+        "passed": true
+      },
+      {
+        "name": "under_retrieval",
+        "comparison": "eq",
+        "actual": 0,
+        "required": 0,
+        "passed": true
+      },
+      {
+        "name": "over_retrieval",
+        "comparison": "eq",
+        "actual": 0,
+        "required": 0,
+        "passed": true
+      },
+      {
+        "name": "clarification",
+        "comparison": "eq",
+        "actual": 0,
+        "required": 0,
+        "passed": true
+      }
+    ]
+  },
+  "cases": [
+    {
+      "query_id": "S3-08",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 1063.0022999976063,
+      "input_tokens": 649,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S12-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 562.4271000015142,
+      "input_tokens": 647,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "C2-02",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 777.95100000003,
+      "input_tokens": 647,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "C2-04",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 567.9860999989614,
+      "input_tokens": 646,
+      "output_tokens": 39
+    }
+  ],
+  "limitations": [
+    "报告不保存问题、模型原文、API Key 或 Workspace ID。",
+    "4 条开发探针来自已查看的 150 条, 不是独立验证。",
+    "20 条挑战样本是冻结的新边界用例, 不是生产流量的无偏随机样本。",
+    "通过两个阶段只支持进入影子或小流量验证, 不自动替换线上默认树。"
+  ]
+}

@@ -19,7 +19,7 @@
 > 正确，第三阶段只新增剩余 110 次真实调用后累计达到 149/150、0 调用失败，但完整集出现 1 条
 > under-retrieval，未通过预登记的安全门禁，因此候选不晋级，线上默认继续使用 `m4-c-v1`。v4
 > 已完成离线设计，把后续付费验证缩小为严格串行的 4 条已知边界探针和 20 条全新冻结挑战样本，
-> 当前尚未产生 v4 云端调用。
+> 第一阶段 4/4 真实调用成功且全部正确，三类错误均为 0；当前停在独立的 20 条挑战集费用边界。
 
 ## 项目目标
 
@@ -154,7 +154,9 @@ v4 离线分析确认 `S3-08` 属于“自营具体商品与第三方竞品混�
 20 条未原样复用原 150 条问题的冻结挑战样本；挑战集保持 knowledge-base/system-direct 10/10。
 两个阶段都要求全部正确且 under-retrieval、over-retrieval、clarification 均为 0。该挑战集是人工
 构造的边界覆盖，不是生产流量的无偏随机样本；即使通过也只支持进入影子或小流量验证，不会自动
-替换线上 `m4-c-v1`。协议见 ADR-0014。
+替换线上 `m4-c-v1`。第一阶段已完成 4/4、0 失败、零自动重试，检索/直答均为 2/2，三类错误均
+为 0；记录 2,589 输入 Token、182 输出 Token，延迟 P50/P95 为 672.969/1,020.245 ms。脱敏报告
+见 `evaluation/reports/m5d-intent-v4-development.json`，协议见 ADR-0014。
 
 ## 当前文档解析边界
 
@@ -513,7 +515,7 @@ python -m customer_agent2.evaluation.staged_intent_cli `
 文件，应先确认没有同一候选评测仍在运行，再手动删除锁文件。阶段报告中的尝试数来自本地逐条
 回调，用于开发审计但不能替代供应商账单；强制结束进程等极端窗口仍应以控制台账单为准。
 
-v4 不再重跑完整 150 条。只有得到新的独立费用授权后，才先运行 4 条开发探针：
+v4 不再重跑完整 150 条。第一阶段已经按以下命令完成 4 条开发探针：
 
 ```powershell
 python -m customer_agent2.evaluation.candidate_intent_validation_cli `
@@ -521,7 +523,8 @@ python -m customer_agent2.evaluation.candidate_intent_validation_cli `
   --intent-timeout-seconds 60
 ```
 
-只有 4/4 且三类错误计数均为 0，运行器才允许再单独授权 20 条冻结挑战集：
+第一阶段已达到 4/4 且三类错误计数均为 0，运行器现已解锁但不会自动执行 20 条冻结挑战集。只有
+得到新的独立费用授权后，才使用：
 
 ```powershell
 python -m customer_agent2.evaluation.candidate_intent_validation_cli `
@@ -530,8 +533,8 @@ python -m customer_agent2.evaluation.candidate_intent_validation_cli `
 ```
 
 两个阶段使用同一份绑定模型、树语义哈希、清单内容和超时参数的本地缓存；成功样本不会重复调用，
-授权数必须精确等于当前阶段缺口。报告不保存问题或模型原文。当前只完成离线准备，上述命令尚未
-执行；完整限制和后续影子验证边界见 ADR-0014。
+授权数必须精确等于当前阶段缺口。报告不保存问题或模型原文。当前第一阶段缓存为 4 条，第二条
+命令尚未执行；完整限制和后续影子验证边界见 ADR-0014。
 
 ## 参考与致谢
 
