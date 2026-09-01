@@ -144,9 +144,7 @@ async def _search_rows(
         )
     )
     if scope.knowledge_base_ids:
-        statement = statement.where(
-            ChunkRecord.knowledge_base_id.in_(scope.knowledge_base_ids)
-        )
+        statement = statement.where(ChunkRecord.knowledge_base_id.in_(scope.knowledge_base_ids))
     if scope.document_ids:
         statement = statement.where(DocumentVersionRecord.document_id.in_(scope.document_ids))
     if scope.document_formats:
