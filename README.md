@@ -17,7 +17,9 @@
 > M5-D 已离线完成 Intent 失败切片，并把真实验证改为带缓存的 22 条失败集 → 追加 18 条回归集
 > → 追加 110 条完整集。v2 第一阶段因 1 条 under-retrieval 未通过门禁并停止；v3 前 40 条全部
 > 正确，第三阶段只新增剩余 110 次真实调用后累计达到 149/150、0 调用失败，但完整集出现 1 条
-> under-retrieval，未通过预登记的安全门禁，因此候选不晋级，线上默认继续使用 `m4-c-v1`。
+> under-retrieval，未通过预登记的安全门禁，因此候选不晋级，线上默认继续使用 `m4-c-v1`。v4
+> 已完成离线设计，把后续付费验证缩小为严格串行的 4 条已知边界探针和 20 条全新冻结挑战样本，
+> 当前尚未产生 v4 云端调用。
 
 ## 项目目标
 
@@ -145,6 +147,15 @@ under-retrieval；其余 over-retrieval 和 clarification 均为 0。尽管准�
 报告分别见 `evaluation/reports/m5d-intent-v3-full.json`、
 `evaluation/reports/m5d-full-intent-v3.json`。
 
+v4 离线分析确认 `S3-08` 属于“自营具体商品与第三方竞品混合对比”，不能与“纯第三方问题或泛化
+品牌主观评价”共用直接回答边界。`evaluation/config/m5d-intent-tree-v4.json` 只细化这条通用语义，
+不改模型、阈值、选择算法或线上树。验证清单
+`evaluation/config/m5d-intent-v4-validation.json` 先使用 4 条已查看的相邻边界作开发探针，再使用
+20 条未原样复用原 150 条问题的冻结挑战样本；挑战集保持 knowledge-base/system-direct 10/10。
+两个阶段都要求全部正确且 under-retrieval、over-retrieval、clarification 均为 0。该挑战集是人工
+构造的边界覆盖，不是生产流量的无偏随机样本；即使通过也只支持进入影子或小流量验证，不会自动
+替换线上 `m4-c-v1`。协议见 ADR-0014。
+
 ## 当前文档解析边界
 
 - 输入是尚未落盘的内存字节，默认单文件上限为可配置的 50 MiB。
@@ -257,6 +268,9 @@ under-retrieval；其余 over-retrieval 和 clarification 均为 0。尽管准�
 - [Intent 路由、澄清与降级契约](docs/adr/0009-intent-routing-and-guidance.md)
 - [检索后处理与 No-op Rerank 基线](docs/adr/0010-retrieval-post-processing-baseline.md)
 - [DashScope Rerank 与 20 条 OFF/ON Smoke](docs/adr/0011-dashscope-rerank-and-smoke-evaluation.md)
+- [完整评测数据与协议](docs/adr/0012-full-evaluation-dataset-and-protocol.md)
+- [Intent 失败切片与候选树实验](docs/adr/0013-intent-failure-calibration.md)
+- [v4 竞品边界聚焦验证](docs/adr/0014-intent-v4-focused-validation.md)
 - [AI 协作规则](AGENTS.md)
 
 ## 本地启动
@@ -498,6 +512,26 @@ python -m customer_agent2.evaluation.staged_intent_cli `
 运行期间同一缓存有独占锁，避免两个终端对相同缺口重复付费；若进程被强制结束并遗留 `.lock`
 文件，应先确认没有同一候选评测仍在运行，再手动删除锁文件。阶段报告中的尝试数来自本地逐条
 回调，用于开发审计但不能替代供应商账单；强制结束进程等极端窗口仍应以控制台账单为准。
+
+v4 不再重跑完整 150 条。只有得到新的独立费用授权后，才先运行 4 条开发探针：
+
+```powershell
+python -m customer_agent2.evaluation.candidate_intent_validation_cli `
+  --live-intent --stage development --accept-paid-calls 4 `
+  --intent-timeout-seconds 60
+```
+
+只有 4/4 且三类错误计数均为 0，运行器才允许再单独授权 20 条冻结挑战集：
+
+```powershell
+python -m customer_agent2.evaluation.candidate_intent_validation_cli `
+  --live-intent --stage challenge --accept-paid-calls 20 `
+  --intent-timeout-seconds 60
+```
+
+两个阶段使用同一份绑定模型、树语义哈希、清单内容和超时参数的本地缓存；成功样本不会重复调用，
+授权数必须精确等于当前阶段缺口。报告不保存问题或模型原文。当前只完成离线准备，上述命令尚未
+执行；完整限制和后续影子验证边界见 ADR-0014。
 
 ## 参考与致谢
 

@@ -1,0 +1,151 @@
+{
+  "version": "m5-d-v4-validation-v1",
+  "development_query_ids": [
+    "S3-08",
+    "S12-06",
+    "C2-02",
+    "C2-04"
+  ],
+  "challenge_samples": [
+    {
+      "query_id": "V4-KB-01",
+      "query": "小米手环 9 和 Apple Watch SE，主要跑步该怎么选？",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "slice": "mixed_product_comparison"
+    },
+    {
+      "query_id": "V4-KB-02",
+      "query": "小米 14 Ultra 和三星 S24 Ultra，拍照需求更推荐哪个？",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "slice": "mixed_product_comparison"
+    },
+    {
+      "query_id": "V4-KB-03",
+      "query": "Redmi Buds 5 Pro 对比 AirPods Pro 2，通勤降噪怎么选？",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "slice": "mixed_product_comparison"
+    },
+    {
+      "query_id": "V4-KB-04",
+      "query": "米家扫地机器人和科沃斯同价位产品，养猫家庭更适合哪个？",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "slice": "mixed_product_comparison"
+    },
+    {
+      "query_id": "V4-KB-05",
+      "query": "小米平板 6S Pro 和 iPad Air，上网课应该选谁？",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "slice": "mixed_product_comparison"
+    },
+    {
+      "query_id": "V4-KB-06",
+      "query": "小米空气净化器 4 Pro 和戴森同类产品，卧室使用怎么选？",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "slice": "mixed_product_comparison"
+    },
+    {
+      "query_id": "V4-KB-07",
+      "query": "小米手表能和 iPhone 配对并接收通知吗？",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "slice": "covered_product_cross_ecosystem"
+    },
+    {
+      "query_id": "V4-KB-08",
+      "query": "米家智能门锁可以接入苹果 HomeKit 吗？",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "slice": "covered_product_cross_ecosystem"
+    },
+    {
+      "query_id": "V4-KB-09",
+      "query": "Redmi 耳机连接华为手机需要哪些步骤？",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "slice": "covered_product_cross_ecosystem"
+    },
+    {
+      "query_id": "V4-KB-10",
+      "query": "小米手机换到 iPhone 前，数据迁移方面有哪些已知限制？",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "slice": "covered_product_cross_ecosystem"
+    },
+    {
+      "query_id": "V4-DIRECT-01",
+      "query": "Apple Watch Ultra 2 和华为 Watch GT 4 哪个更适合越野跑？",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "slice": "third_party_only"
+    },
+    {
+      "query_id": "V4-DIRECT-02",
+      "query": "iPhone 15 Pro 和三星 S24，拍照效果哪个更好？",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "slice": "third_party_only"
+    },
+    {
+      "query_id": "V4-DIRECT-03",
+      "query": "你觉得苹果和华为哪家公司更有创新力？",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "slice": "generic_brand_opinion"
+    },
+    {
+      "query_id": "V4-DIRECT-04",
+      "query": "小米和苹果哪个品牌更高级？",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "slice": "generic_brand_opinion"
+    },
+    {
+      "query_id": "V4-DIRECT-05",
+      "query": "苹果手机官方保修期是多久？",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "slice": "third_party_only"
+    },
+    {
+      "query_id": "V4-DIRECT-06",
+      "query": "三星 S24 最近有什么促销折扣？",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "slice": "third_party_only"
+    },
+    {
+      "query_id": "V4-DIRECT-07",
+      "query": "帮我查一下华为商城订单现在到哪里了。",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "slice": "third_party_only"
+    },
+    {
+      "query_id": "V4-DIRECT-08",
+      "query": "科沃斯和石头的扫地机器人哪个品牌更可靠？",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "slice": "third_party_only"
+    },
+    {
+      "query_id": "V4-DIRECT-09",
+      "query": "AirPods Pro 2 的完整降噪参数是什么？",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "slice": "third_party_only"
+    },
+    {
+      "query_id": "V4-DIRECT-10",
+      "query": "今年苹果发布会公布了哪些新品？",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "slice": "third_party_only"
+    }
+  ]
+}

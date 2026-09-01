@@ -4,7 +4,7 @@ import math
 from collections import Counter
 from collections.abc import Callable
 from time import perf_counter
-from typing import Self
+from typing import Protocol, Self
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -23,7 +23,6 @@ from customer_agent2.evaluation.full_dataset import (
     EXPECTED_NO_RAG_CASES,
     EXPECTED_RAG_CASES,
     FullEvaluationDataset,
-    FullEvaluationSample,
 )
 
 
@@ -34,6 +33,22 @@ class FullIntentRunError(RuntimeError):
         super().__init__(f"完整 Intent 评测在 {query_id} 安全终止: {error_code}")
         self.query_id = query_id
         self.error_code = error_code
+
+
+class IntentEvaluationSample(Protocol):
+    """Minimal sample contract shared by full and focused Intent evaluations."""
+
+    @property
+    def query_id(self) -> str: ...
+
+    @property
+    def query(self) -> str: ...
+
+    @property
+    def intent_l1(self) -> str: ...
+
+    @property
+    def requires_rag(self) -> bool: ...
 
 
 class FullIntentFailedAttempt(BaseModel):
@@ -224,7 +239,7 @@ async def run_full_intent_evaluation(
 
 
 async def run_intent_case_evaluation(
-    samples: tuple[FullEvaluationSample, ...],
+    samples: tuple[IntentEvaluationSample, ...],
     classifier: IntentClassifier,
     *,
     abort_on_degradation: bool = True,
