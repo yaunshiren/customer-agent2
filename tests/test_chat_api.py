@@ -181,11 +181,10 @@ def _app(pipeline: ScriptedRagPipeline):
     )
 
 
-def _request_body(knowledge_base_id: UUID) -> dict[str, object]:
+def _request_body(_knowledge_base_id: UUID) -> dict[str, object]:
     return {
         "question": "  如何退款?  ",
         "scope": {
-            "knowledge_base_ids": [str(knowledge_base_id), str(knowledge_base_id)],
             "document_formats": ["markdown"],
             "sections": ["退款"],
             "page_numbers": [1],
@@ -353,7 +352,6 @@ async def test_chat_stream_exposes_ordered_sanitized_sse_contract() -> None:
     assert captured.request_id == request_id
     assert captured.question == "如何退款?"
     assert captured.search_scope == VectorSearchScope(
-        knowledge_base_ids=(knowledge_base_id,),
         document_formats=(DocumentFormat.MARKDOWN,),
         sections=("退款",),
         page_numbers=(1,),
@@ -536,7 +534,7 @@ async def test_invalid_request_and_missing_services_fail_before_stream() -> None
         async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
             invalid = await client.post(
                 "/api/v1/chat/stream",
-                json={"question": "   ", "scope": {"knowledge_base_ids": []}},
+                json={"question": "   "},
             )
 
     unavailable_resources = ApplicationResources(NoOpDatabase(), NoOpRedis())
@@ -575,6 +573,43 @@ async def test_request_forwards_an_existing_conversation_id() -> None:
 
     assert response.status_code == 200
     assert pipeline.requests[0].conversation_id == conversation_id
+
+
+@pytest.mark.asyncio
+async def test_request_without_scope_uses_global_knowledge_scope() -> None:
+    pipeline = ScriptedRagPipeline(lambda _request_id: ())
+    app = _app(pipeline)
+
+    async with app.router.lifespan_context(app):
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(
+                "/api/v1/chat/stream",
+                json={"question": "如何退款?"},
+            )
+
+    assert response.status_code == 200
+    assert pipeline.requests[0].search_scope == VectorSearchScope()
+
+
+@pytest.mark.asyncio
+async def test_request_rejects_caller_selected_knowledge_bases() -> None:
+    pipeline = ScriptedRagPipeline(lambda _request_id: ())
+    app = _app(pipeline)
+
+    async with app.router.lifespan_context(app):
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(
+                "/api/v1/chat/stream",
+                json={
+                    "question": "如何退款?",
+                    "scope": {"knowledge_base_ids": [str(uuid4())]},
+                },
+            )
+
+    assert response.status_code == 422
+    assert pipeline.requests == []
 
 
 @pytest.mark.asyncio
@@ -700,5 +735,8 @@ def test_openapi_exposes_the_streaming_chat_endpoint() -> None:
 
     assert "application/json" in operation["requestBody"]["content"]
     assert "text/event-stream" in operation["responses"]["200"]["content"]
-    request_schema = _app(pipeline).openapi()["components"]["schemas"]["ChatStreamRequest"]
+    schemas = _app(pipeline).openapi()["components"]["schemas"]
+    request_schema = schemas["ChatStreamRequest"]
     assert "conversation_id" in request_schema["properties"]
+    assert "scope" not in request_schema["required"]
+    assert "knowledge_base_ids" not in schemas["ChatSearchScopeRequest"]["properties"]

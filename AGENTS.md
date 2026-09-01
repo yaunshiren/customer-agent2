@@ -41,6 +41,9 @@ P0/P1 范围以 `docs/PROJECT_SCOPE.md` 为唯一事实来源。当前重点包�
 - Chat、Embedding、Rerank、VLM、SearchChannel 和文档解析器必须通过清晰接口或 Protocol 解耦。
 - 核心领域对象使用类型注解和 Pydantic/Dataclass 表达，不在模块间传递无约束字典。
 - 多通道检索使用结构化并发；单通道失败可降级，但不得吞掉错误事实。
+- Intent 与检索作用域默认复用 Ragent 源码机制：KB 意图可绑定具体知识库，高置信时定向检索；
+  没有可用 KB 意图或置信度不足时回退全部有效知识库。除非新增 ADR 明确记录原因，不再引入
+  “调用方必须传知识库 ID”这一偏离参考项目的前置约束。
 - 流式任务必须支持超时、客户端断开和资源释放。
 - LangChain/LlamaIndex 不作为主链路骨架。只有在确实需要持久化 ReAct Agent 时才评估 LangGraph，并通过 ADR 记录决策。
 

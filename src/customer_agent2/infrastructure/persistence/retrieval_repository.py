@@ -26,7 +26,7 @@ from customer_agent2.infrastructure.persistence.models import (
 
 
 class SQLAlchemyVectorSearchRepository:
-    """Search compatible knowledge-base indexes with DB-side scope filters."""
+    """Search active compatible indexes globally or by intent-selected IDs."""
 
     def __init__(self, session_factory: async_sessionmaker[AsyncSession]) -> None:
         self._session_factory = session_factory
@@ -40,7 +40,7 @@ class SQLAlchemyVectorSearchRepository:
         limit: int,
         hnsw_ef_search: int,
     ) -> tuple[VectorSearchCandidate, ...]:
-        """Return nearest active chunks after validating every requested index."""
+        """Return nearest active chunks from a directed or global scope."""
         _validate_search_parameters(
             query_vector,
             index_configuration,
@@ -82,6 +82,8 @@ async def _ensure_compatible_scope(
     scope: VectorSearchScope,
     expected: EmbeddingIndexConfiguration,
 ) -> None:
+    if not scope.knowledge_base_ids:
+        return
     result = await session.execute(
         select(KnowledgeBaseRecord).where(KnowledgeBaseRecord.id.in_(scope.knowledge_base_ids))
     )
@@ -134,7 +136,6 @@ async def _search_rows(
             KnowledgeBaseRecord.id == ChunkRecord.knowledge_base_id,
         )
         .where(
-            ChunkRecord.knowledge_base_id.in_(scope.knowledge_base_ids),
             DocumentVersionRecord.status == "active",
             KnowledgeBaseRecord.embedding_model_id == index_configuration.model_id,
             (KnowledgeBaseRecord.embedding_model_revision == index_configuration.model_revision),
@@ -142,6 +143,10 @@ async def _search_rows(
             KnowledgeBaseRecord.embedding_normalized == index_configuration.normalized,
         )
     )
+    if scope.knowledge_base_ids:
+        statement = statement.where(
+            ChunkRecord.knowledge_base_id.in_(scope.knowledge_base_ids)
+        )
     if scope.document_ids:
         statement = statement.where(DocumentVersionRecord.document_id.in_(scope.document_ids))
     if scope.document_formats:

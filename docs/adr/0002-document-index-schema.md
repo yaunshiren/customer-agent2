@@ -61,6 +61,9 @@ M2-G 按本决策实现在线召回：请求必须携带非空知识库 ID 集�
 四项索引身份；文档 ID、文档格式、解析器、章节和页码过滤全部进入数据库查询。查询连接
 `document_versions` 且只读取 `active`，避免旧版或半成品 Chunk 进入候选。
 
+> 该段请求作用域决策已由 [ADR-0015](0015-ragent-retrieval-scope.md) 取代；索引身份和 active-only
+> 约束继续有效。
+
 HNSW 对带过滤的近似查询可能在过滤后返回不足。当前实现在单次事务内使用
 `hnsw.iterative_scan=strict_order`，并通过 `RETRIEVAL_HNSW_EF_SEARCH`（默认 100）控制
 查询扫描宽度；这些设置使用事务本地作用域，不改变连接池后续请求。召回上限由

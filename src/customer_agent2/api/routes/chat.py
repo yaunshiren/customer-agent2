@@ -65,7 +65,7 @@ async def stream_chat(
     body: ChatStreamRequest,
     services: ApplicationServicesDependency,
 ) -> StreamingResponse:
-    """Start one scoped RAG request and expose its typed events as SSE."""
+    """Start one intent-directed/global RAG request and expose typed SSE events."""
     request_id = uuid4()
     pipeline_request = RagPipelineRequest(
         request_id=request_id,

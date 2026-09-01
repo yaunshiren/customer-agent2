@@ -55,7 +55,7 @@ class RagPersistenceError(RuntimeError):
 
 @dataclass(frozen=True, slots=True)
 class RagRunBeginRequest:
-    """Data committed before the retrieval pipeline starts."""
+    """Data committed before retrieval; empty knowledge IDs mean global scope."""
 
     request_id: UUID
     conversation_id: UUID | None
@@ -66,8 +66,6 @@ class RagRunBeginRequest:
         normalized_question = self.question.strip()
         if not normalized_question:
             raise ValueError("RagRunBeginRequest.question 不能为空")
-        if not self.knowledge_base_ids:
-            raise ValueError("RagRunBeginRequest.knowledge_base_ids 不能为空")
         if len(set(self.knowledge_base_ids)) != len(self.knowledge_base_ids):
             raise ValueError("RagRunBeginRequest.knowledge_base_ids 不能重复")
         object.__setattr__(self, "question", normalized_question)

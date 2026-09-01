@@ -41,6 +41,9 @@ M3-A 已在应用层完成问题、向量召回、TopK、安全 Prompt 和最终
 M3-B 初始版本不接受 `conversation_id` 或 `user_id`。ADR-0006 已增加可选
 `conversation_id`：省略时创建新会话，提供时继续已有会话；`user_id` 仍等待可信身份边界。
 
+> 请求中的知识库 ID 和必填 `scope` 已由 [ADR-0015](0015-ragent-retrieval-scope.md) 取代；现行
+> API 由服务内部选择定向或全局知识库作用域。
+
 服务端为每个合法请求生成 UUID，并通过 `X-Request-ID` 响应头以及每个事件的
 `request_id` 字段返回。客户端不得用请求体指定该 ID。
 

@@ -34,7 +34,7 @@ class VectorRetrievalService:
         self._hnsw_ef_search = hnsw_ef_search
 
     async def search(self, request: VectorSearchRequest) -> VectorSearchResult:
-        """Embed a query once, then search only explicitly scoped compatible indexes."""
+        """Embed once, then run intent-directed or compatible global retrieval."""
         index_configuration = self._index_configuration()
         embedding = await self._embedding_model.embed(EmbeddingRequest(texts=(request.query,)))
         query_vector = _validated_query_vector(embedding, index_configuration)

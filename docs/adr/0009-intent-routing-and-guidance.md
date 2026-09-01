@@ -4,6 +4,7 @@
 - 日期：2026-08-27
 - 修订：[ADR-0005](0005-streaming-rag-api.md) 和
   [ADR-0006](0006-conversation-rag-run-persistence.md)
+- 部分取代：[ADR-0015](0015-ragent-retrieval-scope.md) 已取代调用方授权作用域与失败兜底决策。
 
 ## 背景
 

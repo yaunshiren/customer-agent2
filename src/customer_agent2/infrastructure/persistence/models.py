@@ -101,10 +101,6 @@ class RagRunRecord(Base):
             name="status_allowed",
         ),
         CheckConstraint(
-            "cardinality(knowledge_base_ids) > 0",
-            name="knowledge_base_ids_not_empty",
-        ),
-        CheckConstraint(
             "(status = 'running' AND finished_at IS NULL) "
             "OR (status <> 'running' AND finished_at IS NOT NULL)",
             name="finished_at_matches_status",

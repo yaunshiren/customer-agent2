@@ -7,7 +7,7 @@
     },
     {
       "name": "knowledge_base",
-      "description": "需要从请求已授权的知识库中检索事实、规则、流程、产品说明或文档内容，并给出引用。"
+      "description": "需要从系统中的有效知识库检索事实、规则、流程、产品说明或文档内容，并给出引用。"
     },
     {
       "name": "clarification",

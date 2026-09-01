@@ -114,9 +114,8 @@ def test_vector_search_scope_normalizes_and_deduplicates_filters() -> None:
     assert scope.page_numbers == (1, 2)
 
 
-def test_vector_search_scope_requires_a_knowledge_base() -> None:
-    with pytest.raises(ValueError, match="knowledge_base_ids"):
-        VectorSearchScope(())
+def test_vector_search_scope_empty_knowledge_bases_means_global() -> None:
+    assert VectorSearchScope().knowledge_base_ids == ()
 
 
 def test_vector_search_scope_rejects_invalid_metadata_filters() -> None:

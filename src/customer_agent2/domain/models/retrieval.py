@@ -43,9 +43,14 @@ class RetrievalError(RuntimeError):
 
 @dataclass(frozen=True, slots=True)
 class VectorSearchScope:
-    """Authorized database-side filters for one vector search."""
+    """Optional intent-directed and metadata filters for one vector search.
 
-    knowledge_base_ids: tuple[UUID, ...]
+    An empty ``knowledge_base_ids`` tuple means global retrieval across every
+    compatible knowledge base with active document content.  A non-empty tuple
+    is reserved for intent-directed retrieval.
+    """
+
+    knowledge_base_ids: tuple[UUID, ...] = ()
     document_ids: tuple[UUID, ...] = ()
     document_formats: tuple[DocumentFormat, ...] = ()
     parser_names: tuple[str, ...] = ()
@@ -60,8 +65,6 @@ class VectorSearchScope:
         sections = _normalized_text_filters(self.sections, "sections", 500)
         page_numbers = _unique(self.page_numbers)
 
-        if not knowledge_base_ids:
-            raise ValueError("VectorSearchScope.knowledge_base_ids 不能为空")
         if len(knowledge_base_ids) > 100:
             raise ValueError("一次检索最多指定 100 个知识库")
         if len(document_ids) > 1000:
@@ -83,7 +86,7 @@ class VectorSearchScope:
 
 @dataclass(frozen=True, slots=True)
 class VectorSearchRequest:
-    """One non-empty query plus an explicit authorized search scope."""
+    """One non-empty query plus optional intent-directed search filters."""
 
     query: str
     scope: VectorSearchScope

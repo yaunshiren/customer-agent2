@@ -2,7 +2,7 @@
 
 import math
 from collections.abc import AsyncGenerator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Protocol, TypeAlias
 from uuid import UUID
@@ -73,11 +73,11 @@ class PipelineOutcome(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class RagPipelineRequest:
-    """One question and its explicitly authorized vector-search scope."""
+    """One question plus optional filters selected by internal routing."""
 
     request_id: UUID
     question: str
-    search_scope: VectorSearchScope
+    search_scope: VectorSearchScope = field(default_factory=VectorSearchScope)
     conversation_id: UUID | None = None
     user_id: str | None = None
     memory_messages: tuple[ChatMessage, ...] = ()

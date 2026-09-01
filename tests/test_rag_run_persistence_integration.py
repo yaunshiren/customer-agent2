@@ -43,7 +43,7 @@ def _begin_request(conversation_id: UUID | None = None) -> RagRunBeginRequest:
         request_id=uuid4(),
         conversation_id=conversation_id,
         question="如何申请退款?",
-        knowledge_base_ids=(uuid4(),),
+        knowledge_base_ids=(),
     )
 
 

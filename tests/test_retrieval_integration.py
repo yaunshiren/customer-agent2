@@ -98,6 +98,18 @@ async def test_real_vector_retrieval_ranks_active_chunks_and_applies_all_filters
         assert math.isclose(result.candidates[0].similarity, 1.0, abs_tol=1e-6)
         assert result.candidates[0].source.section_path == ("退款流程",)
 
+        global_result = await service.search(
+            VectorSearchRequest("如何退款", VectorSearchScope())
+        )
+        global_knowledge_base_ids = {
+            item.knowledge_base_id for item in global_result.candidates
+        }
+        assert {
+            seeded.knowledge_base_id,
+            seeded.second_knowledge_base_id,
+        } <= global_knowledge_base_ids
+        assert seeded.incompatible_knowledge_base_id not in global_knowledge_base_ids
+
         document_only = await service.search(
             VectorSearchRequest(
                 "如何退款",

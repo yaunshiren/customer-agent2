@@ -38,7 +38,7 @@ _DEFAULT_GUIDANCE = "请补充您想了解的具体对象或问题, 以便我准
 
 
 class FastModelIntentClassifier:
-    """Classify one rewritten question and preserve safe knowledge retrieval on known failures."""
+    """Classify one rewritten question and preserve global retrieval on known failures."""
 
     def __init__(
         self,
@@ -64,7 +64,7 @@ class FastModelIntentClassifier:
         self._max_output_tokens = max_output_tokens
 
     async def classify(self, request: IntentClassificationRequest) -> IntentDecision:
-        """Return a thresholded decision or an observable authorized-scope fallback."""
+        """Return a thresholded decision or an observable global-retrieval fallback."""
         chat_request = ChatRequest(
             messages=(
                 ChatMessage(ChatRole.SYSTEM, _SYSTEM_PROMPT),

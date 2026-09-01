@@ -15,11 +15,10 @@ from customer_agent2.domain.models import (
 
 
 class ChatSearchScopeRequest(BaseModel):
-    """Explicitly authorized database-side filters for one chat request."""
+    """Optional metadata filters; knowledge-base selection is internal."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    knowledge_base_ids: tuple[UUID, ...] = Field(min_length=1, max_length=100)
     document_ids: tuple[UUID, ...] = Field(default=(), max_length=1000)
     document_formats: tuple[DocumentFormat, ...] = Field(default=(), max_length=5)
     parser_names: tuple[str, ...] = Field(default=(), max_length=100)
@@ -35,7 +34,6 @@ class ChatSearchScopeRequest(BaseModel):
     def to_domain(self) -> VectorSearchScope:
         """Convert this transport model to the framework-independent search scope."""
         return VectorSearchScope(
-            knowledge_base_ids=self.knowledge_base_ids,
             document_ids=self.document_ids,
             document_formats=self.document_formats,
             parser_names=self.parser_names,
@@ -45,12 +43,12 @@ class ChatSearchScopeRequest(BaseModel):
 
 
 class ChatStreamRequest(BaseModel):
-    """One question and the only knowledge scope it may search."""
+    """One question; the RAG engine selects intent or global knowledge scope."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     question: str = Field(min_length=1, max_length=10_000)
-    scope: ChatSearchScopeRequest
+    scope: ChatSearchScopeRequest = Field(default_factory=ChatSearchScopeRequest)
     conversation_id: UUID | None = None
 
     @field_validator("question")

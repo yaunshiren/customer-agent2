@@ -455,10 +455,7 @@ async def test_real_http_api_streams_answer_and_sources_from_active_document() -
 
                 streamed = await client.post(
                     f"{settings.api_prefix}/chat/stream",
-                    json={
-                        "question": "如何申请退款?",
-                        "scope": {"knowledge_base_ids": [str(knowledge_base_id)]},
-                    },
+                    json={"question": "如何申请退款?"},
                 )
 
                 assert streamed.status_code == 200
@@ -475,7 +472,6 @@ async def test_real_http_api_streams_answer_and_sources_from_active_document() -
                     f"{settings.api_prefix}/chat/stream",
                     json={
                         "question": "再说一次",
-                        "scope": {"knowledge_base_ids": [str(knowledge_base_id)]},
                         "conversation_id": str(conversation_id),
                     },
                 )

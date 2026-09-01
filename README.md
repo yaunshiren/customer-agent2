@@ -215,16 +215,16 @@ clarification，under-retrieval 仍为 0；记录 13,041 输入 Token、975 输�
 
 - `VectorRetrievalService` 只依赖类型化 Embedding 和检索仓储接口；SQLAlchemy、pgvector 与
   JSONB 细节留在基础设施层。
-- 每次请求必须显式提供非空知识库 ID 列表；文档 ID、文档格式、解析器、章节和页码过滤均在
-  PostgreSQL 查询侧完成。未来“全局检索”也必须先由权限层解析为明确的可访问知识库列表。
-- 查询向量的 model ID、revision、维度和归一化必须与范围内每个知识库完全一致，不一致会返回
-  稳定错误，不会静默跳过。
+- 聊天请求不再提交知识库 ID。没有意图定向范围时，检索会跨全部存在 active 文档内容且与当前
+  Embedding 配置兼容的知识库；内部仍保留知识库 ID 过滤，供后续 KB 意图绑定后定向检索。
+- 显式定向范围中的知识库 model ID、revision、维度和归一化必须完全一致；全局检索只纳入兼容
+  索引，不会把不同向量空间混在同一次查询中。
 - 只检索 `active` 文档版本；`building`、`failed` 和 `superseded` Chunk 永远不会进入候选。
 - Cosine HNSW 查询默认召回预算为 20、`ef_search` 为 100；带过滤查询在单次事务内启用
   `strict_order` 迭代扫描，设置不会泄漏到连接池中的后续请求。
 
-该能力已经接入在线 Pipeline，并由 SSE API 在请求提供的显式作用域内调用。最多 3 个子问题
-并发执行同作用域检索；M5-A 以等权加权 RRF（`k=60`）按 Chunk UUID 聚合证据，再按内容哈希
+该能力已经接入在线 Pipeline，并由 SSE API 按意图定向或全局作用域调用。最多 3 个子问题
+并发执行同一作用域检索；M5-A 以等权加权 RRF（`k=60`）按 Chunk UUID 聚合证据，再按内容哈希
 去重、限制每个文档最多 2 个 Chunk，并把最多 40 个候选交给 Rerank 边界，最终保留 TopK 10。
 
 ## 当前 RAG Pipeline、记忆与 SSE API 边界
@@ -243,7 +243,7 @@ clarification，under-retrieval 仍为 0；记录 13,041 输入 Token、975 输�
   `qwen3-rerank`，两条路径最终都返回 TopK 10。
 - fast 模型按打包的三节点意图树输出三个独立置信分数。最高分至少 `0.75` 且与第二名差值至少
   `0.10` 才执行系统直答或知识库问答；低置信、歧义或显式澄清路由会返回 `guidance`，不检索也
-  不调用 final 模型。分类模型失败、超时或协议不合规时，只在请求已授权的知识库作用域内降级检索。
+  不调用 final 模型。分类模型失败、超时或协议不合规时，降级到全部有效兼容知识库检索。
 - 系统直答跳过检索且不产生 `sources`；其 Prompt 明确禁止声称访问过知识库、订单、工具或网络。
 - Prompt 把文档标记为不可信资料，转义文档内容和来源属性，要求回答使用 `[1]` 形式引用；
   模型的 reasoning 增量不会作为答案事件向上游暴露。
@@ -251,7 +251,7 @@ clarification，under-retrieval 仍为 0；记录 13,041 输入 Token、975 输�
 - Pipeline 使用可配置的 `RAG_GLOBAL_TIMEOUT_SECONDS` 单一截止时间约束改写、检索、融合、Rerank
   和模型流；Rerank 另有默认 10 秒独立上限。模型流协议要求可关闭的异步生成器，超时、取消或
   调用方提前停止时会逐层执行 `aclose()`。
-- `POST /api/v1/chat/stream` 要求非空知识库 ID 列表，返回
+- `POST /api/v1/chat/stream` 只要求问题，`scope` 仅保留可选文档元数据过滤，不接受知识库 ID；返回
   reply_to/status/content/sources/guidance/error/done 事件、严格递增序号和 `X-Request-ID`。首次请求省略
   `conversation_id`，后续请求用 reply_to 返回的 ID 继续会话。
 - 每个已开始请求会保存 user 消息与 RAG Run；completed 会原子保存 assistant 消息、可选来源 Chunk、
@@ -380,7 +380,6 @@ DOCX 和 UTF-8 CSV，默认单文件上限 50 MiB；详细解析上限见 `.env.
 ```powershell
 $body = @{
   question = "如何申请退款?"
-  scope = @{knowledge_base_ids = @($knowledgeBase.id)}
 } | ConvertTo-Json -Depth 4
 
 curl.exe -N `
