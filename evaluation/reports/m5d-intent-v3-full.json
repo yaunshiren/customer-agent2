@@ -1,0 +1,2836 @@
+{
+  "dataset_id": "ragenteval-v1-all",
+  "manifest_version": "m5-d-stages-v1",
+  "stage": "full",
+  "configuration": {
+    "model_id": "qwen3.8-flash",
+    "intent_tree_version": "m5-d-v3-candidate",
+    "intent_tree_sha256": "7c50e91d6440cfdf30afc85f43e5bacfa6ec16165ab9ef06d77b75fe5e449514",
+    "high_confidence_threshold": 0.75,
+    "ambiguity_margin": 0.1,
+    "timeout_seconds": 60.0,
+    "max_output_tokens": 256,
+    "temperature": 0.0,
+    "reasoning_enabled": false
+  },
+  "target_sample_count": 150,
+  "cached_target_before_count": 40,
+  "new_calls": 110,
+  "total_cached_count": 150,
+  "failed_attempt_count": 0,
+  "total_attempt_count": 150,
+  "remaining_full_calls": 0,
+  "input_tokens": 84851,
+  "output_tokens": 6747,
+  "overall": {
+    "sample_count": 150,
+    "correct_count": 149,
+    "accuracy": 0.9933333333333333
+  },
+  "rag": {
+    "sample_count": 132,
+    "correct_count": 131,
+    "accuracy": 0.9924242424242424
+  },
+  "no_rag": {
+    "sample_count": 18,
+    "correct_count": 18,
+    "accuracy": 1.0
+  },
+  "by_intent_l1": {
+    "SUPPORT": {
+      "sample_count": 125,
+      "correct_count": 124,
+      "accuracy": 0.992
+    },
+    "FEEDBACK": {
+      "sample_count": 15,
+      "correct_count": 15,
+      "accuracy": 1.0
+    },
+    "CHAT": {
+      "sample_count": 10,
+      "correct_count": 10,
+      "accuracy": 1.0
+    }
+  },
+  "under_retrieval_count": 1,
+  "over_retrieval_count": 0,
+  "clarification_count": 0,
+  "gate": {
+    "passed": false,
+    "checks": [
+      {
+        "name": "failure_rag_correct",
+        "comparison": "gte",
+        "actual": 11,
+        "required": 8,
+        "passed": true
+      },
+      {
+        "name": "failure_no_rag_correct",
+        "comparison": "gte",
+        "actual": 11,
+        "required": 8,
+        "passed": true
+      },
+      {
+        "name": "failure_under_retrieval",
+        "comparison": "eq",
+        "actual": 0,
+        "required": 0,
+        "passed": true
+      },
+      {
+        "name": "guard_correct",
+        "comparison": "gte",
+        "actual": 18,
+        "required": 17,
+        "passed": true
+      },
+      {
+        "name": "guard_under_retrieval",
+        "comparison": "eq",
+        "actual": 0,
+        "required": 0,
+        "passed": true
+      },
+      {
+        "name": "full_overall_correct",
+        "comparison": "gt",
+        "actual": 149,
+        "required": 128,
+        "passed": true
+      },
+      {
+        "name": "full_rag_correct",
+        "comparison": "gte",
+        "actual": 131,
+        "required": 121,
+        "passed": true
+      },
+      {
+        "name": "full_no_rag_correct",
+        "comparison": "gt",
+        "actual": 18,
+        "required": 7,
+        "passed": true
+      },
+      {
+        "name": "full_under_retrieval",
+        "comparison": "eq",
+        "actual": 1,
+        "required": 0,
+        "passed": false
+      }
+    ]
+  },
+  "cases": [
+    {
+      "query_id": "S1-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 1186.4406999993662,
+      "input_tokens": 576,
+      "output_tokens": 32
+    },
+    {
+      "query_id": "S1-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 2799.5790999993915,
+      "input_tokens": 569,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S1-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 586.2785000026633,
+      "input_tokens": 574,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S1-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 607.2032999982184,
+      "input_tokens": 570,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S1-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 688.3920000000217,
+      "input_tokens": 577,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S1-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 615.5814999983704,
+      "input_tokens": 574,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S1-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.1
+      },
+      "latency_ms": 830.5126000013843,
+      "input_tokens": 571,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "S1-08",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 598.145600000862,
+      "input_tokens": 572,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S2-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 641.6747999974177,
+      "input_tokens": 570,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S2-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.0
+      },
+      "latency_ms": 660.7714999991003,
+      "input_tokens": 571,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "S2-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 818.0780999973649,
+      "input_tokens": 567,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "S2-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 678.9215000026161,
+      "input_tokens": 566,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S2-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.02
+      },
+      "latency_ms": 765.2868000004673,
+      "input_tokens": 568,
+      "output_tokens": 55
+    },
+    {
+      "query_id": "S2-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 499.2314000010083,
+      "input_tokens": 569,
+      "output_tokens": 32
+    },
+    {
+      "query_id": "S2-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 633.7858000006236,
+      "input_tokens": 571,
+      "output_tokens": 31
+    },
+    {
+      "query_id": "S2-08",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 789.2339999998512,
+      "input_tokens": 570,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S2-09",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 507.73409999965224,
+      "input_tokens": 567,
+      "output_tokens": 31
+    },
+    {
+      "query_id": "S2-10",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 530.270000002929,
+      "input_tokens": 571,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S3-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 607.4165999998513,
+      "input_tokens": 570,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S3-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 682.959400000982,
+      "input_tokens": 568,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S3-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 716.9075999991037,
+      "input_tokens": 570,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S3-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 665.222100000392,
+      "input_tokens": 575,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S3-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.02
+      },
+      "latency_ms": 586.5319000004092,
+      "input_tokens": 573,
+      "output_tokens": 33
+    },
+    {
+      "query_id": "S3-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 693.2682000006025,
+      "input_tokens": 582,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S3-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 698.901300002035,
+      "input_tokens": 573,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S3-08",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "system_direct",
+      "correct": false,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 668.9956999980495,
+      "input_tokens": 566,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S4-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 714.7260999990976,
+      "input_tokens": 566,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S4-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 710.0133999992977,
+      "input_tokens": 564,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S4-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 655.7294000012917,
+      "input_tokens": 561,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S4-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 666.448500000115,
+      "input_tokens": 568,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S4-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 709.0497999997751,
+      "input_tokens": 565,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S4-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.1
+      },
+      "latency_ms": 544.387200003257,
+      "input_tokens": 566,
+      "output_tokens": 32
+    },
+    {
+      "query_id": "S5-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 708.6286000012478,
+      "input_tokens": 568,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S5-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 720.3163000012864,
+      "input_tokens": 560,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S5-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 979.6722999999474,
+      "input_tokens": 572,
+      "output_tokens": 32
+    },
+    {
+      "query_id": "S5-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 548.3495000007679,
+      "input_tokens": 561,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S5-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 630.2263999969,
+      "input_tokens": 564,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S6-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 826.5032000017527,
+      "input_tokens": 565,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S6-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.02
+      },
+      "latency_ms": 656.6726000019116,
+      "input_tokens": 565,
+      "output_tokens": 55
+    },
+    {
+      "query_id": "S6-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 569.2589999998745,
+      "input_tokens": 570,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S6-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.0
+      },
+      "latency_ms": 1103.9488999995228,
+      "input_tokens": 572,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S6-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 580.6575999995403,
+      "input_tokens": 582,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S6-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 697.3108000020147,
+      "input_tokens": 577,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S6-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 579.9409999999625,
+      "input_tokens": 566,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S7-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 678.5622999996122,
+      "input_tokens": 562,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S7-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 793.5979000030784,
+      "input_tokens": 563,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S7-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 608.7288000016997,
+      "input_tokens": 569,
+      "output_tokens": 32
+    },
+    {
+      "query_id": "S7-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 621.7104999996081,
+      "input_tokens": 568,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S7-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.85,
+        "clarification": 0.05
+      },
+      "latency_ms": 525.5709999983083,
+      "input_tokens": 568,
+      "output_tokens": 32
+    },
+    {
+      "query_id": "S7-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 799.5620000001509,
+      "input_tokens": 564,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S1-09",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 636.4313999984006,
+      "input_tokens": 570,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S2-11",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 693.7080999996397,
+      "input_tokens": 569,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S3-09",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 848.3148000013898,
+      "input_tokens": 570,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S4-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 717.658699999447,
+      "input_tokens": 571,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S5-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 505.2611999999499,
+      "input_tokens": 568,
+      "output_tokens": 32
+    },
+    {
+      "query_id": "S7-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 774.9709000017901,
+      "input_tokens": 567,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S8-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 693.2725999977265,
+      "input_tokens": 561,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S8-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 600.7899000032921,
+      "input_tokens": 562,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S8-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 802.0695999985037,
+      "input_tokens": 563,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "S8-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 674.546599999303,
+      "input_tokens": 563,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S8-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 792.3057999978482,
+      "input_tokens": 563,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S8-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 600.1753000018653,
+      "input_tokens": 567,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S8-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 818.2164999998349,
+      "input_tokens": 566,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S8-08",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 696.55849999981,
+      "input_tokens": 565,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S9-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 769.9036000012711,
+      "input_tokens": 562,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "S9-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 813.525400000799,
+      "input_tokens": 563,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S9-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 627.0205000000715,
+      "input_tokens": 567,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S9-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 703.660499999387,
+      "input_tokens": 567,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S9-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 607.1572000000742,
+      "input_tokens": 565,
+      "output_tokens": 31
+    },
+    {
+      "query_id": "S9-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 683.966300002794,
+      "input_tokens": 566,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S9-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 734.8770999997214,
+      "input_tokens": 564,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S10-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 485.1072000019485,
+      "input_tokens": 563,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S10-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 772.2209999992629,
+      "input_tokens": 561,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "S10-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 640.0926000023901,
+      "input_tokens": 566,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S10-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 650.2925000022515,
+      "input_tokens": 564,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S10-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 591.4119999979448,
+      "input_tokens": 563,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S10-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 686.9231999990006,
+      "input_tokens": 564,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S10-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 652.7286000018648,
+      "input_tokens": 567,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S11-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 843.1333000007726,
+      "input_tokens": 566,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S11-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 647.5719000009121,
+      "input_tokens": 562,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S11-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 764.7121000009065,
+      "input_tokens": 565,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S11-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 671.4068999972369,
+      "input_tokens": 565,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S11-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.85,
+        "clarification": 0.6
+      },
+      "latency_ms": 945.1421000012488,
+      "input_tokens": 564,
+      "output_tokens": 66
+    },
+    {
+      "query_id": "S12-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 630.0464999985707,
+      "input_tokens": 564,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S12-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 668.3979999979783,
+      "input_tokens": 563,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S12-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 568.3324000019638,
+      "input_tokens": 565,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S12-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 622.5122999967425,
+      "input_tokens": 567,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S12-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 793.8460999976087,
+      "input_tokens": 567,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S12-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 556.9045999982336,
+      "input_tokens": 564,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S13-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 809.948499998427,
+      "input_tokens": 563,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S13-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 552.7231999985815,
+      "input_tokens": 563,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S13-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.02
+      },
+      "latency_ms": 710.0685000004887,
+      "input_tokens": 563,
+      "output_tokens": 55
+    },
+    {
+      "query_id": "S13-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.02
+      },
+      "latency_ms": 717.3228999999992,
+      "input_tokens": 565,
+      "output_tokens": 55
+    },
+    {
+      "query_id": "S13-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 541.080899998633,
+      "input_tokens": 566,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S13-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 852.1772999993118,
+      "input_tokens": 561,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S13-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 648.7269999997807,
+      "input_tokens": 565,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S13-08",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 806.7134999982954,
+      "input_tokens": 567,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S13-09",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 784.6247000015865,
+      "input_tokens": 571,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S14-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 779.3619999974908,
+      "input_tokens": 566,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "S14-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 713.2775999998557,
+      "input_tokens": 561,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S14-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 523.9861000009114,
+      "input_tokens": 562,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S14-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 1621.433899999829,
+      "input_tokens": 560,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S14-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 824.186900001223,
+      "input_tokens": 562,
+      "output_tokens": 48
+    },
+    {
+      "query_id": "S14-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.1
+      },
+      "latency_ms": 643.4596999970381,
+      "input_tokens": 570,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "S14-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 815.5895999989298,
+      "input_tokens": 562,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S14-08",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 832.4687000022095,
+      "input_tokens": 567,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S15-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 690.7997999987856,
+      "input_tokens": 565,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S15-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.02
+      },
+      "latency_ms": 741.2900000017544,
+      "input_tokens": 560,
+      "output_tokens": 55
+    },
+    {
+      "query_id": "S15-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 799.4528999988688,
+      "input_tokens": 564,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S15-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 646.1727999994764,
+      "input_tokens": 565,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S15-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.1
+      },
+      "latency_ms": 758.0787999977474,
+      "input_tokens": 562,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "S15-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 559.3337000027532,
+      "input_tokens": 571,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S15-07",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.1
+      },
+      "latency_ms": 785.0547999987612,
+      "input_tokens": 564,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "S16-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 567.9189000002225,
+      "input_tokens": 569,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S16-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 655.3115999995498,
+      "input_tokens": 561,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S16-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 682.7362000003632,
+      "input_tokens": 562,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S16-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 725.0987999977951,
+      "input_tokens": 565,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "S16-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 601.8896000023233,
+      "input_tokens": 565,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S16-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 678.9779999999155,
+      "input_tokens": 562,
+      "output_tokens": 55
+    },
+    {
+      "query_id": "S17-01",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 718.6160999990534,
+      "input_tokens": 559,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "S17-02",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 645.9921999994549,
+      "input_tokens": 561,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S17-03",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 834.4853999988118,
+      "input_tokens": 564,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "S17-04",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.0
+      },
+      "latency_ms": 974.4594999974652,
+      "input_tokens": 559,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "S17-05",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 796.7484000000695,
+      "input_tokens": 565,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "S17-06",
+      "intent_l1": "SUPPORT",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.05
+      },
+      "latency_ms": 1002.315699999599,
+      "input_tokens": 563,
+      "output_tokens": 53
+    },
+    {
+      "query_id": "F1-01",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.95,
+        "clarification": 0.05
+      },
+      "latency_ms": 763.863099997252,
+      "input_tokens": 563,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "F1-02",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 708.7986000005913,
+      "input_tokens": 562,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "F1-03",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 653.812000000471,
+      "input_tokens": 562,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "F1-04",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.05,
+        "knowledge_base": 0.95,
+        "clarification": 0.02
+      },
+      "latency_ms": 718.6098999991373,
+      "input_tokens": 567,
+      "output_tokens": 40
+    },
+    {
+      "query_id": "F1-05",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 697.8389000032621,
+      "input_tokens": 563,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "F2-01",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 731.3163999970129,
+      "input_tokens": 564,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "F2-02",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.1,
+        "clarification": 0.0
+      },
+      "latency_ms": 569.8789000016404,
+      "input_tokens": 565,
+      "output_tokens": 38
+    },
+    {
+      "query_id": "F2-03",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.9,
+        "knowledge_base": 0.1,
+        "clarification": 0.0
+      },
+      "latency_ms": 764.3061999988277,
+      "input_tokens": 565,
+      "output_tokens": 52
+    },
+    {
+      "query_id": "F2-04",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 818.3226000001014,
+      "input_tokens": 560,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "F2-05",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 728.2181999980821,
+      "input_tokens": 565,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "F3-01",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.1
+      },
+      "latency_ms": 730.3515999992669,
+      "input_tokens": 560,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "F3-02",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 704.7134999993432,
+      "input_tokens": 565,
+      "output_tokens": 37
+    },
+    {
+      "query_id": "F3-03",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "knowledge_base",
+      "actual_route": "knowledge_base",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.1,
+        "knowledge_base": 0.9,
+        "clarification": 0.2
+      },
+      "latency_ms": 658.1074000023364,
+      "input_tokens": 565,
+      "output_tokens": 30
+    },
+    {
+      "query_id": "F3-04",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.1
+      },
+      "latency_ms": 677.6071999993292,
+      "input_tokens": 564,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "F3-05",
+      "intent_l1": "FEEDBACK",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.1
+      },
+      "latency_ms": 860.689099998126,
+      "input_tokens": 561,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "C1-01",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 1237.5549000025785,
+      "input_tokens": 557,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "C1-02",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.01
+      },
+      "latency_ms": 846.6912000003504,
+      "input_tokens": 559,
+      "output_tokens": 55
+    },
+    {
+      "query_id": "C1-03",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 720.4769000018132,
+      "input_tokens": 558,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "C1-04",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.01
+      },
+      "latency_ms": 678.3036999986507,
+      "input_tokens": 561,
+      "output_tokens": 55
+    },
+    {
+      "query_id": "C1-05",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 652.4014999995416,
+      "input_tokens": 560,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "C2-01",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 738.3126999993692,
+      "input_tokens": 560,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "C2-02",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 642.0058000003337,
+      "input_tokens": 564,
+      "output_tokens": 39
+    },
+    {
+      "query_id": "C2-03",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 803.2195999985561,
+      "input_tokens": 563,
+      "output_tokens": 54
+    },
+    {
+      "query_id": "C2-04",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 553.7762000021758,
+      "input_tokens": 563,
+      "output_tokens": 32
+    },
+    {
+      "query_id": "C2-05",
+      "intent_l1": "CHAT",
+      "expected_route": "system_direct",
+      "actual_route": "system_direct",
+      "correct": true,
+      "decision_reason": "high_confidence",
+      "degradation_reason": null,
+      "model_error_code": null,
+      "candidate_scores": {
+        "system_direct": 0.95,
+        "knowledge_base": 0.05,
+        "clarification": 0.0
+      },
+      "latency_ms": 613.290400000551,
+      "input_tokens": 560,
+      "output_tokens": 39
+    }
+  ],
+  "limitations": [
+    "阶段报告只保存 Query ID、路由、分数、延迟和 Token, 不保存问题或模型原文。",
+    "失败集和回归集用于候选筛选, 只有完整 150 条可用于最终晋级结论。",
+    "同一候选的完整配置指纹不变时复用缓存, 不重复产生调用费用。",
+    "尝试次数来自本地逐条回调, 用于审计但不能替代供应商账单。"
+  ]
+}

@@ -15,9 +15,9 @@
 > `保存用户消息 → 加载摘要与最近 6 轮 → 改写/拆分 → Intent 路由 → 检索 → 加权 RRF/去重 → 可配置 Rerank/TopK → 安全 Prompt → Chat 流 → 保存回答/Trace`
 > 通过版本化 SSE 契约公开；超过 12 个 completed 轮次后会用 fast 模型增量摘要滑出窗口的旧轮次。
 > M5-D 已离线完成 Intent 失败切片，并把真实验证改为带缓存的 22 条失败集 → 追加 18 条回归集
-> → 追加 110 条完整集。v2 第一阶段因 1 条 under-retrieval 未通过门禁并停止；v3 已完成前两
-> 阶段，22 条开发失败集和新增 18 条回归保护均全部正确，累计 40/40、0 失败、0 under-retrieval。
-> 当前停在最后费用边界，下一步只考虑补齐剩余 110 条完整集。
+> → 追加 110 条完整集。v2 第一阶段因 1 条 under-retrieval 未通过门禁并停止；v3 前 40 条全部
+> 正确，第三阶段只新增剩余 110 次真实调用后累计达到 149/150、0 调用失败，但完整集出现 1 条
+> under-retrieval，未通过预登记的安全门禁，因此候选不晋级，线上默认继续使用 `m4-c-v1`。
 
 ## 项目目标
 
@@ -136,7 +136,14 @@ clarification 均为 0；脱敏结果见 `evaluation/reports/m5d-intent-v3-failu
 18/18，累计 40/40，SUPPORT/FEEDBACK/CHAT 为 15/15、15/15、10/10，仍为 0 under-retrieval、
 0 over-retrieval、0 clarification；脱敏累计报告见
 `evaluation/reports/m5d-intent-v3-guard.json`。线上默认仍是 `m4-c-v1`，只有完整 150 条通过才会
-讨论晋级。
+讨论晋级。第三阶段复用前 40 条缓存，只新增 110 次真实调用，最终 150/150 请求成功、零自动重试，
+总体、RAG、no-rag 正确数分别为 149/150、131/132、18/18，SUPPORT/FEEDBACK/CHAT 为
+124/125、15/15、10/10；输入/输出共 84,851/6,747 Token，延迟 P50/P95 为
+693.270/961.267 ms。唯一错误 `S3-08` 应进入知识库，却以 0.95 高置信进入系统直答，形成 1 条
+under-retrieval；其余 over-retrieval 和 clarification 均为 0。尽管准确率明显高于 M5-C，安全
+门禁要求 under-retrieval 必须为 0，因此 v3 不晋级且不会影响线上请求。脱敏阶段报告和标准完整
+报告分别见 `evaluation/reports/m5d-intent-v3-full.json`、
+`evaluation/reports/m5d-full-intent-v3.json`。
 
 ## 当前文档解析边界
 
@@ -471,14 +478,16 @@ python -m customer_agent2.evaluation.intent_failure_analysis_cli
 ```
 
 候选树真实实验使用独立、严格绑定候选配置的缓存，避免覆盖 M5-C 基线。v2 已因第一阶段门禁失败
-停止；当前默认候选 v3 已完成 22 条失败集和新增 18 条回归保护，不应重复运行这 40 条。获得新的
-110 次费用授权后，第三阶段才补齐完整集：
+停止；v3 已完成 22 条失败集、新增 18 条回归保护和剩余 110 条，缓存中的 150 条不应重复运行。
+第三阶段实际使用的命令为：
 
 ```powershell
 python -m customer_agent2.evaluation.staged_intent_cli `
   --live-intent --stage full --accept-paid-calls 110 `
   --intent-timeout-seconds 60
 ```
+
+该次运行已经完成；除非建立新候选、独立缓存和新的费用授权，否则不要再次执行这条付费命令。
 
 每次授权数必须等于缓存中当前缺少的条数；例如第一阶段已成功 5 条后中断，续跑必须确认 17，不能
 仍写 22 或 150。每条成功结果先原子落盘，同一候选的成功样本不会跨阶段重复调用；失败尝试可能

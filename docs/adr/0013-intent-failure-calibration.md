@@ -1,7 +1,8 @@
 # ADR-0013：M5-D Intent 失败切片与候选树实验
 
-- 状态：Proposed（候选树尚未完成真实模型评测）
+- 状态：Accepted（实验协议已完成；v3 候选未通过晋级门禁）
 - 日期：2026-08-31
+- 完成日期：2026-09-01
 - 关联：[ADR-0009](0009-intent-routing-and-guidance.md) 和
   [ADR-0012](0012-full-evaluation-dataset-and-protocol.md)
 
@@ -106,15 +107,21 @@ over-retrieval 和 clarification 均为 0，共记录 12,410 输入 Token 和 1,
 零自动重试；累计 40/40，SUPPORT/FEEDBACK/CHAT 为 15/15、15/15、10/10，应检索/no-rag 为
 22/22、18/18，under-retrieval、over-retrieval 和 clarification 均为 0。累计记录 22,540 输入
 Token 和 1,870 输出 Token，五项第二阶段门禁全部通过。脱敏累计报告为
-`evaluation/reports/m5d-intent-v3-guard.json`，当前没有执行剩余 110 条。
+`evaluation/reports/m5d-intent-v3-guard.json`。前 40 条证明候选值得继续付费验证，但不替代完整集。
 
-前 40 条通过说明 v3 没有破坏预先选择的回归边界，但它们仍不足以替代完整集。下一步若获得独立
-费用授权，只补尚未运行的 110 条，并以完整 150 条的第 4 节门槛决定是否值得讨论线上晋级。
+第三阶段复用前 40 条缓存，只新增剩余 110 次真实调用。最终 150/150 请求成功、0 失败、零自动
+重试；总体正确 149/150，RAG 为 131/132，no-rag 为 18/18，SUPPORT/FEEDBACK/CHAT 为
+124/125、15/15、10/10。累计记录 84,851 输入 Token 和 6,747 输出 Token，延迟 P50/P95 为
+693.270/961.267 ms。唯一错误 `S3-08` 应进入 `knowledge_base`，却以 0.95/0.05/0.00 的三路
+分数进入 `system_direct`；因此 under-retrieval 为 1，over-retrieval 和 clarification 均为 0。
+总体、RAG、no-rag 三项准确率门槛全部通过，但 `full_under_retrieval == 0` 安全门禁失败，v3
+候选不进入线上替换讨论。脱敏阶段报告与标准完整报告为
+`evaluation/reports/m5d-intent-v3-full.json` 和 `evaluation/reports/m5d-full-intent-v3.json`。
 
 ## 后果
 
-- 当前可以完成失败分析、候选配置、付费保护和阈值重放测试，而不产生云端费用。
-- v3 已通过前两阶段；下一次真实实验只补 110 条完整集，不能未经授权执行。
-- 候选树未通过真实实验前不会影响在线用户请求。
+- 失败分析、候选配置、分阶段付费保护和完整真实实验均已完成；150 条成功缓存不得重复付费运行。
+- v3 准确率明显高于 M5-C，但因 1 条漏检索未通过预登记安全门禁，候选不晋级。
+- 线上默认树继续使用 `m4-c-v1`，本次候选实验没有影响在线用户请求。
 - 每个阶段只接受与当前缓存缺口完全相等的费用授权；失败或中断后续跑只确认尚未成功的条数。
 - 通过全部阶段仍会累计产生 150 次真实费用，完整结论的统计口径没有缩小。
