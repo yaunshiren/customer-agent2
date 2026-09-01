@@ -50,12 +50,26 @@ class IntentDefinition:
 
     route: IntentRoute
     description: str
+    knowledge_base_slugs: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         description = self.description.strip()
         if not description or len(description) > 1000:
             raise ValueError("IntentDefinition.description 长度无效")
+        slugs = tuple(dict.fromkeys(slug.strip().lower() for slug in self.knowledge_base_slugs))
+        if any(
+            not slug
+            or len(slug) > 100
+            or slug.startswith("-")
+            or slug.endswith("-")
+            or any(character not in "abcdefghijklmnopqrstuvwxyz0123456789-" for character in slug)
+            for slug in slugs
+        ):
+            raise ValueError("IntentDefinition.knowledge_base_slugs 格式无效")
+        if slugs and self.route is not IntentRoute.KNOWLEDGE_BASE:
+            raise ValueError("只有 knowledge_base 路由可以绑定知识库")
         object.__setattr__(self, "description", description)
+        object.__setattr__(self, "knowledge_base_slugs", slugs)
 
 
 @dataclass(frozen=True, slots=True)
@@ -150,6 +164,7 @@ class IntentDecision:
     usage: TokenUsage | None = None
     degradation_reason: IntentDegradationReason | None = None
     model_error_code: ModelErrorCode | None = None
+    knowledge_base_slugs: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         message = self.guidance_message.strip() if self.guidance_message is not None else None
@@ -182,6 +197,8 @@ class IntentDecision:
                 or self.usage is not None
             ):
                 raise ValueError("降级 IntentDecision 必须进入知识库兜底")
+        if self.knowledge_base_slugs and self.route is not IntentRoute.KNOWLEDGE_BASE:
+            raise ValueError("只有知识库决策可以携带知识库绑定")
         if self.route is IntentRoute.CLARIFICATION:
             if message is None or not message or len(message) > 1000:
                 raise ValueError("澄清路由必须包含不超过 1000 字符的问题")

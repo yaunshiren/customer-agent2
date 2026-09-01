@@ -3,7 +3,7 @@
 import asyncio
 from collections.abc import AsyncGenerator
 from dataclasses import replace
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -101,6 +101,16 @@ class FakeIntentClassifier:
             classifier_model_id="fast-chat",
             classifier_finish_reason="stop",
         )
+
+
+class FakeKnowledgeBaseScopeResolver:
+    def __init__(self, knowledge_base_ids: tuple[UUID, ...]) -> None:
+        self.knowledge_base_ids = knowledge_base_ids
+        self.requests: list[tuple[str, ...]] = []
+
+    async def resolve(self, slugs: tuple[str, ...]) -> tuple[UUID, ...]:
+        self.requests.append(slugs)
+        return self.knowledge_base_ids
 
 
 def postprocessor(*, context_top_k: int = 10) -> RetrievalPostProcessor:
@@ -343,6 +353,42 @@ async def test_empty_retrieval_short_circuits_without_calling_chat() -> None:
     assert done.model_id is None
     assert chat.stream_requests == ()
     assert not any(isinstance(event, PipelineContentEvent) for event in events)
+
+
+@pytest.mark.asyncio
+async def test_bound_kb_intent_replaces_global_scope_with_resolved_ids() -> None:
+    retrieval = FakeRetrievalUseCase(())
+    selected_id = uuid4()
+    resolver = FakeKnowledgeBaseScopeResolver((selected_id,))
+    intent = IntentDecision(
+        route=IntentRoute.KNOWLEDGE_BASE,
+        reason=IntentDecisionReason.HIGH_CONFIDENCE,
+        candidates=(
+            IntentCandidate(IntentRoute.KNOWLEDGE_BASE, 0.9),
+            IntentCandidate(IntentRoute.SYSTEM_DIRECT, 0.05),
+            IntentCandidate(IntentRoute.CLARIFICATION, 0.05),
+        ),
+        classifier_model_id="fast-chat",
+        classifier_finish_reason="stop",
+        knowledge_base_slugs=("returns",),
+    )
+    pipeline = BasicStreamingRagPipeline(
+        retrieval,
+        BasicRagPromptBuilder(context_top_k=10),
+        FakeChatModel("final-chat", "不应生成"),
+        FakeQueryRewriter(),
+        FakeIntentClassifier(intent),
+        postprocessor(),
+        global_timeout_seconds=1,
+        knowledge_scope_resolver=resolver,
+    )
+
+    _ = [event async for event in pipeline.stream(RagPipelineRequest(uuid4(), "如何退款?"))]
+
+    assert resolver.requests == [("returns",)]
+    assert retrieval.requests == [
+        VectorSearchRequest("如何退款?", VectorSearchScope((selected_id,)))
+    ]
 
 
 @pytest.mark.asyncio

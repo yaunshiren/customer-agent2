@@ -40,6 +40,7 @@ from customer_agent2.infrastructure.persistence import (
     SQLAlchemyConversationMemoryRepository,
     SQLAlchemyDocumentManagementRepository,
     SQLAlchemyIngestionRepository,
+    SQLAlchemyKnowledgeBaseScopeResolver,
     SQLAlchemyRagRunRepository,
     SQLAlchemyVectorSearchRepository,
 )
@@ -156,6 +157,9 @@ def build_application_services(
                         rerank_timeout_seconds=settings.rerank_timeout_seconds,
                     ),
                     global_timeout_seconds=settings.rag_global_timeout_seconds,
+                    knowledge_scope_resolver=SQLAlchemyKnowledgeBaseScopeResolver(
+                        database.session_factory
+                    ),
                 ),
                 memory_repository,
                 recent_turns=settings.memory_recent_turns,

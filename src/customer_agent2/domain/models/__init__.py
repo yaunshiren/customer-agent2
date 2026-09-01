@@ -113,6 +113,7 @@ from customer_agent2.domain.models.rerank import (
     RerankResult,
 )
 from customer_agent2.domain.models.retrieval import (
+    KnowledgeBaseScopeResolver,
     RetrievalError,
     RetrievalErrorCode,
     RetrievedChunkSource,
@@ -173,6 +174,7 @@ __all__ = [
     "IntentTree",
     "KnowledgeBase",
     "KnowledgeBaseDraft",
+    "KnowledgeBaseScopeResolver",
     "ModelError",
     "ModelErrorCode",
     "ParsedBlock",

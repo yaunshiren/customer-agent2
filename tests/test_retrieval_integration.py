@@ -26,6 +26,7 @@ from customer_agent2.infrastructure.persistence import (
     DocumentRecord,
     DocumentVersionRecord,
     KnowledgeBaseRecord,
+    SQLAlchemyKnowledgeBaseScopeResolver,
     SQLAlchemyVectorSearchRepository,
 )
 
@@ -105,6 +106,14 @@ async def test_real_vector_retrieval_ranks_active_chunks_and_applies_all_filters
             seeded.second_knowledge_base_id,
         } <= global_knowledge_base_ids
         assert seeded.incompatible_knowledge_base_id not in global_knowledge_base_ids
+
+        resolver = SQLAlchemyKnowledgeBaseScopeResolver(manager.session_factory)
+        assert await resolver.resolve(
+            (
+                f"m2-g-second-{seeded.second_knowledge_base_id}",
+                f"m2-g-primary-{seeded.knowledge_base_id}",
+            )
+        ) == (seeded.second_knowledge_base_id, seeded.knowledge_base_id)
 
         document_only = await service.search(
             VectorSearchRequest(

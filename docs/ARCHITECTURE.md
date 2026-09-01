@@ -141,6 +141,8 @@ Basic 内部在检索前调用复用 fast 模型的 `FastModelQueryRewriter`；�
 M4-C 在 Rewrite 后调用共享 fast 模型的 `FastModelIntentClassifier`。分类器按打包的固定三节点
 意图树输出独立 0～1 分数；最高分至少 0.75 且与第二名差值至少 0.10 才执行高置信路由。模型
 失败、20 秒超时或协议错误使用稳定原因降级到全部有效、Embedding 兼容的知识库作用域。
+KB 节点可绑定一个或多个知识库稳定 slug；高置信命中后由数据库 Resolver 转为 UUID 定向范围，
+未绑定节点保持全局范围。
 
 ### 5.3 短路语义
 

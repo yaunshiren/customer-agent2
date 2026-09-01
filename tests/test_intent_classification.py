@@ -98,6 +98,40 @@ def test_default_intent_tree_loads_exact_versioned_routes() -> None:
 
 
 @pytest.mark.asyncio
+async def test_knowledge_base_route_preserves_configured_scope_bindings() -> None:
+    tree = load_intent_tree_json(
+        '{"version":"bound","routes":['
+        '{"name":"system_direct","description":"系统交互"},'
+        '{"name":"knowledge_base","description":"退款知识",'
+        '"knowledge_base_slugs":["returns","policy","returns"]},'
+        '{"name":"clarification","description":"需要澄清"}'
+        "]}"
+    )
+    service = FastModelIntentClassifier(
+        FakeChatModel(
+            "fast-intent",
+            response(
+                {
+                    "system_direct": 0.05,
+                    "knowledge_base": 0.90,
+                    "clarification": 0.05,
+                }
+            ),
+        ),
+        tree,
+        high_confidence_threshold=0.75,
+        ambiguity_margin=0.10,
+        timeout_seconds=1,
+        max_output_tokens=256,
+    )
+
+    decision = await service.classify(IntentClassificationRequest(uuid4(), "如何退款?"))
+
+    assert decision.route is IntentRoute.KNOWLEDGE_BASE
+    assert decision.knowledge_base_slugs == ("returns", "policy")
+
+
+@pytest.mark.asyncio
 async def test_classifier_escapes_question_and_applies_exact_threshold_boundaries() -> None:
     model = FakeChatModel(
         "fast-intent",

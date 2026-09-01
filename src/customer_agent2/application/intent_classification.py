@@ -132,6 +132,11 @@ class FastModelIntentClassifier:
         )
         if route is IntentRoute.CLARIFICATION:
             guidance_message = clarification_question or _DEFAULT_GUIDANCE
+        knowledge_base_slugs = next(
+            definition.knowledge_base_slugs
+            for definition in self._intent_tree.definitions
+            if definition.route is route
+        )
 
         return IntentDecision(
             route=route,
@@ -141,6 +146,7 @@ class FastModelIntentClassifier:
             classifier_model_id=response.model_id,
             classifier_finish_reason=response.finish_reason,
             usage=response.usage,
+            knowledge_base_slugs=knowledge_base_slugs,
         )
 
     def _fallback(

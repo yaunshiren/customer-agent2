@@ -206,6 +206,12 @@ class VectorSearchRepository(Protocol):
     ) -> tuple[VectorSearchCandidate, ...]: ...
 
 
+class KnowledgeBaseScopeResolver(Protocol):
+    """Resolve stable intent bindings to internal knowledge-base identities."""
+
+    async def resolve(self, slugs: tuple[str, ...]) -> tuple[UUID, ...]: ...
+
+
 def _unique(values: tuple[_ValueT, ...]) -> tuple[_ValueT, ...]:
     return tuple(dict.fromkeys(values))
 

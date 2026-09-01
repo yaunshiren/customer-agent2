@@ -3,6 +3,7 @@
 import math
 from collections.abc import Mapping
 from typing import cast
+from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
@@ -75,6 +76,39 @@ class SQLAlchemyVectorSearchRepository:
                 "检索数据格式无效",
                 retryable=False,
             ) from None
+
+
+class SQLAlchemyKnowledgeBaseScopeResolver:
+    """Map configured Ragent-style collection slugs to knowledge-base UUIDs."""
+
+    def __init__(self, session_factory: async_sessionmaker[AsyncSession]) -> None:
+        self._session_factory = session_factory
+
+    async def resolve(self, slugs: tuple[str, ...]) -> tuple[UUID, ...]:
+        """Resolve every configured slug while preserving configuration order."""
+        if not slugs:
+            return ()
+        try:
+            async with self._session_factory() as session:
+                result = await session.execute(
+                    select(KnowledgeBaseRecord.slug, KnowledgeBaseRecord.id).where(
+                        KnowledgeBaseRecord.slug.in_(slugs)
+                    )
+                )
+                resolved = {slug: knowledge_base_id for slug, knowledge_base_id in result.all()}
+        except SQLAlchemyError:
+            raise RetrievalError(
+                RetrievalErrorCode.PERSISTENCE_FAILURE,
+                "无法解析意图知识库范围",
+                retryable=True,
+            ) from None
+        if set(resolved) != set(slugs):
+            raise RetrievalError(
+                RetrievalErrorCode.KNOWLEDGE_BASE_NOT_FOUND,
+                "意图绑定包含不存在的知识库",
+                retryable=False,
+            )
+        return tuple(resolved[slug] for slug in slugs)
 
 
 async def _ensure_compatible_scope(

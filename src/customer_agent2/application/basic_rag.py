@@ -21,6 +21,7 @@ from customer_agent2.domain.models import (
     IntentClassifier,
     IntentDecisionReason,
     IntentRoute,
+    KnowledgeBaseScopeResolver,
     PipelineContentEvent,
     PipelineDoneEvent,
     PipelineEvent,
@@ -37,6 +38,7 @@ from customer_agent2.domain.models import (
     RagPipelineRequest,
     VectorSearchRequest,
     VectorSearchResult,
+    VectorSearchScope,
 )
 
 _SYSTEM_DIRECT_PROMPT = """你是客户支持系统入口.
@@ -59,6 +61,7 @@ class BasicStreamingRagPipeline:
         postprocessor: RetrievalPostProcessor,
         *,
         global_timeout_seconds: float,
+        knowledge_scope_resolver: KnowledgeBaseScopeResolver | None = None,
     ) -> None:
         if global_timeout_seconds <= 0:
             raise ValueError("global_timeout_seconds 必须大于 0")
@@ -69,6 +72,7 @@ class BasicStreamingRagPipeline:
         self._intent_classifier = intent_classifier
         self._postprocessor = postprocessor
         self._global_timeout_seconds = global_timeout_seconds
+        self._knowledge_scope_resolver = knowledge_scope_resolver
 
     async def stream(
         self,
@@ -171,11 +175,22 @@ class BasicStreamingRagPipeline:
         yield PipelineStatusEvent(request.request_id, PipelineStage.RETRIEVING)
         retrieval_started = perf_counter()
         try:
+            search_scope = request.search_scope
+            if intent_decision.knowledge_base_slugs:
+                if self._knowledge_scope_resolver is None:
+                    raise _pipeline_protocol_error()
+                knowledge_base_ids = await self._knowledge_scope_resolver.resolve(
+                    intent_decision.knowledge_base_slugs
+                )
+                search_scope = replace(
+                    search_scope,
+                    knowledge_base_ids=knowledge_base_ids,
+                )
             retrieval_results = await asyncio.wait_for(
                 _retrieve_all(
                     self._retrieval,
                     context.sub_questions,
-                    request,
+                    search_scope,
                 ),
                 timeout=_remaining_seconds(deadline),
             )
@@ -439,14 +454,22 @@ def _model_stream_protocol_error() -> RagPipelineError:
     )
 
 
+def _pipeline_protocol_error() -> RagPipelineError:
+    return RagPipelineError(
+        RagPipelineErrorCode.PIPELINE_PROTOCOL,
+        "RAG Pipeline 意图知识库绑定不可用",
+        retryable=False,
+    )
+
+
 async def _retrieve_all(
     retrieval: VectorRetrievalUseCase,
     questions: tuple[str, ...],
-    request: RagPipelineRequest,
+    search_scope: VectorSearchScope,
 ) -> tuple[VectorSearchResult, ...]:
     tasks = tuple(
         asyncio.create_task(
-            retrieval.search(VectorSearchRequest(question, request.search_scope)),
+            retrieval.search(VectorSearchRequest(question, search_scope)),
             name=f"rag-retrieval-{index}",
         )
         for index, question in enumerate(questions)

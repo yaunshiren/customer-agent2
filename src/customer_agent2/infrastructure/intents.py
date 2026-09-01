@@ -32,17 +32,32 @@ def load_intent_tree_json(content: str) -> IntentTree:
         if not isinstance(raw_route, dict):
             raise TypeError("Intent Tree 路由必须是对象")
         route = cast(dict[str, object], raw_route)
-        if set(route) != {"name", "description"}:
+        if not {"name", "description"} <= set(route) or set(route) - {
+            "name",
+            "description",
+            "knowledge_base_slugs",
+        }:
             raise ValueError("Intent Tree 路由字段无效")
         name = route["name"]
         description = route["description"]
+        raw_slugs = route.get("knowledge_base_slugs", [])
         if not isinstance(name, str) or not isinstance(description, str):
             raise TypeError("Intent Tree 路由类型无效")
+        if not isinstance(raw_slugs, list) or any(
+            not isinstance(slug, str) for slug in cast(list[object], raw_slugs)
+        ):
+            raise TypeError("Intent Tree knowledge_base_slugs 类型无效")
         try:
             intent_route = IntentRoute(name)
         except ValueError:
             raise ValueError("Intent Tree 包含未知路由") from None
-        definitions.append(IntentDefinition(intent_route, description))
+        definitions.append(
+            IntentDefinition(
+                intent_route,
+                description,
+                tuple(cast(list[str], raw_slugs)),
+            )
+        )
     return IntentTree(version, tuple(definitions))
 
 
@@ -54,6 +69,7 @@ def intent_tree_fingerprint(intent_tree: IntentTree) -> str:
             {
                 "name": definition.route.value,
                 "description": definition.description,
+                "knowledge_base_slugs": list(definition.knowledge_base_slugs),
             }
             for definition in intent_tree.definitions
         ],

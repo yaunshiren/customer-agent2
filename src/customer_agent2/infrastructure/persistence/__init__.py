@@ -25,6 +25,7 @@ from customer_agent2.infrastructure.persistence.rag_run_repository import (
     SQLAlchemyRagRunRepository,
 )
 from customer_agent2.infrastructure.persistence.retrieval_repository import (
+    SQLAlchemyKnowledgeBaseScopeResolver,
     SQLAlchemyVectorSearchRepository,
 )
 
@@ -42,6 +43,7 @@ __all__ = [
     "SQLAlchemyConversationMemoryRepository",
     "SQLAlchemyDocumentManagementRepository",
     "SQLAlchemyIngestionRepository",
+    "SQLAlchemyKnowledgeBaseScopeResolver",
     "SQLAlchemyRagRunRepository",
     "SQLAlchemyVectorSearchRepository",
 ]
